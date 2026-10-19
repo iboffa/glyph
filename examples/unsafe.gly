@@ -1,0 +1,7 @@
+main>void
+  a:[i64] = [10, 20]
+  unsafe
+    p:*i64 = ptr(a)
+    store(offset(p, 1), 42)
+    print(load(p))
+  print(a[1])

@@ -1,0 +1,10 @@
+main>void
+  a:[i64] = range(5)
+  b:[i64] = clone(a)
+  b[0] = 42
+  c:[i64] = push(b, 99)
+  print(len(c))
+  print(fold c 0 +)
+  names:[str] = ["Glyph", "λ"]
+  print(names[1])
+  print(len(names[1]))

@@ -1,0 +1,12 @@
+sum a:[i64]>i64
+  s:i64 = 0
+  for x:a
+    s += x
+  ret s
+
+compact a:[i64]>i64 = fold a 0 +
+
+main>void
+  a:[i64] = [1, 2, 3, 4, 5]
+  print(sum(a))
+  print(compact(a))

@@ -1,0 +1,21 @@
+sum a:[i64]>i64 = fold a 0 +
+
+main>void
+  n:i64 = argi(0)
+  repeats:i64 = argi(1)
+  seed:i64 = argi(2)
+  a:[i64] = fill(n, 0)
+  i:i64 = 0
+  while i < n
+    a[i] = (i * 17 + seed) % 1000
+    i += 1
+  checksum:i64 = 0
+  r:i64 = 0
+  start:f64 = clock()
+  while r < repeats
+    a[r % n] = (a[r % n] + r) % 1000
+    checksum += sum(a)
+    r += 1
+  elapsed:f64 = clock() - start
+  print(checksum)
+  print(elapsed)

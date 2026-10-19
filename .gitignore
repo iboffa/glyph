@@ -1,0 +1,7 @@
+.venv/
+.tmp/
+.glyph-cache/
+__pycache__/
+*.egg-info/
+build/
+benchmarks/results/raw/

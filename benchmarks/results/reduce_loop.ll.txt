@@ -1,0 +1,34 @@
+define dso_local i64 @f_reduce(ptr nocapture noundef readonly %0) local_unnamed_addr #ATTR {
+  %2 = load ptr, ptr %0, align 8, !metadata !N
+  %3 = getelementptr inbounds i8, ptr %0, i64 8
+  %4 = load i64, ptr %3, align 8, !metadata !N
+  %5 = icmp sgt i64 %4, 0
+  br i1 %5, label %8, label %6
+
+6:                                                ; preds = %20, %1
+  %7 = phi i64 [ 0, %1 ], [ %21, %20 ]
+  ret i64 %7
+
+8:                                                ; preds = %1, %20
+  %9 = phi i64 [ %21, %20 ], [ 0, %1 ]
+  %10 = phi i64 [ %22, %20 ], [ 0, %1 ]
+  %11 = getelementptr inbounds i64, ptr %2, i64 %10
+  %12 = load i64, ptr %11, align 8, !metadata !N
+  %13 = tail call { i64, i1 } @llvm.sadd.with.overflow.i64(i64 %9, i64 %12)
+  %14 = extractvalue { i64, i1 } %13, 1
+  br i1 %14, label %15, label %20
+
+15:                                               ; preds = %8
+  %16 = tail call ptr @__acrt_iob_func(i32 noundef 2) #ATTR
+  %17 = tail call i64 @fwrite(ptr nonnull @.str.2, i64 24, i64 1, ptr %16)
+  %18 = tail call ptr @__acrt_iob_func(i32 noundef 2) #ATTR
+  %19 = tail call i32 (ptr, ptr, ...) @fprintf(ptr noundef %18, ptr noundef nonnull @.str.3, ptr noundef nonnull @.str, ptr noundef nonnull @.str.1, i32 noundef 1, i32 noundef 1, i32 noundef 1, i32 noundef 2) #ATTR
+  tail call void @exit(i32 noundef 70) #ATTR
+  unreachable
+
+20:                                               ; preds = %8
+  %21 = extractvalue { i64, i1 } %13, 0
+  %22 = add nuw nsw i64 %10, 1
+  %23 = icmp eq i64 %22, %4
+  br i1 %23, label %6, label %8, !metadata !N
+}

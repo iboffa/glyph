@@ -1,0 +1,15 @@
+main>void
+  n:i64 = argi(0)
+  repeats:i64 = argi(1)
+  x:i64 = argi(2)
+  r:i64 = 0
+  start:f64 = clock()
+  while r < repeats
+    i:i64 = 0
+    while i < n
+      x = x * 48271 % 2147483647
+      i += 1
+    r += 1
+  elapsed:f64 = clock() - start
+  print(x)
+  print(elapsed)

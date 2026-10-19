@@ -1,0 +1,281 @@
+{
+  "metadata": {
+    "date": "2026-10-19",
+    "os": "Windows-11-10.0.26200-SP0",
+    "cpu": "AMD Ryzen 7 PRO 5850U with Radeon Graphics",
+    "physical_cores": 8,
+    "logical_cores": 16,
+    "ram_bytes": 12698714112,
+    "python": "3.12.14 (main, Aug 25 2026, 14:01:42) [MSC v.1944 64 bit (AMD64)]",
+    "ziglang": "0.14.1",
+    "clang": "clang version 19.1.7 (https://github.com/ziglang/zig-bootstrap de1b01a8c1dddf75a560123ac1c2ab182b4830da)\nTarget: x86_64-unknown-windows-gnu\nThread model: posix\nInstalledDir: C:/Users/IginoBoffa/OneDrive - REIZ TECH/Documents/ChatGPT/Glyph/.venv/Lib/site-packages/ziglang",
+    "flags": "-std=c11 -O2 -fno-fast-math -ffp-contract=off; no LTO; default target; no stripping",
+    "memory_method": "sum of process-tree RSS/working sets sampled every 1ms, including Python launcher children; maximum observed sum is a lower bound; null if unobserved",
+    "timing_method": "internal monotonic wall clock for kernel; external perf_counter includes setup/output/cleanup and monitoring; separate empty-process startup"
+  },
+  "samples": 5,
+  "compilation": {
+    "startup/glyph": {
+      "seconds": [
+        0.9323211000300944,
+        0.9448846000013873,
+        0.8815949000418186
+      ],
+      "median_warm_s": 0.913239750021603,
+      "artifact_bytes": 179200
+    },
+    "startup/c": {
+      "seconds": [
+        0.4272142000263557,
+        0.38433329993858933,
+        0.3952451000222936
+      ],
+      "median_warm_s": 0.3897891999804415,
+      "artifact_bytes": 179200
+    },
+    "startup/python": {
+      "seconds": null,
+      "artifact_bytes": null,
+      "source_bytes": 5,
+      "note": "interpreted; parsing included in process wall time; no native artifact"
+    },
+    "array/glyph": {
+      "seconds": [
+        0.9388647999148816,
+        0.8849230000050738,
+        0.8115355999907479
+      ],
+      "median_warm_s": 0.8482292999979109,
+      "artifact_bytes": 182784
+    },
+    "array/c": {
+      "seconds": [
+        0.4667519999202341,
+        0.44082930008880794,
+        0.4598557000281289
+      ],
+      "median_warm_s": 0.45034250005846843,
+      "artifact_bytes": 180736
+    },
+    "array/python": {
+      "seconds": null,
+      "artifact_bytes": null,
+      "source_bytes": 316,
+      "note": "interpreted; parsing included in process wall time; no native artifact"
+    },
+    "array_loop/glyph": {
+      "seconds": [
+        0.7121255999663845,
+        0.7517378999618813,
+        0.6795718000503257
+      ],
+      "median_warm_s": 0.7156548500061035,
+      "artifact_bytes": 182784
+    },
+    "recurrence/glyph": {
+      "seconds": [
+        0.6507493999088183,
+        0.9149807000067085,
+        0.8537950000027195
+      ],
+      "median_warm_s": 0.884387850004714,
+      "artifact_bytes": 180736
+    },
+    "recurrence/c": {
+      "seconds": [
+        0.47221350006293505,
+        0.4457457000389695,
+        0.4766418000217527
+      ],
+      "median_warm_s": 0.4611937500303611,
+      "artifact_bytes": 180736
+    },
+    "recurrence/python": {
+      "seconds": null,
+      "artifact_bytes": null,
+      "source_bytes": 244,
+      "note": "interpreted; parsing included in process wall time; no native artifact"
+    }
+  },
+  "runs": {
+    "startup/python": {
+      "arguments": [],
+      "expected": null,
+      "measurements": [
+        {
+          "wall_s": 0.27177709992974997,
+          "peak_bytes": 17698816,
+          "memory_samples": 6,
+          "stdout": ""
+        },
+        {
+          "wall_s": 0.2298529000254348,
+          "peak_bytes": 17485824,
+          "memory_samples": 6,
+          "stdout": ""
+        },
+        {
+          "wall_s": 0.224136000033468,
+          "peak_bytes": 18190336,
+          "memory_samples": 6,
+          "stdout": ""
+        },
+        {
+          "wall_s": 0.28497939999215305,
+          "peak_bytes": 17584128,
+          "memory_samples": 7,
+          "stdout": ""
+        },
+        {
+          "wall_s": 0.24794899998232722,
+          "peak_bytes": 18444288,
+          "memory_samples": 6,
+          "stdout": ""
+        }
+      ],
+      "wall_s": {
+        "median": 0.24794899998232722,
+        "min": 0.224136000033468,
+        "max": 0.28497939999215305
+      },
+      "peak_bytes": {
+        "median": 17698816,
+        "min": 17485824,
+        "max": 18444288
+      }
+    },
+    "array/python": {
+      "arguments": [
+        200000,
+        100,
+        37
+      ],
+      "expected": 9990031650,
+      "measurements": [
+        {
+          "wall_s": 0.5992519999854267,
+          "peak_bytes": 26292224,
+          "memory_samples": 17,
+          "stdout": "9990031650\r\n0.28332960000261664",
+          "kernel_s": 0.28332960000261664
+        },
+        {
+          "wall_s": 0.5921999999554828,
+          "peak_bytes": 27402240,
+          "memory_samples": 15,
+          "stdout": "9990031650\r\n0.26126970001496375",
+          "kernel_s": 0.26126970001496375
+        },
+        {
+          "wall_s": 0.506901599932462,
+          "peak_bytes": 24739840,
+          "memory_samples": 15,
+          "stdout": "9990031650\r\n0.20098670001607388",
+          "kernel_s": 0.20098670001607388
+        },
+        {
+          "wall_s": 0.6022789999842644,
+          "peak_bytes": 24981504,
+          "memory_samples": 16,
+          "stdout": "9990031650\r\n0.29035339993424714",
+          "kernel_s": 0.29035339993424714
+        },
+        {
+          "wall_s": 0.4176863000029698,
+          "peak_bytes": 27275264,
+          "memory_samples": 14,
+          "stdout": "9990031650\r\n0.21184329991228878",
+          "kernel_s": 0.21184329991228878
+        }
+      ],
+      "wall_s": {
+        "median": 0.5921999999554828,
+        "min": 0.4176863000029698,
+        "max": 0.6022789999842644
+      },
+      "kernel_s": {
+        "median": 0.26126970001496375,
+        "min": 0.20098670001607388,
+        "max": 0.29035339993424714
+      },
+      "peak_bytes": {
+        "median": 26292224,
+        "min": 24739840,
+        "max": 27402240
+      }
+    },
+    "recurrence/python": {
+      "arguments": [
+        200000,
+        5,
+        37
+      ],
+      "expected": 1656272702,
+      "measurements": [
+        {
+          "wall_s": 0.4946922999806702,
+          "peak_bytes": 18415616,
+          "memory_samples": 16,
+          "stdout": "1656272702\r\n0.298887399956584",
+          "kernel_s": 0.298887399956584
+        },
+        {
+          "wall_s": 0.40173779998440295,
+          "peak_bytes": 18341888,
+          "memory_samples": 16,
+          "stdout": "1656272702\r\n0.21613489999435842",
+          "kernel_s": 0.21613489999435842
+        },
+        {
+          "wall_s": 0.624029100057669,
+          "peak_bytes": 18309120,
+          "memory_samples": 18,
+          "stdout": "1656272702\r\n0.4009175000246614",
+          "kernel_s": 0.4009175000246614
+        },
+        {
+          "wall_s": 0.5973070999607444,
+          "peak_bytes": 18415616,
+          "memory_samples": 16,
+          "stdout": "1656272702\r\n0.39888320001773536",
+          "kernel_s": 0.39888320001773536
+        },
+        {
+          "wall_s": 0.5790908999042585,
+          "peak_bytes": 18292736,
+          "memory_samples": 16,
+          "stdout": "1656272702\r\n0.30072989990003407",
+          "kernel_s": 0.30072989990003407
+        }
+      ],
+      "wall_s": {
+        "median": 0.5790908999042585,
+        "min": 0.40173779998440295,
+        "max": 0.624029100057669
+      },
+      "kernel_s": {
+        "median": 0.30072989990003407,
+        "min": 0.21613489999435842,
+        "max": 0.4009175000246614
+      },
+      "peak_bytes": {
+        "median": 18341888,
+        "min": 18292736,
+        "max": 18415616
+      }
+    }
+  },
+  "source_sha256": {
+    "startup/glyph": "7c631c341179066dff139063a7890b44aecdafd09ecf1978d37a5a514fd4ab6b",
+    "startup/c": "2ad75d95660563887d8d3f1d0ae1dcf18c2379cbd83a5c72f5ab276351ee6949",
+    "startup/python": "9f56e761d79bfdb34304a012586cb04d16b435ef6130091a97702e559260a2f2",
+    "array/glyph": "15eca59e21a45234ddb26caa503190493a5ede0eedb4247e3da0a64386dc17c7",
+    "array/c": "25c5a23c06f0867cf1a66441e9ce4c6bda70bfa4c78107abd631347e283e4da4",
+    "array/python": "a871337f3a458cf58aaa985d75f16770644d01755bbb5287a39d70b4e115db3d",
+    "array_loop/glyph": "ec99bfca7f80ba4c705da04bb6e4230fc58ee709f255934944375f71937c780a",
+    "recurrence/glyph": "78840b3aedba2b5a50181cb22a6c41b9f762b0bf4d1add66f3924af9b4eeb992",
+    "recurrence/c": "e8fd4afc63065dc3514655ca11de8f85a647cc5c140ac7b42b306c44e364f152",
+    "recurrence/python": "e3f68282e6472b77ee8f4113e628043f34e3041ce67fd35dae54c8e5bf6f61c0"
+  },
+  "native_execution_status": "blocked by host policy; native timings and peak memory unmeasured"
+}
