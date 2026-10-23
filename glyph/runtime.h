@@ -1,5 +1,10 @@
 #ifndef GLYPH_RUNTIME_H
 #define GLYPH_RUNTIME_H
+#define GLYPH_GC 1
+#ifndef GC_NOT_DLL
+#define GC_NOT_DLL
+#endif
+#include <gc.h>
 #include <stdint.h>
 #include <stdbool.h>
 #include <stdio.h>
@@ -15,25 +20,52 @@
 
 typedef struct { const char *data; int64_t len; } g_str;
 typedef struct { void *data; int64_t len; } g_array;
-typedef struct g_alloc { void *data; struct g_alloc *next; } g_alloc;
-static g_alloc *g_allocations;
+static bool g_gc_stress;
 static int g_argc;
 static char **g_argv;
+static const char *g_file_json = G_FILE_JSON;
 
-static void g_cleanup(void) {
-    while (g_allocations) {
-        g_alloc *p = g_allocations;
-        g_allocations = p->next;
-        free(p->data); free(p);
-    }
+static void g_gc_init(void) {
+    GC_set_all_interior_pointers(1);
+    GC_INIT();
+    const char *stress = getenv("GLYPH_GC_STRESS");
+    g_gc_stress = stress && !strcmp(stress, "1");
 }
 static void g_fail(const char *code, const char *message, int line, int col) {
-    fputs("{\"file\":" G_FILE_JSON ",", stderr);
+    fputs("{\"file\":", stderr);
+    fputs(g_file_json, stderr);
+    fputc(',', stderr);
     fprintf(stderr, "\"code\":\"%s\",\"severity\":\"error\",\"message\":\"%s\",\"span\":{\"start\":{\"line\":%d,\"column\":%d},\"end\":{\"line\":%d,\"column\":%d}}}\n", code, message, line, col, line, col + 1);
     exit(70);
 }
 static int64_t g_add(int64_t a, int64_t b, int l, int c) {
     int64_t r; if (__builtin_add_overflow(a,b,&r)) g_fail("R001","integer overflow",l,c); return r;
+}
+static int64_t g_sum_i64(g_array array, int64_t s, int l, int c) {
+    const int64_t *a = array.data;
+    int64_t i = 0;
+    const int64_t slack = INT64_C(549755813888); /* 256 * 2^31 */
+    for (; i <= array.len - 256; i += 256) {
+        if (s < INT64_MIN + slack || s > INT64_MAX - slack) break;
+        uint64_t bits = 0, range = 0;
+        for (int j = 0; j < 256; ++j) {
+            uint64_t u = (uint64_t)a[i + j];
+            bits += u;
+            range |= u + UINT64_C(2147483648);
+        }
+        /*
+         * The OR guard proves every element fits signed i32. The accumulator
+         * headroom then proves every left-to-right prefix fits i64, so the
+         * vectorizable unsigned sum has the exact checked result.
+         * Stop speculating on the first failure: scan at most one failed block,
+         * then execute the entire remaining suffix in the original order.
+         */
+        if (range > UINT32_MAX) break;
+        uint64_t result = (uint64_t)s + bits;
+        memcpy(&s, &result, sizeof s);
+    }
+    for (; i < array.len; ++i) s = g_add(s, a[i], l, c);
+    return s;
 }
 static int64_t g_sub(int64_t a, int64_t b, int l, int c) {
     int64_t r; if (__builtin_sub_overflow(a,b,&r)) g_fail("R001","integer overflow",l,c); return r;
@@ -51,13 +83,21 @@ static int64_t g_mod(int64_t a, int64_t b, int l, int c) {
     if (a==INT64_MIN && b==-1) g_fail("R001","integer overflow",l,c);
     return a%b;
 }
-static g_array g_new(int64_t n, size_t size, int l, int c) {
-    if (n<0 || (uint64_t)n>SIZE_MAX/size) g_fail("R004","invalid allocation size",l,c);
-    g_alloc *p = malloc(sizeof(g_alloc));
-    void *data = calloc(n ? (size_t)n : 1, size);
-    if (!p || !data) { free(p); free(data); g_fail("R004","allocation failed",l,c); }
-    p->data=data; p->next=g_allocations; g_allocations=p;
+static g_array g_allocate(int64_t n, size_t size, int l, int c, bool atomic) {
+    if (!size || n<0 || (uint64_t)n>SIZE_MAX/size) g_fail("R004","invalid allocation size",l,c);
+    size_t bytes = (n ? (size_t)n : 1) * size;
+    if (g_gc_stress) GC_gcollect();
+    void *data = atomic ? GC_malloc_atomic(bytes) : GC_malloc(bytes);
+    if (!data) g_fail("R004","allocation failed",l,c);
+    /* Atomic allocations are not cleared by BDWGC. Preserve zero initialization. */
+    if (atomic) memset(data, 0, bytes);
     return (g_array){data,n};
+}
+static g_array g_new(int64_t n, size_t size, int l, int c) {
+    return g_allocate(n,size,l,c,false);
+}
+static g_array g_new_atomic(int64_t n, size_t size, int l, int c) {
+    return g_allocate(n,size,l,c,true);
 }
 static int64_t g_index(g_array a, int64_t i, int l, int c) {
     if (i<0 || i>=a.len) g_fail("R003","array index out of bounds",l,c);
@@ -66,8 +106,11 @@ static int64_t g_index(g_array a, int64_t i, int l, int c) {
 static g_array g_clone(g_array a, size_t size, int l, int c) {
     g_array b=g_new(a.len,size,l,c); memcpy(b.data,a.data,(size_t)a.len*size); return b;
 }
+static g_array g_clone_atomic(g_array a, size_t size, int l, int c) {
+    g_array b=g_new_atomic(a.len,size,l,c); memcpy(b.data,a.data,(size_t)a.len*size); return b;
+}
 static g_array g_range(int64_t n, int l, int c) {
-    g_array a=g_new(n,sizeof(int64_t),l,c);
+    g_array a=g_new_atomic(n,sizeof(int64_t),l,c);
     for(int64_t i=0;i<n;i++) ((int64_t*)a.data)[i]=i;
     return a;
 }

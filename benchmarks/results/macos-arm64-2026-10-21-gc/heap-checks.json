@@ -1,0 +1,20 @@
+{
+  "numeric": {
+    "batches": 4096,
+    "checksum": 68702703616,
+    "gc_total_allocated_bytes": 268566528,
+    "gc_heap_bytes_at_end": 524288
+  },
+  "text": {
+    "batches": 4096,
+    "checksum": 4668330,
+    "gc_total_allocated_bytes": 153354240,
+    "gc_heap_bytes_at_end": 262144
+  },
+  "cycles": {
+    "batches": 4096,
+    "checksum": 536739840,
+    "gc_total_allocated_bytes": 25165824,
+    "gc_heap_bytes_at_end": 262144
+  }
+}

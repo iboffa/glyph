@@ -7,13 +7,15 @@ import subprocess
 from collections import Counter
 from glyph.syntax import parse, Token
 from glyph.checker import check
+from glyph.gc_support import include_flags
 from glyph.backend import Emitter, compiler
 from .runtime import BUILD, OUT, ROOT
 
 
 def main():
     bodies = {"loop": "reduce a:[i64]>i64\n  s:i64 = 0\n  for x:a\n    s += x\n  ret s\n",
-              "fold": "reduce a:[i64]>i64 = fold a 0 +\n"}
+              "fold": "reduce a:[i64]>i64 = fold a 0 +\n",
+              "sum": "reduce a:[int] = sum(a)\n"}
     BUILD.mkdir(parents=True, exist_ok=True)
     OUT.mkdir(parents=True, exist_ok=True)
     functions = {}
@@ -36,7 +38,7 @@ def main():
         cache = ROOT / "build" / ".glyph-cache"
         cache.mkdir(parents=True, exist_ok=True)
         env.update(ZIG_GLOBAL_CACHE_DIR=str(cache), ZIG_LOCAL_CACHE_DIR=str(cache), TEMP=str(cache), TMP=str(cache))
-        command = compiler() + [str(c), "-std=c11", "-O2", "-g0", "-S", "-emit-llvm", "-fno-fast-math", "-ffp-contract=off", "-o", str(ir)]
+        command = compiler() + include_flags() + [str(c), "-std=c11", "-O2", "-g0", "-S", "-emit-llvm", "-fno-fast-math", "-ffp-contract=off", "-o", str(ir)]
         if os.name != "nt":
             command += ["-D_POSIX_C_SOURCE=200809L"]
         subprocess.run(command, check=True, capture_output=True, env=env)
@@ -58,12 +60,13 @@ def main():
         return dict(sorted(result.items()))
     counts = {name: opcodes(body) for name, body in functions.items()}
     result = {"equal_optimized_function_ir": equal, "opcode_counts": counts, "equal_opcode_counts": counts["loop"] == counts["fold"],
+              "sum_matches_fold_opcode_counts": counts["sum"] == counts["fold"],
               "method": "Clang -O2 LLVM function IR; exported reduce; identical source-span locations; metadata/attribute indices normalized; no native execution",
-              "scope": "only i64 summation over an existing array; opcode counts are structural evidence, not a semantic proof or runtime measurement; SSA/phi order can differ"}
+              "scope": "i64 fold and sum use guarded reduction; explicit loops retain per-add checks; opcode counts are structural evidence, not a semantic proof or runtime measurement"}
     (OUT / "codegen.json").write_text(json.dumps(result, indent=2) + "\n")
     print(json.dumps(result))
-    if counts["loop"] != counts["fold"]:
-        raise SystemExit("reduction code shape differs; inspect optimizer output")
+    if counts["sum"] != counts["fold"]:
+        raise SystemExit("sum/fold code shape differs; inspect optimizer output")
 
 
 if __name__ == "__main__":

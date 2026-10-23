@@ -1,0 +1,293 @@
+{
+  "started_at": "2026-10-21T23:09:03.478162+03:00",
+  "metadata": {
+    "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "python": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "ziglang": "0.14.1",
+    "clang": "clang version 19.1.7 (https://github.com/ziglang/zig-bootstrap de1b01a8c1dddf75a560123ac1c2ab182b4830da)\nTarget: aarch64-unknown-darwin25.5.0\nThread model: posix\nInstalledDir: /Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang",
+    "developer_dir": "/Library/Developer/CommandLineTools",
+    "sdk": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk"
+  },
+  "source_sha256": {
+    "benchmarks/programs/common.h": "5fe0eb1e4426024a103413a3035d887c8b97da358d39bda027f80db221de25b9",
+    "benchmarks/records.py": "e32d134f0631323f58047d5f598f0c9275a743f823125f621ef50e565ae1718c",
+    "docs/AGENT_GUIDE.md": "93f0d461e3057e80337ee9b7fbc89225c4090c7e15d87b417b6f971e90a2e0f6",
+    "glyph/__init__.py": "41be3440a5279cd6989754af75067ba11ec2869406679b306055058be75e6aec",
+    "glyph/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "glyph/backend.py": "3e6e9cefe7d1ce897098f504f434ae5c942e73772596d757afd63355c8936756",
+    "glyph/checker.py": "dea4801e10c767bf8083ddd55eeb21958d5dbc4ac0bfc58f0268817287bc0b91",
+    "glyph/cli.py": "cc6de126eea00c685332380586355edf459b0fba82df91bab54355bb7455642e",
+    "glyph/collections.py": "4a5813f94ff777f6c0675cad33c3a7b30bf8193d9ad03ae63130fb3e8d4cfd51",
+    "glyph/collections_runtime.h": "bcededaba9adb738c2c9c6bbe5be0b868c636dc76ad7cb29b0b04fe66d72a2c2",
+    "glyph/formatter.py": "2ec17b64856a023e86189c76a60604a6451e68586515192715d20ba377b44c10",
+    "glyph/gc_support.py": "0faed2106ea3d500e5bb642d2ed53cd7e31b6120879333909fe15dea40a6db2a",
+    "glyph/gui.h": "66ec7f391c1e0f9ad03d8165455672c488691131cd5943b557c9386230fe611f",
+    "glyph/gui.py": "4a3a156a80b1bb40262b06e12d31561501b3818eabee31d73aac3f733cdfb5d9",
+    "glyph/gui_macos.m": "f322ff3e6a0cfb51a9c44664ac2dfc5cc8f16989b50653cc6b53852240babe16",
+    "glyph/gui_runtime.h": "a4d9c5523cfda2b6f286b944619f5d67203c398ef16d046014708307c244e831",
+    "glyph/modules.py": "59096c70e7e5031ece0936845c5a0839ff1330b1a4f9d4b4249bd4e085edcbac",
+    "glyph/runtime.h": "7cd46d783114f24d2e3188594581188fd85a8795e5d0ba5b73d39d49e7608264",
+    "glyph/std_runtime.h": "fd6a3905094341c4b2050fe1d0046a082ac91329e810df6898a70e5ee63b518f",
+    "glyph/stdlib.py": "7a51af55db494c44c4b8ea9a35d9049e0516f9693fe31e827016e6e985ccdc8a",
+    "glyph/syntax.py": "58bae235ff53c18f173f179dfea094540141ddcad45cebe960358ea76fedaec7"
+  },
+  "samples": 15,
+  "cases": {
+    "point": [
+      6000000,
+      37
+    ],
+    "particle": [
+      100000,
+      60,
+      37
+    ]
+  },
+  "method": "One verified warmup per variant; randomized process order; internal kernel clocks; setup/output/cleanup excluded; same -O2 backend without fast-math or FP contraction; no memory sampling.",
+  "limits": "Two f64 workloads; ordinary C omits Glyph bounds/integer checks; no controlled machine load. Token counts are authored BPE source inventories, not billed AI tokens or sampled-agent costs. Python dataclasses use reference semantics; these tasks exercise construction and mutation, not record assignment/copy or receiver-snapshot equivalence.",
+  "tokenizer": "cl100k_base",
+  "tiktoken": "0.12.0",
+  "glyph_guide_tokens": 1268,
+  "actual_total_agent_tokens_per_correct_task": null,
+  "inventory": {
+    "point": {
+      "glyph": {
+        "definition_tokens": 54,
+        "full_source_tokens": 91,
+        "definition": "type Point\n  x:f64\n  y:f64\n  norm2 = self.x * self.x + self.y * self.y\n  mut move dx:f64, dy:f64>void\n    self.x += dx\n    self.y += dy\n",
+        "full_source": "type Point\n  x:f64\n  y:f64\n  norm2 = self.x * self.x + self.y * self.y\n  mut move dx:f64, dy:f64>void\n    self.x += dx\n    self.y += dy\n\nmain>void\n  p := Point(3.0, 4.0)\n  p.move(1.0, 2.0)\n  print(p.norm2())\n",
+        "verified": true,
+        "stdout": "52\n"
+      },
+      "python": {
+        "definition_tokens": 65,
+        "full_source_tokens": 95,
+        "definition": "from dataclasses import dataclass\n\n@dataclass\nclass Point:\n    x: float\n    y: float\n\n    def norm2(self):\n        return self.x * self.x + self.y * self.y\n\n    def move(self, dx, dy):\n        self.x += dx\n        self.y += dy\n",
+        "full_source": "from dataclasses import dataclass\n\n@dataclass\nclass Point:\n    x: float\n    y: float\n\n    def norm2(self):\n        return self.x * self.x + self.y * self.y\n\n    def move(self, dx, dy):\n        self.x += dx\n        self.y += dy\n\np = Point(3.0, 4.0)\np.move(1.0, 2.0)\nprint(p.norm2())\n",
+        "verified": true,
+        "stdout": "52.0\n"
+      },
+      "c": {
+        "definition_tokens": 60,
+        "full_source_tokens": 104,
+        "definition": "typedef struct { double x, y; } Point;\nstatic double norm2(Point p) { return p.x * p.x + p.y * p.y; }\nstatic void move(Point *p, double dx, double dy) { p->x += dx; p->y += dy; }\n",
+        "full_source": "#include <stdio.h>\ntypedef struct { double x, y; } Point;\nstatic double norm2(Point p) { return p.x * p.x + p.y * p.y; }\nstatic void move(Point *p, double dx, double dy) { p->x += dx; p->y += dy; }\n\nint main(void) { Point p = {3, 4}; move(&p, 1, 2); printf(\"%.17g\\n\", norm2(p));\nreturn 0; }\n",
+        "verified": true,
+        "stdout": "52\n"
+      }
+    },
+    "particle": {
+      "glyph": {
+        "definition_tokens": 94,
+        "full_source_tokens": 158,
+        "definition": "type Point\n  x:f64\n  y:f64\n  norm2 = self.x * self.x + self.y * self.y\n  mut move dx:f64, dy:f64>void\n    self.x += dx\n    self.y += dy\n\ntype Particle\n  position:Point\n  velocity:Point\n  norm2 = self.position.norm2()\n  mut step>void\n    self.position.move(self.velocity.x, self.velocity.y)\n",
+        "full_source": "type Point\n  x:f64\n  y:f64\n  norm2 = self.x * self.x + self.y * self.y\n  mut move dx:f64, dy:f64>void\n    self.x += dx\n    self.y += dy\n\ntype Particle\n  position:Point\n  velocity:Point\n  norm2 = self.position.norm2()\n  mut step>void\n    self.position.move(self.velocity.x, self.velocity.y)\n\nmain>void\n  p := Point(3.0, 4.0)\n  p.move(1.0, 2.0)\n  print(p.norm2())\n  q := Particle(p, Point(0.25, 0.5))\n  q.step()\n  print(q.norm2())\n",
+        "verified": true,
+        "stdout": "52\n60.3125\n"
+      },
+      "python": {
+        "definition_tokens": 112,
+        "full_source_tokens": 166,
+        "definition": "from dataclasses import dataclass\n\n@dataclass\nclass Point:\n    x: float\n    y: float\n\n    def norm2(self):\n        return self.x * self.x + self.y * self.y\n\n    def move(self, dx, dy):\n        self.x += dx\n        self.y += dy\n\n@dataclass\nclass Particle:\n    position: Point\n    velocity: Point\n\n    def norm2(self):\n        return self.position.norm2()\n\n    def step(self):\n        self.position.move(self.velocity.x, self.velocity.y)\n",
+        "full_source": "from dataclasses import dataclass\n\n@dataclass\nclass Point:\n    x: float\n    y: float\n\n    def norm2(self):\n        return self.x * self.x + self.y * self.y\n\n    def move(self, dx, dy):\n        self.x += dx\n        self.y += dy\n\n@dataclass\nclass Particle:\n    position: Point\n    velocity: Point\n\n    def norm2(self):\n        return self.position.norm2()\n\n    def step(self):\n        self.position.move(self.velocity.x, self.velocity.y)\n\np = Point(3.0, 4.0)\np.move(1.0, 2.0)\nprint(p.norm2())\nq = Particle(p, Point(0.25, 0.5))\nq.step()\nprint(q.norm2())\n",
+        "verified": true,
+        "stdout": "52.0\n60.3125\n"
+      },
+      "c": {
+        "definition_tokens": 114,
+        "full_source_tokens": 190,
+        "definition": "typedef struct { double x, y; } Point;\nstatic double norm2(Point p) { return p.x * p.x + p.y * p.y; }\nstatic void move(Point *p, double dx, double dy) { p->x += dx; p->y += dy; }\n\ntypedef struct { Point position, velocity; } Particle;\nstatic double particle_norm2(Particle p) { return norm2(p.position); }\nstatic void step(Particle *p) { move(&p->position, p->velocity.x, p->velocity.y); }\n",
+        "full_source": "#include <stdio.h>\ntypedef struct { double x, y; } Point;\nstatic double norm2(Point p) { return p.x * p.x + p.y * p.y; }\nstatic void move(Point *p, double dx, double dy) { p->x += dx; p->y += dy; }\n\ntypedef struct { Point position, velocity; } Particle;\nstatic double particle_norm2(Particle p) { return norm2(p.position); }\nstatic void step(Particle *p) { move(&p->position, p->velocity.x, p->velocity.y); }\n\nint main(void) { Point p = {3, 4}; move(&p, 1, 2); printf(\"%.17g\\n\", norm2(p));\nParticle q = {p, {0.25, 0.5}}; step(&q); printf(\"%.17g\\n\", particle_norm2(q));\nreturn 0; }\n",
+        "verified": true,
+        "stdout": "52\n60.3125\n"
+      }
+    }
+  },
+  "compilation": {
+    "point/glyph": {
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/record_bench/point_glyph.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/record_bench/point_glyph.exe",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-dc3d3d414d324bb11134a0c9e6793d0266cdd01aed95b07b96fd30c9e872a0c1.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source": "type Point\n  x:f64\n  y:f64\n  norm2 = self.x * self.x + self.y * self.y\n  mut move dx:f64, dy:f64>void\n    self.x += dx\n    self.y += dy\nmain>void\n  n := argi(0)\n  seed := f64(argi(1))\n  p := Point(seed, seed)\n  start := clock()\n  i := 0\n  while i < n\n    p.move(0.25, 0.5)\n    i += 1\n  result := p.norm2()\n  elapsed := clock() - start\n  print(result)\n  print(elapsed)\n",
+      "source_sha256": "7768bda96ca5ab9213b320ba5047ebfdb3b7d005ac4694616e83194a0a1a1e7d",
+      "generated_c_sha256": "2e3a35f09b52e89779ad850e65c76149731d89646bf57dfa3303c9a05a2266ab"
+    },
+    "point/c": {
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/record_bench/point_c.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/record_bench/point_c.exe",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source": "#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <time.h>\n#ifdef _WIN32\n#include <windows.h>\n#endif\nstatic double now(void) {\n#ifdef _WIN32\n    LARGE_INTEGER t,f; QueryPerformanceCounter(&t); QueryPerformanceFrequency(&f);\n    return (double)t.QuadPart/(double)f.QuadPart;\n#else\n    struct timespec t; clock_gettime(CLOCK_MONOTONIC,&t); return t.tv_sec+t.tv_nsec*1e-9;\n#endif\n}\ntypedef struct { double x, y; } Point;\nstatic double norm2(Point p) { return p.x * p.x + p.y * p.y; }\nstatic void move(Point *p, double dx, double dy) { p->x += dx; p->y += dy; }\nint main(int argc, char **argv) {\n    if (argc != 3) return 2;\n    int64_t n = strtoll(argv[1], 0, 10);\n    double seed = strtoll(argv[2], 0, 10);\n    Point p = {seed, seed};\n    double start = now();\n    for (int64_t i = 0; i < n; ++i) move(&p, 0.25, 0.5);\n    double result = norm2(p), elapsed = now() - start;\n    printf(\"%.17g\\n%.17g\\n\", result, elapsed);\n    return 0;\n}\n",
+      "source_sha256": "a06b4da0147f88914c3d90ad6cc1314b737ac524f725928e39ae2772cc3dd8ab",
+      "generated_c_sha256": "a06b4da0147f88914c3d90ad6cc1314b737ac524f725928e39ae2772cc3dd8ab"
+    },
+    "particle/glyph": {
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/record_bench/particle_glyph.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/record_bench/particle_glyph.exe",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-dc3d3d414d324bb11134a0c9e6793d0266cdd01aed95b07b96fd30c9e872a0c1.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source": "type Point\n  x:f64\n  y:f64\n  norm2 = self.x * self.x + self.y * self.y\n  mut move dx:f64, dy:f64>void\n    self.x += dx\n    self.y += dy\ntype Particle\n  position:Point\n  velocity:Point\n  norm2 = self.position.norm2()\n  mut step>void\n    self.position.move(self.velocity.x, self.velocity.y)\nmain>void\n  n := argi(0)\n  repeats := argi(1)\n  seed := argi(2)\n  a := fill(n, Particle(Point(0.0, 0.0), Point(0.25, 0.5)))\n  i := 0\n  while i < n\n    a[i].position = Point(f64(i % 97 + seed), f64(i % 89 + seed))\n    i += 1\n  checksum := 0.0\n  start := clock()\n  r := 0\n  while r < repeats\n    i = 0\n    while i < n\n      a[i].step()\n      checksum += a[i].norm2()\n      i += 1\n    r += 1\n  elapsed := clock() - start\n  print(checksum)\n  print(elapsed)\n",
+      "source_sha256": "de96f66d985c5df34c15bd011934b6a9936b0632090b03c21e1b7d583c38df5c",
+      "generated_c_sha256": "951447d1d39ec7bc9c2c1e48579a2cdd4ca6364d98694f703d04550647f54f39"
+    },
+    "particle/c": {
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/record_bench/particle_c.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/record_bench/particle_c.exe",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source": "#include <stdint.h>\n#include <stdio.h>\n#include <stdlib.h>\n#include <time.h>\n#ifdef _WIN32\n#include <windows.h>\n#endif\nstatic double now(void) {\n#ifdef _WIN32\n    LARGE_INTEGER t,f; QueryPerformanceCounter(&t); QueryPerformanceFrequency(&f);\n    return (double)t.QuadPart/(double)f.QuadPart;\n#else\n    struct timespec t; clock_gettime(CLOCK_MONOTONIC,&t); return t.tv_sec+t.tv_nsec*1e-9;\n#endif\n}\ntypedef struct { double x, y; } Point;\nstatic double norm2(Point p) { return p.x * p.x + p.y * p.y; }\nstatic void move(Point *p, double dx, double dy) { p->x += dx; p->y += dy; }\ntypedef struct { Point position, velocity; } Particle;\nstatic double particle_norm2(Particle p) { return norm2(p.position); }\nstatic void step(Particle *p) { move(&p->position, p->velocity.x, p->velocity.y); }\nint main(int argc, char **argv) {\n    if (argc != 4) return 2;\n    int64_t n = strtoll(argv[1], 0, 10), repeats = strtoll(argv[2], 0, 10);\n    int64_t seed = strtoll(argv[3], 0, 10);\n    Particle *a = malloc((size_t)n * sizeof(*a));\n    if (!a) return 3;\n    for (int64_t i = 0; i < n; ++i)\n        a[i] = (Particle){{(double)(i % 97 + seed), (double)(i % 89 + seed)}, {0.25, 0.5}};\n    double checksum = 0, start = now();\n    for (int64_t r = 0; r < repeats; ++r)\n        for (int64_t i = 0; i < n; ++i) { step(&a[i]); checksum += particle_norm2(a[i]); }\n    double elapsed = now() - start;\n    printf(\"%.17g\\n%.17g\\n\", checksum, elapsed);\n    free(a);\n    return 0;\n}\n",
+      "source_sha256": "289a061da47b355b300c88953a9f1f39b5b2584d3a7c96716c569d043c718249",
+      "generated_c_sha256": "289a061da47b355b300c88953a9f1f39b5b2584d3a7c96716c569d043c718249"
+    }
+  },
+  "runs": {
+    "point/glyph": {
+      "seconds": [
+        0.009525999999993928,
+        0.005645000000015443,
+        0.005266000000005988,
+        0.005222000000003391,
+        0.005153000000007069,
+        0.005204999999989468,
+        0.005312000000003536,
+        0.005167000000028565,
+        0.005488000000013926,
+        0.005169000000023516,
+        0.005148999999960324,
+        0.0052529999999819665,
+        0.00541499999997086,
+        0.005341999999984637,
+        0.005238000000019838
+      ],
+      "median_s": 0.0052529999999819665,
+      "min_s": 0.005148999999960324,
+      "max_s": 0.009525999999993928,
+      "expected": 11250333002738.0
+    },
+    "point/c": {
+      "seconds": [
+        0.00794300000001158,
+        0.005254999999976917,
+        0.005150000000014643,
+        0.005161999999984346,
+        0.005352000000016233,
+        0.00515899999999192,
+        0.005155999999999494,
+        0.005244000000004689,
+        0.005173000000013417,
+        0.005246999999997115,
+        0.005174000000010892,
+        0.005236999999965519,
+        0.005182999999988169,
+        0.005319999999983338,
+        0.00518699999997807
+      ],
+      "median_s": 0.00518699999997807,
+      "min_s": 0.005150000000014643,
+      "max_s": 0.00794300000001158,
+      "expected": 11250333002738.0
+    },
+    "particle/glyph": {
+      "seconds": [
+        0.006908000000009906,
+        0.006011000000000877,
+        0.005221000000005915,
+        0.005171000000018466,
+        0.005407999999988533,
+        0.0053989999999544125,
+        0.005268999999998414,
+        0.005201999999997042,
+        0.005313999999998487,
+        0.005198999999947773,
+        0.005276000000037584,
+        0.005170999999961623,
+        0.005185999999980595,
+        0.005182999999988169,
+        0.005698999999992793
+      ],
+      "median_s": 0.005268999999998414,
+      "min_s": 0.005170999999961623,
+      "max_s": 0.006908000000009906,
+      "expected": 116271695315.0
+    },
+    "particle/c": {
+      "seconds": [
+        0.006528000000002976,
+        0.005611999999985073,
+        0.005187000000034914,
+        0.0051689999999666725,
+        0.005171000000018466,
+        0.005289000000004762,
+        0.0051919999999654465,
+        0.005282000000022435,
+        0.005292999999994663,
+        0.005209999999976844,
+        0.005304999999964366,
+        0.005354000000011183,
+        0.005239000000017313,
+        0.0051919999999654465,
+        0.005519999999989977
+      ],
+      "median_s": 0.005282000000022435,
+      "min_s": 0.0051689999999666725,
+      "max_s": 0.006528000000002976,
+      "expected": 116271695315.0
+    }
+  },
+  "finished_at": "2026-10-21T23:09:07.386189+03:00"
+}

@@ -1,0 +1,6 @@
+import square, Counter from "./math.gly"
+
+main>void
+  counter := Counter.create(3)
+  counter.add(square(4))
+  print(counter.value)

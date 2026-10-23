@@ -1,0 +1,11 @@
+{
+  "native_checks": 1583,
+  "native_emissions": 43,
+  "parser_rejections": 1479,
+  "tests": 40,
+  "skipped": 0,
+  "failures": 0,
+  "errors": 0,
+  "success": true,
+  "compiler": "/Users/igino/glyph/build/selfhost/glyphc"
+}

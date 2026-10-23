@@ -1,0 +1,9 @@
+Processing ./.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: glyph-lang
+  Building wheel for glyph-lang (pyproject.toml): started
+  Building wheel for glyph-lang (pyproject.toml): finished with status 'done'
+  Created wheel for glyph-lang: filename=glyph_lang-0.1.0-py3-none-any.whl size=26839 sha256=b9b3eb7532ce5386daaf2e7b9d6819eceb7ddf02167ed4dc8c70c9552c5ba736
+  Stored in directory: /private/var/folders/n0/x410x4h51x14kxbmwkjt68vc0000gn/T/pip-ephem-wheel-cache-vt4iu5k6/wheels/2b/8e/15/4885a6d5b65f8aa87da033165576df2c826b9eaf88d903cabb
+Successfully built glyph-lang

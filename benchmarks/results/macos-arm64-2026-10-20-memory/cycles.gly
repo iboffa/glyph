@@ -1,0 +1,15 @@
+type Node
+  links:[Node]
+  value:int
+work seed:int>int
+  i := 0
+  total := 0
+  while i < 64
+    a := [Node([], seed)]
+    b := [Node(a, i)]
+    a[0].links = b
+    total += a[0].links[0].links[0].value
+    i += 1
+  ret total
+main>void
+  ret

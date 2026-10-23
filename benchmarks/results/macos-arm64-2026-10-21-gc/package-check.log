@@ -1,0 +1,12 @@
+All 68 upstream files present and verified
+{"command": ["/Users/igino/glyph/.venv/bin/python", "-m", "glyph", "run", "/Users/igino/glyph/build/gc-wheel-check/packaged.gly", "-o", "/Users/igino/glyph/build/gc-wheel-check/console"], "returncode": 0}
+7000
+bundled-gc
+
+{"command": ["/Users/igino/glyph/.venv/bin/python", "-m", "glyph", "build", "/Users/igino/glyph/examples/gui_hello.gly", "-o", "/Users/igino/glyph/build/gc-wheel-check/gui"], "returncode": 0}
+
+{"command": ["/Users/igino/glyph/build/selfhost-gc/glyphc", "run", "/Users/igino/glyph/build/gc-wheel-check/packaged.gly", "-o", "/Users/igino/glyph/build/gc-wheel-check/native-driver", "--runtime-dir", "/Users/igino/glyph/build/gc-wheel-check/glyph"], "returncode": 0}
+7000
+bundled-gc
+
+Wheel console execution, GUI build and native driver with packaged runtime passed

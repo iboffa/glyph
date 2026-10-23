@@ -1,0 +1,38 @@
+define i64 @f_reduce([2 x i64] %0) local_unnamed_addr #ATTR {
+  %2 = extractvalue [2 x i64] %0, 0
+  %3 = inttoptr i64 %2 to ptr
+  %4 = extractvalue [2 x i64] %0, 1
+  %5 = icmp sgt i64 %4, 0
+  br i1 %5, label %8, label %6
+
+6:                                                ; preds = %24, %1
+  %7 = phi i64 [ 0, %1 ], [ %25, %24 ]
+  ret i64 %7
+
+8:                                                ; preds = %1, %24
+  %9 = phi i64 [ %25, %24 ], [ 0, %1 ]
+  %10 = phi i64 [ %26, %24 ], [ 0, %1 ]
+  %11 = getelementptr inbounds i64, ptr %3, i64 %10
+  %12 = load i64, ptr %11, align 8, !metadata !N
+  %13 = tail call { i64, i1 } @llvm.sadd.with.overflow.i64(i64 %9, i64 %12)
+  %14 = extractvalue { i64, i1 } %13, 1
+  br i1 %14, label %15, label %24
+
+15:                                               ; preds = %8
+  %16 = load ptr, ptr @__stderrp, align 8, !metadata !N
+  %17 = tail call i32 @"\01_fputs"(ptr noundef nonnull @.str.2, ptr noundef %16) #ATTR
+  %18 = load ptr, ptr @__stderrp, align 8, !metadata !N
+  %19 = tail call i32 @"\01_fputs"(ptr noundef nonnull @.str.4, ptr noundef %18) #ATTR
+  %20 = load ptr, ptr @__stderrp, align 8, !metadata !N
+  %21 = tail call i32 @fputc(i32 noundef 44, ptr noundef %20)
+  %22 = load ptr, ptr @__stderrp, align 8, !metadata !N
+  %23 = tail call i32 (ptr, ptr, ...) @fprintf(ptr noundef %22, ptr noundef nonnull @.str.3, ptr noundef nonnull @.str, ptr noundef nonnull @.str.1, i32 noundef 1, i32 noundef 1, i32 noundef 1, i32 noundef 2) #ATTR
+  tail call void @exit(i32 noundef 70) #ATTR
+  unreachable
+
+24:                                               ; preds = %8
+  %25 = extractvalue { i64, i1 } %13, 0
+  %26 = add nuw nsw i64 %10, 1
+  %27 = icmp eq i64 %26, %4
+  br i1 %27, label %6, label %8, !metadata !N
+}

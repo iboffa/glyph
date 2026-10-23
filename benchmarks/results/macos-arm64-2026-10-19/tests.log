@@ -1,0 +1,15 @@
+test_cli_json_and_format_check (test_glyph.FrontendTests.test_cli_json_and_format_check) ... ok
+test_diagnostic_span (test_glyph.FrontendTests.test_diagnostic_span) ... ok
+test_formatter (test_glyph.FrontendTests.test_formatter) ... ok
+test_malformed_sources_never_crash (test_glyph.FrontendTests.test_malformed_sources_never_crash) ... ok
+test_rejections (test_glyph.FrontendTests.test_rejections) ... ok
+test_cli_run_arguments_exit_and_build (test_glyph.NativeTests.test_cli_run_arguments_exit_and_build) ... ok
+test_examples (test_glyph.NativeTests.test_examples) ... ok
+test_random_arithmetic_differential (test_glyph.NativeTests.test_random_arithmetic_differential) ... ok
+test_runtime_traps (test_glyph.NativeTests.test_runtime_traps) ... ok
+test_semantics (test_glyph.NativeTests.test_semantics) ... ok
+
+----------------------------------------------------------------------
+Ran 10 tests in 6.468s
+
+OK

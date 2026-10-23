@@ -1,0 +1,175 @@
+test_cli_json_and_format_check (test_glyph.FrontendTests.test_cli_json_and_format_check) ... ok
+test_diagnostic_span (test_glyph.FrontendTests.test_diagnostic_span) ... ok
+test_formatter (test_glyph.FrontendTests.test_formatter) ... ok
+test_malformed_sources_never_crash (test_glyph.FrontendTests.test_malformed_sources_never_crash) ... ok
+test_rejections (test_glyph.FrontendTests.test_rejections) ... ok
+test_cli_run_arguments_exit_and_build (test_glyph.NativeTests.test_cli_run_arguments_exit_and_build) ... FAIL
+test_examples (test_glyph.NativeTests.test_examples) ... ERROR
+test_random_arithmetic_differential (test_glyph.NativeTests.test_random_arithmetic_differential) ... ERROR
+test_runtime_traps (test_glyph.NativeTests.test_runtime_traps) ... ERROR
+test_semantics (test_glyph.NativeTests.test_semantics) ... ERROR
+
+======================================================================
+ERROR: test_examples (test_glyph.NativeTests.test_examples)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/igino/glyph/tests/test_glyph.py", line 122, in test_examples
+    executables[name] = native(source, name)
+                        ~~~~~~^^^^^^^^^^^^^^
+  File "/Users/igino/glyph/tests/test_glyph.py", line 26, in native
+    compile_c(c, exe)
+    ~~~~~~~~~^^^^^^^^
+  File "/Users/igino/glyph/glyph/backend.py", line 259, in compile_c
+    raise Diagnostic("G202", "native backend failed: " + proc.stderr[-4000:], Token("", 1, 1, 1))
+glyph.syntax.Diagnostic: native backend failed: error: undefined symbol: ___stdoutp
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0734da95972681576d09c230370cd0f5/hello.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0734da95972681576d09c230370cd0f5/hello.o:_main
+error: undefined symbol: _fwrite
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0734da95972681576d09c230370cd0f5/hello.o:_main
+error: undefined symbol: _printf
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0734da95972681576d09c230370cd0f5/hello.o:_main
+error: undefined symbol: _putchar
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0734da95972681576d09c230370cd0f5/hello.o:_main
+
+
+======================================================================
+ERROR: test_random_arithmetic_differential (test_glyph.NativeTests.test_random_arithmetic_differential)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/igino/glyph/tests/test_glyph.py", line 236, in test_random_arithmetic_differential
+    proc = execute(native("\n".join(source) + "\n", "differential"))
+                   ~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/Users/igino/glyph/tests/test_glyph.py", line 26, in native
+    compile_c(c, exe)
+    ~~~~~~~~~^^^^^^^^
+  File "/Users/igino/glyph/glyph/backend.py", line 259, in compile_c
+    raise Diagnostic("G202", "native backend failed: " + proc.stderr[-4000:], Token("", 1, 1, 1))
+glyph.syntax.Diagnostic: native backend failed: error: undefined symbol: _printf
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0747baa53b8ad1ecfb8b72ef881c3af5/differential.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0747baa53b8ad1ecfb8b72ef881c3af5/differential.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0747baa53b8ad1ecfb8b72ef881c3af5/differential.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/0747baa53b8ad1ecfb8b72ef881c3af5/differential.o:_main
+    note: referenced 146 more times
+
+
+======================================================================
+ERROR: test_runtime_traps (test_glyph.NativeTests.test_runtime_traps)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/igino/glyph/tests/test_glyph.py", line 216, in test_runtime_traps
+    exe = native(source, "traps")
+  File "/Users/igino/glyph/tests/test_glyph.py", line 26, in native
+    compile_c(c, exe)
+    ~~~~~~~~~^^^^^^^^
+  File "/Users/igino/glyph/glyph/backend.py", line 259, in compile_c
+    raise Diagnostic("G202", "native backend failed: " + proc.stderr[-4000:], Token("", 1, 1, 1))
+glyph.syntax.Diagnostic: native backend failed: error: undefined symbol: ___stderrp
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced 22 more times
+error: undefined symbol: _atexit
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+error: undefined symbol: _calloc
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_new
+error: undefined symbol: _exit
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_argi
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_new
+error: undefined symbol: _fprintf
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_argi
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_new
+error: undefined symbol: _fputs
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+    note: referenced 9 more times
+error: undefined symbol: _free
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_cleanup
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_cleanup
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_new
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_new
+error: undefined symbol: _malloc
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_new
+error: undefined symbol: _printf
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_main
+error: undefined symbol: _strtoll
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/bd388c92cb2cb35bc3c1cdefd7cbe044/traps.o:_g_argi
+
+
+======================================================================
+ERROR: test_semantics (test_glyph.NativeTests.test_semantics)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/igino/glyph/tests/test_glyph.py", line 185, in test_semantics
+    executables = [native(text, variant) for variant, text in (("semantics", source), ("formatted", format_source(source)))]
+                   ~~~~~~^^^^^^^^^^^^^^^
+  File "/Users/igino/glyph/tests/test_glyph.py", line 26, in native
+    compile_c(c, exe)
+    ~~~~~~~~~^^^^^^^^
+  File "/Users/igino/glyph/glyph/backend.py", line 259, in compile_c
+    raise Diagnostic("G202", "native backend failed: " + proc.stderr[-4000:], Token("", 1, 1, 1))
+glyph.syntax.Diagnostic: native backend failed:   note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced 22 more times
+error: undefined symbol: ___stdoutp
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+error: undefined symbol: _atexit
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+error: undefined symbol: _calloc
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_new
+error: undefined symbol: _exit
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_new
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_f_bump
+error: undefined symbol: _fprintf
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_new
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_f_bump
+error: undefined symbol: _fputs
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced 9 more times
+error: undefined symbol: _free
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_cleanup
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_cleanup
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_new
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_new
+error: undefined symbol: _fwrite
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+error: undefined symbol: _malloc
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_g_new
+error: undefined symbol: _printf
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced 13 more times
+error: undefined symbol: _putchar
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+error: undefined symbol: _puts
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/c320008a2c927f6497620a07300d860e/semantics.o:_main
+    note: referenced 1 more times
+
+
+======================================================================
+FAIL: test_cli_run_arguments_exit_and_build (test_glyph.NativeTests.test_cli_run_arguments_exit_and_build)
+----------------------------------------------------------------------
+Traceback (most recent call last):
+  File "/Users/igino/glyph/tests/test_glyph.py", line 245, in test_cli_run_arguments_exit_and_build
+    self.assertEqual(proc.returncode, 0, proc.stderr)
+    ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+AssertionError: 1 != 0 : b'/Users/igino/glyph/build/tests/exit.gly:1:1: G202: native backend failed: error: undefined symbol: ___stderrp\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\nerror: undefined symbol: _exit\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\nerror: undefined symbol: _fprintf\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\nerror: undefined symbol: _fputs\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\nerror: undefined symbol: _strtoll\n    note: referenced by /Users/igino/glyph/build/.glyph-cache/o/59787c8098f49cd8d7f58bfaa9adad90/cli.o:_main\n\n'
+
+----------------------------------------------------------------------
+Ran 10 tests in 5.907s
+
+FAILED (failures=1, errors=4)

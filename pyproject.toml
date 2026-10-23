@@ -16,7 +16,7 @@ bench = ["tiktoken==0.12.0", "psutil==7.2.2"]
 glyph = "glyph.cli:main"
 
 [tool.setuptools.package-data]
-glyph = ["runtime.h"]
+glyph = ["*.h", "*.m", "vendor/*.md", "vendor/bdwgc/*.c", "vendor/bdwgc/*.md", "vendor/bdwgc/*.json", "vendor/bdwgc/extra/*.c", "vendor/bdwgc/include/*.h", "vendor/bdwgc/include/*/*.h"]
 
 [tool.setuptools.packages.find]
 include = ["glyph*"]

@@ -1,0 +1,623 @@
+{
+  "tokenizer": "cl100k_base",
+  "tiktoken": "0.12.0",
+  "study_type": "hand-authored source inventory and scripted repair; no agent sampled",
+  "actual_agent_retries": null,
+  "actual_total_agent_tokens_per_correct_task": null,
+  "instruction_tokens": {
+    "glyph": 1268,
+    "c": 62,
+    "python": 36
+  },
+  "tasks": {
+    "sum": {
+      "glyph": {
+        "solution_tokens": 9,
+        "full_source_tokens": 32,
+        "source_characters": 80,
+        "diagnostic_tokens": 74,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 1454,
+        "visible_tokens_per_verified_scripted_task": 1454,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "3\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Glyph uses UTF-8 `.gly` files and two-space blocks. Functions use typed parameters: `name a:[int]>int` plus an indented body, or `name a:[int] = expression` with inferred result. Use `ret value` in blocks. Entry is `main>void` or `main>int`; `main = 0` also works. Calls use `f(a, b)`. Declare locals with `x := 0` or `x:int = 0`; assign existing variables with `x = 1` or `x += 1`. Types: int (checked i64), f64, bool, str, scalar/record arrays `[T]`, and built-in `list[T]`, `map[K,V]`, `set[K]` collections. No implicit conversions or shadowing. Empty arrays need a type: `a:[int] = []`. Recursive result inference needs an explicit annotation.\n\nControl: `if condition` then block, optional `else` block; `while condition` then block; `for x:array` then block. Comparisons and `and`, `or`, `not` yield Boolean values. Standard numeric precedence applies. Use `print(value)`, `len(a)`, `range(n)`, `fill(n, value)`, `clone(a)`, `push(a, value)`. `fold a 0 +` sums a numeric array in order; `fold a 1 *` multiplies. Parenthesize fold inside other expressions. `i64(x)` and `f64(x)` are explicit conversions. `argi(0)` reads the first integer program argument.\n\nUse `sum(a)` for numeric arrays, `count(flags)` for bool arrays, `count(x > 0 for x in a)`, or `sum(x * y for x, y in zip(a, b))`. These are fused loops, with one iteration clause and no filter clause. Zip requires equal lengths. Sources evaluate once left to right; bodies run in index order. Empty reductions return zero. Existing user functions named sum/count override ordinary calls; generator forms are intrinsic.\n\nDefine records with `type Point` and indented `x:f64`, `y:f64` fields; construct with `Point(1.0, 2.0)` and access `p.x`. Fields are required positional arguments in declaration order. Records copy by value, including nested records; array fields still share storage. Arrays can contain records. `clone` copies elements, not nested array allocations. Direct recursive record layouts are forbidden; recursive array fields work.\n\nDeclare methods inside a type: `norm2 = self.x * self.x + self.y * self.y`. Call `p.norm2()`. Prefix mutating methods with `mut`, e.g. `mut move dx:f64>void` with body `self.x += dx`. A mut receiver must be a variable, addressable field or array element. Ordinary methods receive a snapshot and cannot replace self or its inline fields, but can update shared array elements. `static origin = Point(0.0, 0.0)` is called as `Point.origin()`. Prefix members with `private` to restrict access to that type's methods; records with private fields need a public static factory for outside construction. No inheritance, interfaces, overloads, record equality or record printing.\n\nIntegers and indexing trap on overflow/out-of-bounds, including intermediate reduction overflow. Array assignments share storage; clone copies elements. Arrays and dynamic strings are garbage collected without moving. Non-void functions must return on every path. Named file imports are supported; user generics are not. Pointer operations require `unsafe` and valid numeric/Boolean array-derived pointers.\n\nUse `glyph check file.gly`, `glyph build file.gly -O2`, `glyph run file.gly -- 10`, `glyph fmt file.gly`. Add `--json` for structured diagnostics. Fix the first error and recheck. Verify outputs before claiming completion.\n\nText/system builtins: `concat(a,b)`, `slice(s,start,end)` on UTF-8 byte boundaries,\n`byte_at(s,i)`, `chr(code)`, `join(parts,count,separator)`, `str_i64`, `str_f64`,\n`parse_i64`, `parse_f64`, `valid_f64`, `read_file`, `write_file`, `same_file`,\n`argc()`, `arg(i)`, `getenv`, `platform`, `process([executable,args...])`, `eprint`,\nand `exit`. Slices retain their backing strings; prefer joining parts over\nrepeated concatenation. `process` is POSIX-only and uses no shell.\n\nBootstrap the native compiler with `python selfhost/bootstrap.py --verify`.\nThen `build/selfhost/glyphc check|emit-c|build|run source.gly` works without Python;\nuse `--runtime-dir glyph` (or an absolute path) for emission/builds outside the\nrepository root. Native `fmt` is not implemented. See `docs/SELF_HOSTING.md`.\n\nImport selected declarations with `import Name, other from \"./library.gly\"`\nbefore any definitions. Paths are relative to that file. Imported files must\nnot define `main`; cycles, re-exported imports, and conflicting bindings are\nrejected. See [Modules](MODULES.md).\n\nUse `list([1, 2])`, `map([\"key\"], [42])`, or `set([\"tag\"])` for growable collections.\nEmpty forms need context: `a:list[int] = list([])`, `m:map[str,int] = map([], [])`.\nLists have append/get/set/pop/remove/to_array; maps have put/get/get_or/contains/\nremove/keys/values; sets have add/contains/remove/to_array. All support len, clone,\nand clear. Assignments share mutation; clone is shallow. Keys must be int, bool or\nstr; list elements and map values may also be f64 or records. `for x:c` visits a\nsnapshot (map keys, set members); map/set order is unspecified. Use methods for\naccess, not brackets or ptr. See [collections](COLLECTIONS.md).\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a), the sum of signed integers. Empty input returns zero. Verify [1, -2, 4] -> 3, [] -> 0. Test inputs do not overflow i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "solve a:[int] = sum(a)\n\nmain>void\n  print(missing([1, -2, 4]))\n  print(solve([]))\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "{\"code\": \"G101\", \"severity\": \"error\", \"message\": \"unknown function missing\", \"file\": \"/Users/igino/glyph/build/bench/task_sum_glyph.gly\", \"span\": {\"start\": {\"line\": 4, \"column\": 9}, \"end\": {\"line\": 4, \"column\": 16}}}\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "solve a:[int] = sum(a)\n\nmain>void\n  print(solve([1, -2, 4]))\n  print(solve([]))\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n3\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 1268
+          },
+          {
+            "kind": "task",
+            "tokens": 42
+          },
+          {
+            "kind": "attempt",
+            "tokens": 32
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 74
+          },
+          {
+            "kind": "attempt",
+            "tokens": 32
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      },
+      "python": {
+        "solution_tokens": 9,
+        "full_source_tokens": 26,
+        "source_characters": 75,
+        "diagnostic_tokens": 62,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 198,
+        "visible_tokens_per_verified_scripted_task": 198,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "3\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Use Python 3.11+ with lists of integers and standard builtins. Return the result from solve. Execute with python and verify printed outputs. Fix exceptions before claiming completion.\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a), the sum of signed integers. Empty input returns zero. Verify [1, -2, 4] -> 3, [] -> 0. Test inputs do not overflow i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "def solve(a):\n    return sum(a)\n\nprint(missing([1, -2, 4]))\nprint(solve([]))\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "Traceback (most recent call last):\n  File \"/Users/igino/glyph/build/bench/task_sum_python.py\", line 4, in <module>\n    print(missing([1, -2, 4]))\n          ^^^^^^^\nNameError: name 'missing' is not defined\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "def solve(a):\n    return sum(a)\n\nprint(solve([1, -2, 4]))\nprint(solve([]))\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n3\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 36
+          },
+          {
+            "kind": "task",
+            "tokens": 42
+          },
+          {
+            "kind": "attempt",
+            "tokens": 26
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 62
+          },
+          {
+            "kind": "attempt",
+            "tokens": 26
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      },
+      "c": {
+        "solution_tokens": 53,
+        "full_source_tokens": 112,
+        "source_characters": 284,
+        "diagnostic_tokens": 107,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 441,
+        "visible_tokens_per_verified_scripted_task": 441,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "3\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Use C11 with int64_t arrays and explicit lengths. Include stdint.h and stdio.h. Compile with clang -std=c11 -O2. Return the result from solve; use printf to verify outputs. Inputs are within the specified non-overflowing domain. Fix compiler errors before running tests.\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a), the sum of signed integers. Empty input returns zero. Verify [1, -2, 4] -> 3, [] -> 0. Test inputs do not overflow i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "#include <stdint.h>\n#include <stdio.h>\nint64_t solve(const int64_t *a, int64_t n) {\n    int64_t s = 0;\n    for (int64_t i = 0; i < n; i++) s += a[i];\n    return s;\n}\n\nint main(void) { int64_t a[] = {1, -2, 4}; printf(\"%lld\\n%lld\\n\", (long long)missing(a, 3), (long long)solve(a, 0)); }\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "/Users/igino/glyph/build/bench/task_sum_c.c:9:78: error: call to undeclared function 'missing'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    9 | int main(void) { int64_t a[] = {1, -2, 4}; printf(\"%lld\\n%lld\\n\", (long long)missing(a, 3), (long long)solve(a, 0)); }\n      |                                                                              ^\n1 error generated.\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "#include <stdint.h>\n#include <stdio.h>\nint64_t solve(const int64_t *a, int64_t n) {\n    int64_t s = 0;\n    for (int64_t i = 0; i < n; i++) s += a[i];\n    return s;\n}\n\nint main(void) { int64_t a[] = {1, -2, 4}; printf(\"%lld\\n%lld\\n\", (long long)solve(a, 3), (long long)solve(a, 0)); }\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n3\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 62
+          },
+          {
+            "kind": "task",
+            "tokens": 42
+          },
+          {
+            "kind": "attempt",
+            "tokens": 112
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 107
+          },
+          {
+            "kind": "attempt",
+            "tokens": 112
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      }
+    },
+    "positive_count": {
+      "glyph": {
+        "solution_tokens": 16,
+        "full_source_tokens": 42,
+        "source_characters": 100,
+        "diagnostic_tokens": 75,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 1472,
+        "visible_tokens_per_verified_scripted_task": 1472,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "2\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Glyph uses UTF-8 `.gly` files and two-space blocks. Functions use typed parameters: `name a:[int]>int` plus an indented body, or `name a:[int] = expression` with inferred result. Use `ret value` in blocks. Entry is `main>void` or `main>int`; `main = 0` also works. Calls use `f(a, b)`. Declare locals with `x := 0` or `x:int = 0`; assign existing variables with `x = 1` or `x += 1`. Types: int (checked i64), f64, bool, str, scalar/record arrays `[T]`, and built-in `list[T]`, `map[K,V]`, `set[K]` collections. No implicit conversions or shadowing. Empty arrays need a type: `a:[int] = []`. Recursive result inference needs an explicit annotation.\n\nControl: `if condition` then block, optional `else` block; `while condition` then block; `for x:array` then block. Comparisons and `and`, `or`, `not` yield Boolean values. Standard numeric precedence applies. Use `print(value)`, `len(a)`, `range(n)`, `fill(n, value)`, `clone(a)`, `push(a, value)`. `fold a 0 +` sums a numeric array in order; `fold a 1 *` multiplies. Parenthesize fold inside other expressions. `i64(x)` and `f64(x)` are explicit conversions. `argi(0)` reads the first integer program argument.\n\nUse `sum(a)` for numeric arrays, `count(flags)` for bool arrays, `count(x > 0 for x in a)`, or `sum(x * y for x, y in zip(a, b))`. These are fused loops, with one iteration clause and no filter clause. Zip requires equal lengths. Sources evaluate once left to right; bodies run in index order. Empty reductions return zero. Existing user functions named sum/count override ordinary calls; generator forms are intrinsic.\n\nDefine records with `type Point` and indented `x:f64`, `y:f64` fields; construct with `Point(1.0, 2.0)` and access `p.x`. Fields are required positional arguments in declaration order. Records copy by value, including nested records; array fields still share storage. Arrays can contain records. `clone` copies elements, not nested array allocations. Direct recursive record layouts are forbidden; recursive array fields work.\n\nDeclare methods inside a type: `norm2 = self.x * self.x + self.y * self.y`. Call `p.norm2()`. Prefix mutating methods with `mut`, e.g. `mut move dx:f64>void` with body `self.x += dx`. A mut receiver must be a variable, addressable field or array element. Ordinary methods receive a snapshot and cannot replace self or its inline fields, but can update shared array elements. `static origin = Point(0.0, 0.0)` is called as `Point.origin()`. Prefix members with `private` to restrict access to that type's methods; records with private fields need a public static factory for outside construction. No inheritance, interfaces, overloads, record equality or record printing.\n\nIntegers and indexing trap on overflow/out-of-bounds, including intermediate reduction overflow. Array assignments share storage; clone copies elements. Arrays and dynamic strings are garbage collected without moving. Non-void functions must return on every path. Named file imports are supported; user generics are not. Pointer operations require `unsafe` and valid numeric/Boolean array-derived pointers.\n\nUse `glyph check file.gly`, `glyph build file.gly -O2`, `glyph run file.gly -- 10`, `glyph fmt file.gly`. Add `--json` for structured diagnostics. Fix the first error and recheck. Verify outputs before claiming completion.\n\nText/system builtins: `concat(a,b)`, `slice(s,start,end)` on UTF-8 byte boundaries,\n`byte_at(s,i)`, `chr(code)`, `join(parts,count,separator)`, `str_i64`, `str_f64`,\n`parse_i64`, `parse_f64`, `valid_f64`, `read_file`, `write_file`, `same_file`,\n`argc()`, `arg(i)`, `getenv`, `platform`, `process([executable,args...])`, `eprint`,\nand `exit`. Slices retain their backing strings; prefer joining parts over\nrepeated concatenation. `process` is POSIX-only and uses no shell.\n\nBootstrap the native compiler with `python selfhost/bootstrap.py --verify`.\nThen `build/selfhost/glyphc check|emit-c|build|run source.gly` works without Python;\nuse `--runtime-dir glyph` (or an absolute path) for emission/builds outside the\nrepository root. Native `fmt` is not implemented. See `docs/SELF_HOSTING.md`.\n\nImport selected declarations with `import Name, other from \"./library.gly\"`\nbefore any definitions. Paths are relative to that file. Imported files must\nnot define `main`; cycles, re-exported imports, and conflicting bindings are\nrejected. See [Modules](MODULES.md).\n\nUse `list([1, 2])`, `map([\"key\"], [42])`, or `set([\"tag\"])` for growable collections.\nEmpty forms need context: `a:list[int] = list([])`, `m:map[str,int] = map([], [])`.\nLists have append/get/set/pop/remove/to_array; maps have put/get/get_or/contains/\nremove/keys/values; sets have add/contains/remove/to_array. All support len, clone,\nand clear. Assignments share mutation; clone is shallow. Keys must be int, bool or\nstr; list elements and map values may also be f64 or records. `for x:c` visits a\nsnapshot (map keys, set members); map/set order is unspecified. Use methods for\naccess, not brackets or ptr. See [collections](COLLECTIONS.md).\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a), counting values strictly greater than zero. Verify [-2, 0, 3, 7] -> 2, [] -> 0. Test inputs fit i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "solve a:[int] = count(x > 0 for x in a)\n\nmain>void\n  print(missing([-2, 0, 3, 7]))\n  print(solve([]))\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "{\"code\": \"G101\", \"severity\": \"error\", \"message\": \"unknown function missing\", \"file\": \"/Users/igino/glyph/build/bench/task_positive_count_glyph.gly\", \"span\": {\"start\": {\"line\": 4, \"column\": 9}, \"end\": {\"line\": 4, \"column\": 16}}}\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "solve a:[int] = count(x > 0 for x in a)\n\nmain>void\n  print(solve([-2, 0, 3, 7]))\n  print(solve([]))\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n2\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 1268
+          },
+          {
+            "kind": "task",
+            "tokens": 39
+          },
+          {
+            "kind": "attempt",
+            "tokens": 42
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 75
+          },
+          {
+            "kind": "attempt",
+            "tokens": 42
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      },
+      "python": {
+        "solution_tokens": 16,
+        "full_source_tokens": 36,
+        "source_characters": 93,
+        "diagnostic_tokens": 66,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 219,
+        "visible_tokens_per_verified_scripted_task": 219,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "2\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Use Python 3.11+ with lists of integers and standard builtins. Return the result from solve. Execute with python and verify printed outputs. Fix exceptions before claiming completion.\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a), counting values strictly greater than zero. Verify [-2, 0, 3, 7] -> 2, [] -> 0. Test inputs fit i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "def solve(a):\n    return sum(x > 0 for x in a)\n\nprint(missing([-2, 0, 3, 7]))\nprint(solve([]))\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "Traceback (most recent call last):\n  File \"/Users/igino/glyph/build/bench/task_positive_count_python.py\", line 4, in <module>\n    print(missing([-2, 0, 3, 7]))\n          ^^^^^^^\nNameError: name 'missing' is not defined\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "def solve(a):\n    return sum(x > 0 for x in a)\n\nprint(solve([-2, 0, 3, 7]))\nprint(solve([]))\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n2\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 36
+          },
+          {
+            "kind": "task",
+            "tokens": 39
+          },
+          {
+            "kind": "attempt",
+            "tokens": 36
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 66
+          },
+          {
+            "kind": "attempt",
+            "tokens": 36
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      },
+      "c": {
+        "solution_tokens": 59,
+        "full_source_tokens": 121,
+        "source_characters": 307,
+        "diagnostic_tokens": 111,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 460,
+        "visible_tokens_per_verified_scripted_task": 460,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "2\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Use C11 with int64_t arrays and explicit lengths. Include stdint.h and stdio.h. Compile with clang -std=c11 -O2. Return the result from solve; use printf to verify outputs. Inputs are within the specified non-overflowing domain. Fix compiler errors before running tests.\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a), counting values strictly greater than zero. Verify [-2, 0, 3, 7] -> 2, [] -> 0. Test inputs fit i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "#include <stdint.h>\n#include <stdio.h>\nint64_t solve(const int64_t *a, int64_t n) {\n    int64_t count = 0;\n    for (int64_t i = 0; i < n; i++) if (a[i] > 0) count++;\n    return count;\n}\n\nint main(void) { int64_t a[] = {-2, 0, 3, 7}; printf(\"%lld\\n%lld\\n\", (long long)missing(a, 4), (long long)solve(a, 0)); }\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "/Users/igino/glyph/build/bench/task_positive_count_c.c:9:81: error: call to undeclared function 'missing'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    9 | int main(void) { int64_t a[] = {-2, 0, 3, 7}; printf(\"%lld\\n%lld\\n\", (long long)missing(a, 4), (long long)solve(a, 0)); }\n      |                                                                                 ^\n1 error generated.\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "#include <stdint.h>\n#include <stdio.h>\nint64_t solve(const int64_t *a, int64_t n) {\n    int64_t count = 0;\n    for (int64_t i = 0; i < n; i++) if (a[i] > 0) count++;\n    return count;\n}\n\nint main(void) { int64_t a[] = {-2, 0, 3, 7}; printf(\"%lld\\n%lld\\n\", (long long)solve(a, 4), (long long)solve(a, 0)); }\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n2\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 62
+          },
+          {
+            "kind": "task",
+            "tokens": 39
+          },
+          {
+            "kind": "attempt",
+            "tokens": 121
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 111
+          },
+          {
+            "kind": "attempt",
+            "tokens": 121
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      }
+    },
+    "dot": {
+      "glyph": {
+        "solution_tokens": 24,
+        "full_source_tokens": 57,
+        "source_characters": 129,
+        "diagnostic_tokens": 74,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 1516,
+        "visible_tokens_per_verified_scripted_task": 1516,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "32\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Glyph uses UTF-8 `.gly` files and two-space blocks. Functions use typed parameters: `name a:[int]>int` plus an indented body, or `name a:[int] = expression` with inferred result. Use `ret value` in blocks. Entry is `main>void` or `main>int`; `main = 0` also works. Calls use `f(a, b)`. Declare locals with `x := 0` or `x:int = 0`; assign existing variables with `x = 1` or `x += 1`. Types: int (checked i64), f64, bool, str, scalar/record arrays `[T]`, and built-in `list[T]`, `map[K,V]`, `set[K]` collections. No implicit conversions or shadowing. Empty arrays need a type: `a:[int] = []`. Recursive result inference needs an explicit annotation.\n\nControl: `if condition` then block, optional `else` block; `while condition` then block; `for x:array` then block. Comparisons and `and`, `or`, `not` yield Boolean values. Standard numeric precedence applies. Use `print(value)`, `len(a)`, `range(n)`, `fill(n, value)`, `clone(a)`, `push(a, value)`. `fold a 0 +` sums a numeric array in order; `fold a 1 *` multiplies. Parenthesize fold inside other expressions. `i64(x)` and `f64(x)` are explicit conversions. `argi(0)` reads the first integer program argument.\n\nUse `sum(a)` for numeric arrays, `count(flags)` for bool arrays, `count(x > 0 for x in a)`, or `sum(x * y for x, y in zip(a, b))`. These are fused loops, with one iteration clause and no filter clause. Zip requires equal lengths. Sources evaluate once left to right; bodies run in index order. Empty reductions return zero. Existing user functions named sum/count override ordinary calls; generator forms are intrinsic.\n\nDefine records with `type Point` and indented `x:f64`, `y:f64` fields; construct with `Point(1.0, 2.0)` and access `p.x`. Fields are required positional arguments in declaration order. Records copy by value, including nested records; array fields still share storage. Arrays can contain records. `clone` copies elements, not nested array allocations. Direct recursive record layouts are forbidden; recursive array fields work.\n\nDeclare methods inside a type: `norm2 = self.x * self.x + self.y * self.y`. Call `p.norm2()`. Prefix mutating methods with `mut`, e.g. `mut move dx:f64>void` with body `self.x += dx`. A mut receiver must be a variable, addressable field or array element. Ordinary methods receive a snapshot and cannot replace self or its inline fields, but can update shared array elements. `static origin = Point(0.0, 0.0)` is called as `Point.origin()`. Prefix members with `private` to restrict access to that type's methods; records with private fields need a public static factory for outside construction. No inheritance, interfaces, overloads, record equality or record printing.\n\nIntegers and indexing trap on overflow/out-of-bounds, including intermediate reduction overflow. Array assignments share storage; clone copies elements. Arrays and dynamic strings are garbage collected without moving. Non-void functions must return on every path. Named file imports are supported; user generics are not. Pointer operations require `unsafe` and valid numeric/Boolean array-derived pointers.\n\nUse `glyph check file.gly`, `glyph build file.gly -O2`, `glyph run file.gly -- 10`, `glyph fmt file.gly`. Add `--json` for structured diagnostics. Fix the first error and recheck. Verify outputs before claiming completion.\n\nText/system builtins: `concat(a,b)`, `slice(s,start,end)` on UTF-8 byte boundaries,\n`byte_at(s,i)`, `chr(code)`, `join(parts,count,separator)`, `str_i64`, `str_f64`,\n`parse_i64`, `parse_f64`, `valid_f64`, `read_file`, `write_file`, `same_file`,\n`argc()`, `arg(i)`, `getenv`, `platform`, `process([executable,args...])`, `eprint`,\nand `exit`. Slices retain their backing strings; prefer joining parts over\nrepeated concatenation. `process` is POSIX-only and uses no shell.\n\nBootstrap the native compiler with `python selfhost/bootstrap.py --verify`.\nThen `build/selfhost/glyphc check|emit-c|build|run source.gly` works without Python;\nuse `--runtime-dir glyph` (or an absolute path) for emission/builds outside the\nrepository root. Native `fmt` is not implemented. See `docs/SELF_HOSTING.md`.\n\nImport selected declarations with `import Name, other from \"./library.gly\"`\nbefore any definitions. Paths are relative to that file. Imported files must\nnot define `main`; cycles, re-exported imports, and conflicting bindings are\nrejected. See [Modules](MODULES.md).\n\nUse `list([1, 2])`, `map([\"key\"], [42])`, or `set([\"tag\"])` for growable collections.\nEmpty forms need context: `a:list[int] = list([])`, `m:map[str,int] = map([], [])`.\nLists have append/get/set/pop/remove/to_array; maps have put/get/get_or/contains/\nremove/keys/values; sets have add/contains/remove/to_array. All support len, clone,\nand clear. Assignments share mutation; clone is shallow. Keys must be int, bool or\nstr; list elements and map values may also be f64 or records. `for x:c` visits a\nsnapshot (map keys, set members); map/set order is unspecified. Use methods for\naccess, not brackets or ptr. See [collections](COLLECTIONS.md).\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a, b), the dot product of equal-length signed integer arrays. Verify [1, 2, 3] and [4, 5, 6] -> 32, two empty arrays -> 0. No operation overflows i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "solve a:[int], b:[int] = sum(x * y for x, y in zip(a, b))\n\nmain>void\n  print(missing([1, 2, 3], [4, 5, 6]))\n  print(solve([], []))\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "{\"code\": \"G101\", \"severity\": \"error\", \"message\": \"unknown function missing\", \"file\": \"/Users/igino/glyph/build/bench/task_dot_glyph.gly\", \"span\": {\"start\": {\"line\": 4, \"column\": 9}, \"end\": {\"line\": 4, \"column\": 16}}}\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "solve a:[int], b:[int] = sum(x * y for x, y in zip(a, b))\n\nmain>void\n  print(solve([1, 2, 3], [4, 5, 6]))\n  print(solve([], []))\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n32\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 1268
+          },
+          {
+            "kind": "task",
+            "tokens": 54
+          },
+          {
+            "kind": "attempt",
+            "tokens": 57
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 74
+          },
+          {
+            "kind": "attempt",
+            "tokens": 57
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      },
+      "python": {
+        "solution_tokens": 22,
+        "full_source_tokens": 49,
+        "source_characters": 118,
+        "diagnostic_tokens": 71,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 265,
+        "visible_tokens_per_verified_scripted_task": 265,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "32\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Use Python 3.11+ with lists of integers and standard builtins. Return the result from solve. Execute with python and verify printed outputs. Fix exceptions before claiming completion.\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a, b), the dot product of equal-length signed integer arrays. Verify [1, 2, 3] and [4, 5, 6] -> 32, two empty arrays -> 0. No operation overflows i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "def solve(a, b):\n    return sum(x * y for x, y in zip(a, b))\n\nprint(missing([1, 2, 3], [4, 5, 6]))\nprint(solve([], []))\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "Traceback (most recent call last):\n  File \"/Users/igino/glyph/build/bench/task_dot_python.py\", line 4, in <module>\n    print(missing([1, 2, 3], [4, 5, 6]))\n          ^^^^^^^\nNameError: name 'missing' is not defined\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "def solve(a, b):\n    return sum(x * y for x, y in zip(a, b))\n\nprint(solve([1, 2, 3], [4, 5, 6]))\nprint(solve([], []))\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n32\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 36
+          },
+          {
+            "kind": "task",
+            "tokens": 54
+          },
+          {
+            "kind": "attempt",
+            "tokens": 49
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 71
+          },
+          {
+            "kind": "attempt",
+            "tokens": 49
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      },
+      "c": {
+        "solution_tokens": 64,
+        "full_source_tokens": 139,
+        "source_characters": 331,
+        "diagnostic_tokens": 124,
+        "scripted_retries": 1,
+        "visible_transcript_tokens": 524,
+        "visible_tokens_per_verified_scripted_task": 524,
+        "verified": true,
+        "final_result": {
+          "success": true,
+          "diagnostic": "",
+          "stdout": "32\n0\n"
+        },
+        "events": [
+          {
+            "kind": "instructions",
+            "text": "Use C11 with int64_t arrays and explicit lengths. Include stdint.h and stdio.h. Compile with clang -std=c11 -O2. Return the result from solve; use printf to verify outputs. Inputs are within the specified non-overflowing domain. Fix compiler errors before running tests.\n"
+          },
+          {
+            "kind": "task",
+            "text": "Implement solve(a, b), the dot product of equal-length signed integer arrays. Verify [1, 2, 3] and [4, 5, 6] -> 32, two empty arrays -> 0. No operation overflows i64."
+          },
+          {
+            "kind": "attempt",
+            "text": "#include <stdint.h>\n#include <stdio.h>\nint64_t solve(const int64_t *a, const int64_t *b, int64_t n) {\n    int64_t s = 0;\n    for (int64_t i = 0; i < n; i++) s += a[i] * b[i];\n    return s;\n}\n\nint main(void) { int64_t a[] = {1, 2, 3}, b[] = {4, 5, 6}; printf(\"%lld\\n%lld\\n\", (long long)missing(a, b, 3), (long long)solve(a, b, 0)); }\n"
+          },
+          {
+            "kind": "diagnostic",
+            "text": "/Users/igino/glyph/build/bench/task_dot_c.c:9:94: error: call to undeclared function 'missing'; ISO C99 and later do not support implicit function declarations [-Wimplicit-function-declaration]\n    9 | int main(void) { int64_t a[] = {1, 2, 3}, b[] = {4, 5, 6}; printf(\"%lld\\n%lld\\n\", (long long)missing(a, b, 3), (long long)solve(a, b, 0)); }\n      |                                                                                              ^\n1 error generated.\n"
+          },
+          {
+            "kind": "attempt",
+            "text": "#include <stdint.h>\n#include <stdio.h>\nint64_t solve(const int64_t *a, const int64_t *b, int64_t n) {\n    int64_t s = 0;\n    for (int64_t i = 0; i < n; i++) s += a[i] * b[i];\n    return s;\n}\n\nint main(void) { int64_t a[] = {1, 2, 3}, b[] = {4, 5, 6}; printf(\"%lld\\n%lld\\n\", (long long)solve(a, b, 3), (long long)solve(a, b, 0)); }\n"
+          },
+          {
+            "kind": "verification",
+            "text": "PASS\n32\n0\n"
+          }
+        ],
+        "event_token_counts": [
+          {
+            "kind": "instructions",
+            "tokens": 62
+          },
+          {
+            "kind": "task",
+            "tokens": 54
+          },
+          {
+            "kind": "attempt",
+            "tokens": 139
+          },
+          {
+            "kind": "diagnostic",
+            "tokens": 124
+          },
+          {
+            "kind": "attempt",
+            "tokens": 139
+          },
+          {
+            "kind": "verification",
+            "tokens": 6
+          }
+        ]
+      }
+    }
+  }
+}

@@ -1,0 +1,159 @@
+{
+  "source": "/Users/igino/glyph/selfhost/compiler.gly",
+  "source_sha256": "81033a5844c09855f8cbdc60bfd1302a3336c4525185bf7922f5f64607e9341f",
+  "runtime_sha256": {
+    "gui.h": "fa0cf92cbc1fc522f23dbe3862af082f496b37e3bdebc7af82b93c336a586ef7",
+    "gui_runtime.h": "a4d9c5523cfda2b6f286b944619f5d67203c398ef16d046014708307c244e831",
+    "runtime.h": "f718068176709cc6c0c1898805502a082f668e496dc1a5f30106212913f0dc95",
+    "std_runtime.h": "3ca3e9161cd13ab9ce10d48758a359bbd142678f9f00923113eeb014327a8172"
+  },
+  "fixed_point": true,
+  "native_generations_without_python_on_path": true,
+  "generated_c_sha256": "eb218fa2f3986da937cd3dd7491ecdd195aced8284cd7fd3a858e683b2c0b55d",
+  "stages": {
+    "stage1": {
+      "executable_sha256": "d5b0ad0608097c4873c91271a92ae34a0ff5f75a02e5f01ae0a031fb54d26812",
+      "bytes": 174040
+    },
+    "stage2": {
+      "executable_sha256": "d1d4344b8d42ecc070e4729b97d2af3a90deaabce3cb3ca178f24927d8c7ca51",
+      "bytes": 152664
+    },
+    "glyphc": {
+      "executable_sha256": "36a76a189c6e4ef53ec87f3ce66f672d8108714ef114d97e88c60bfbd6f11954",
+      "bytes": 152664
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "-m",
+        "glyph",
+        "build",
+        "/Users/igino/glyph/selfhost/compiler.gly",
+        "-o",
+        "/Users/igino/glyph/build/selfhost/stage1"
+      ],
+      "seconds": 2.7849758340162225,
+      "returncode": 0,
+      "python_on_path": true
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/selfhost/stage1",
+        "build",
+        "/Users/igino/glyph/selfhost/compiler.gly",
+        "-o",
+        "/Users/igino/glyph/build/selfhost/stage2",
+        "--runtime-dir",
+        "/Users/igino/glyph/glyph",
+        "--cc",
+        "/usr/bin/cc"
+      ],
+      "seconds": 2.0349801249976736,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/selfhost/stage2",
+        "build",
+        "/Users/igino/glyph/selfhost/compiler.gly",
+        "-o",
+        "/Users/igino/glyph/build/selfhost/glyphc",
+        "--runtime-dir",
+        "/Users/igino/glyph/glyph",
+        "--cc",
+        "/usr/bin/cc"
+      ],
+      "seconds": 1.7935154589940794,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/selfhost/glyphc",
+        "check",
+        "/Users/igino/glyph/selfhost/compiler.gly"
+      ],
+      "seconds": 0.31210375000955537,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/selfhost/glyphc",
+        "run",
+        "/Users/igino/glyph/build/selfhost/argument smoke.gly",
+        "-o",
+        "/Users/igino/glyph/build/selfhost/argument smoke",
+        "--runtime-dir",
+        "/Users/igino/glyph/glyph",
+        "--cc",
+        "/usr/bin/cc",
+        "--",
+        "no Python; spaces preserved"
+      ],
+      "seconds": 0.32554666700889356,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "/Users/igino/glyph/selfhost/verify.py",
+        "/Users/igino/glyph/build/selfhost/glyphc",
+        "--output-dir",
+        "/Users/igino/glyph/build/selfhost/corpus"
+      ],
+      "seconds": 29.12676108398591,
+      "returncode": 0,
+      "python_on_path": true
+    }
+  ],
+  "corpus": {
+    "native_checks": 1583,
+    "native_emissions": 43,
+    "parser_rejections": 1479,
+    "tests": 40,
+    "skipped": 0,
+    "failures": 0,
+    "errors": 0,
+    "success": true,
+    "compiler": "/Users/igino/glyph/build/selfhost/glyphc"
+  },
+  "host": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "date": "2026-10-20",
+  "source_snapshot_sha256": {
+    "glyph/__init__.py": "41be3440a5279cd6989754af75067ba11ec2869406679b306055058be75e6aec",
+    "glyph/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "glyph/backend.py": "b74e7dd02d5f07c6375e3498dd9b050f02bdde798cfccf765ea194720c1ee9af",
+    "glyph/checker.py": "8e82f0976f5c7eec8327828a83d5f33599f1b0640a0db17b6af825bb2aa4e1e8",
+    "glyph/cli.py": "e2100691ace3c03517217707931509855bac12392f8bd167a2730c6bc3caadc9",
+    "glyph/formatter.py": "d5d10391784ab3da76e1bb8b7c96f4e3bcf973f0c40610649fe2da7189944f6c",
+    "glyph/gui.h": "fa0cf92cbc1fc522f23dbe3862af082f496b37e3bdebc7af82b93c336a586ef7",
+    "glyph/gui.py": "4a3a156a80b1bb40262b06e12d31561501b3818eabee31d73aac3f733cdfb5d9",
+    "glyph/gui_macos.m": "508022ccb2e588c31a880570032db7fb146baedbba93e09e56ae484b8a9018b5",
+    "glyph/gui_runtime.h": "a4d9c5523cfda2b6f286b944619f5d67203c398ef16d046014708307c244e831",
+    "glyph/runtime.h": "f718068176709cc6c0c1898805502a082f668e496dc1a5f30106212913f0dc95",
+    "glyph/std_runtime.h": "3ca3e9161cd13ab9ce10d48758a359bbd142678f9f00923113eeb014327a8172",
+    "glyph/stdlib.py": "5d5339d3b07834ea7143a6c23a02f45d084995fecedbd86c7171987a61c492f3",
+    "glyph/syntax.py": "df9945091a755138c6bb3e880babe58414030d588ebbf251c715a823eb73d712",
+    "selfhost/bootstrap.py": "21c77768da8ab053195edcbe2a32ebd6d3e4aa92377b2cf8dbba837c32851cb7",
+    "selfhost/compiler.gly": "81033a5844c09855f8cbdc60bfd1302a3336c4525185bf7922f5f64607e9341f",
+    "selfhost/verify.py": "03b5dbbbe3377bea9994e9190b7acada1481db22e3973dfbb387d920efe6916f",
+    "tests/gui_macos_harness.m": "2127052774d00999fd4176dd87e79164b7dc70e1e67ed63ac28d7f1f37839aaa",
+    "tests/test_glyph.py": "77ca69bf32d7d2bd66c997079c8fdbc2e56c85848d832028647ffccf52d0ab37",
+    "tests/test_gui.py": "ce88b7be23784d99a93b86fc8cd708f538e32c5262f9b49125cb1139d96e1103",
+    "tests/test_records.py": "066ca8aa5a3088045240eceef8d7501e38b94dcc1ed110ed8141752dcead9fe7",
+    "tests/test_reductions.py": "5992ff64e52053fb423118503cb31cbc01036e37ee3ca98f08240c2757be109a",
+    "tests/test_selfhost.py": "4083cd8d71823514bda302fc71c32ecfc75134bf07c3ffdd899f553da15f266d",
+    "tests/test_systems.py": "48244c5a0709f71bf326878866a4cee71933b7108f31c6b8df10c9a18136de8a"
+  },
+  "packaging": {
+    "wheel_sha256": "b9b3eb7532ce5386daaf2e7b9d6819eceb7ddf02167ed4dc8c70c9552c5ba736",
+    "packaged_bootstrap_built_compiler": true,
+    "packaged_compiler_checked_own_source": true
+  }
+}

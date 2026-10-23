@@ -1,0 +1,3055 @@
+import cat, has, prefix, utf_width, jquote, cquote from "./text.gly"
+
+# Glyph native compiler. The Python frontend is needed only for stage 0.
+# State slots: tokens, cursor, nodes, functions, records, current function,
+# temporary serial, output lines, uses GUI.
+type Tok
+  text:str
+  line:int
+  col:int
+  path:str
+  end:int
+
+type Field
+  name:str
+  typ:str
+  token:int
+  hidden:bool
+
+type Node
+  kind:str
+  value:str
+  typ:str
+  token:int
+  args:[int]
+  body:[int]
+  other:[int]
+  bindings:[int]
+  target:int
+  zipped:bool
+  params:[Field]
+  captures:[Field]
+
+type Fn
+  name:str
+  token:int
+  params:[Field]
+  result:str
+  body:[int]
+  owner:str
+  mutating:bool
+  static_method:bool
+  hidden:bool
+  busy:bool
+  generic:[Field]
+
+type Rec
+  name:str
+  token:int
+  fields:[Field]
+  mark:int
+  generic:[Field]
+  kind:str
+  variants:[Variant]
+
+type Variant
+  name:str
+  fields:[Field]
+  token:int
+
+type Var
+  name:str
+  typ:str
+
+type Compiler
+  path:str
+  source:str
+  tokens:[Tok]
+  nodes:[Node]
+  funcs:[Fn]
+  records:[Rec]
+  state:[int]
+  output:[str]
+  templates:[Fn]
+  type_templates:[Rec]
+  requirements:[Field]
+  keys:[Var]
+
+die c:Compiler, code:str, message:str, t:Tok>void
+  end := t.end
+  eprint(cat(["{\"code\":", jquote(code), ",\"severity\":\"error\",\"message\":", jquote(message), ",\"file\":", jquote(t.path), ",\"span\":{\"start\":{\"line\":", str_i64(t.line), ",\"column\":", str_i64(t.col), "},\"end\":{\"line\":", str_i64(t.line), ",\"column\":", str_i64(end), "}}}"]))
+  exit(1)
+
+fail c:Compiler, code:str, message:str, token:int>void
+  die(c, code, message, c.tokens[token])
+
+make_compiler path:str, source:str>Compiler
+  size := len(source) + 16
+  c := Compiler(path, source, fill(size, make_tok("", 1, 1, path)), fill(size * 2 + 65536, Node("", "", "", 0, [], [], [], [], -1, false, [], [])), fill(size / 4 + 1024, Fn("", 0, [], "", [], "", false, false, false, false, [])), fill(size / 4 + 1024, Rec("", 0, [], 0, [], "type", [])), fill(16, 0), fill(size * 8, ""), [], [], fill(size + 4096, Field("", "", 0, false)), fill(256, Var("", "")))
+  names := ["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult"]
+  values := ["i64", "f64", "str", "bool", "[i64]", "[str]"]
+  i := 0
+  while i < len(names)
+    c.records[i] = Rec(names[i], 0, [Field("ok", "bool", 0, false), Field("value", values[i], 0, false), Field("code", "str", 0, false), Field("message", "str", 0, false)], 0, [], "type", [])
+    i += 1
+  c.state[4] = len(names)
+  ret c
+
+letter b:int>bool = b >= 65 and b <= 90 or b >= 97 and b <= 122 or b == 95
+
+digit b:int>bool = b >= 48 and b <= 57
+
+ident s:str>bool
+  if len(s) == 0 or not letter(byte_at(s, 0))
+    ret false
+  i := 1
+  while i < len(s)
+    b := byte_at(s, i)
+    if not letter(b) and not digit(b)
+      ret false
+    i += 1
+  ret true
+
+reserved s:str>bool = has(["if", "else", "while", "for", "ret", "unsafe", "true", "false", "and", "or", "not", "fold", "import", "from", "EOF", "NEWLINE", "INDENT", "DEDENT"], s)
+
+column s:str, start:int, end:int>int
+  col := 1
+  i := start
+  while i < end
+    i += utf_width(byte_at(s, i))
+    col += 1
+  ret col
+
+add_token c:Compiler, text:str, line:int, col:int>void
+  c.tokens[c.state[0]] = make_tok(text, line, col, c.path)
+  c.state[0] += 1
+
+lex_source c:Compiler>void
+  s := c.source
+  start := 0
+  line := 1
+  levels := [0]
+  while start < len(s)
+    end := start
+    while end < len(s) and byte_at(s, end) != 10 and byte_at(s, end) != 13
+      end += 1
+    limit := end
+    p := start
+    tab := false
+    while p < limit and (byte_at(s, p) == 32 or byte_at(s, p) == 9)
+      if byte_at(s, p) == 9
+        tab = true
+      p += 1
+    if p < limit and byte_at(s, p) != 35
+      if tab
+        die(c, "G001", "indent with spaces, not tabs", make_tok("", line, 1, c.path))
+      width := p - start
+      if width > levels[len(levels) - 1]
+        levels = push(levels, width)
+        add_token(c, "INDENT", line, 1)
+      depth := len(levels)
+      while width < levels[depth - 1]
+        depth -= 1
+        add_token(c, "DEDENT", line, 1)
+      if depth != len(levels)
+        shorter := fill(depth, 0)
+        i := 0
+        while i < depth
+          shorter[i] = levels[i]
+          i += 1
+        levels = shorter
+      if width != levels[len(levels) - 1]
+        die(c, "G001", "indentation does not match an outer block", make_tok("", line, 1, c.path))
+      while p < limit
+        b := byte_at(s, p)
+        if b == 35
+          p = limit
+        else
+          if b == 32
+            p += 1
+          else
+            begin := p
+            if b == 34
+              p += 1
+              closed := false
+              while p < limit and not closed
+                ch := byte_at(s, p)
+                if ch == 34
+                  closed = true
+                if ch == 92
+                  p += 1
+                p += 1
+              if not closed
+                die(c, "G001", "unterminated string", make_tok("", line, column(s, start, begin), c.path))
+            else
+              if letter(b)
+                p += 1
+                while p < limit and (letter(byte_at(s, p)) or digit(byte_at(s, p)))
+                  p += 1
+              else
+                if digit(b)
+                  p += 1
+                  while p < limit and digit(byte_at(s, p))
+                    p += 1
+                  if p + 1 < limit and byte_at(s, p) == 46 and digit(byte_at(s, p + 1))
+                    p += 1
+                    while p < limit and digit(byte_at(s, p))
+                      p += 1
+                  if p < limit and (byte_at(s, p) == 101 or byte_at(s, p) == 69)
+                    p += 1
+                    if p < limit and (byte_at(s, p) == 43 or byte_at(s, p) == 45)
+                      p += 1
+                    first := p
+                    while p < limit and digit(byte_at(s, p))
+                      p += 1
+                    if p == first
+                      die(c, "G001", "exponent requires digits", make_tok("", line, column(s, start, begin), c.path))
+                else
+                  if b >= 128
+                    die(c, "G001", "unexpected non-ASCII identifier character", make_tok("", line, column(s, start, begin), c.path))
+                  p += 1
+                  if p < limit and byte_at(s, p) < 128 and has(["==", "!=", "<=", ">=", ":=", "+=", "-=", "*=", "/=", "%="], slice(s, begin, p + 1))
+                    p += 1
+                  else
+                    if not has([".", "+", "*", "/", "%", "<", ">", "=", "!", ",", ":", "(", ")", "[", "]", "-"], chr(b))
+                      die(c, "G001", "unexpected character", make_tok("", line, column(s, start, begin), c.path))
+            add_token(c, slice(s, begin, p), line, column(s, start, begin))
+      add_token(c, "NEWLINE", line, column(s, start, limit))
+    start = end + 1
+    if end < len(s) and byte_at(s, end) == 13 and start < len(s) and byte_at(s, start) == 10
+      start += 1
+    line += 1
+  depth := len(levels)
+  while depth > 1
+    add_token(c, "DEDENT", line, 1)
+    depth -= 1
+  add_token(c, "EOF", line, 1)
+
+peek c:Compiler>str = c.tokens[c.state[1]].text
+
+pop c:Compiler>int
+  n := c.state[1]
+  if n + 1 < c.state[0]
+    c.state[1] += 1
+  ret n
+
+accept c:Compiler, s:str>bool
+  if peek(c) != s
+    ret false
+  pop(c)
+  ret true
+
+need c:Compiler, s:str>int
+  if peek(c) != s
+    fail(c, "G002", cat(["expected ", s, ", found ", peek(c)]), c.state[1])
+  ret pop(c)
+
+name_token c:Compiler>int
+  if not ident(peek(c)) or reserved(peek(c))
+    fail(c, "G002", "expected identifier", c.state[1])
+  ret pop(c)
+
+parse_type c:Compiler>str
+  if accept(c, "[")
+    item := parse_type(c)
+    need(c, "]")
+    ret cat(["[", item, "]"])
+  if accept(c, "*")
+    ret concat("*", parse_type(c))
+  name := c.tokens[name_token(c)].text
+  if name == "fn" and accept(c, "(")
+    items:[str] = []
+    if peek(c) != ")"
+      items = push(items, parse_type(c))
+      while accept(c, ",")
+        items = push(items, parse_type(c))
+    need(c, ")")
+    need(c, ">")
+    result := parse_type(c)
+    ret cat(["fn(", join(items, len(items), ","), ")>", result])
+  if accept(c, "[")
+    items := [parse_type(c)]
+    while accept(c, ",")
+      items = push(items, parse_type(c))
+    need(c, "]")
+    ret cat([name, "[", join(items, len(items), ","), "]"])
+  ret name
+
+parse_generic c:Compiler>[Field]
+  result:[Field] = []
+  if accept(c, "[")
+    more := true
+    while more
+      t := name_token(c)
+      constraint := ""
+      if accept(c, ":")
+        constraint = c.tokens[name_token(c)].text
+      result = push(result, Field(c.tokens[t].text, constraint, t, false))
+      more = accept(c, ",")
+    need(c, "]")
+  ret result
+
+new_node c:Compiler, kind:str, value:str, token:int, args:[int]>int
+  n := c.state[2]
+  if n >= len(c.nodes)
+    fail(c, "G005", "expanded node limit exceeded", token)
+  c.state[2] += 1
+  c.nodes[n] = Node(kind, value, "", token, args, [], [], [], -1, false, [], [])
+  ret n
+
+hex_digit c:Compiler, b:int, token:int>int
+  if digit(b)
+    ret b - 48
+  if b >= 65 and b <= 70
+    ret b - 55
+  if b >= 97 and b <= 102
+    ret b - 87
+  fail(c, "G001", "invalid Unicode escape", token)
+  ret 0
+
+hex_four c:Compiler, s:str, start:int, token:int>int
+  if start + 4 > len(s) - 1
+    fail(c, "G001", "incomplete Unicode escape", token)
+  n := 0
+  i := 0
+  while i < 4
+    n = n * 16 + hex_digit(c, byte_at(s, start + i), token)
+    i += 1
+  ret n
+
+unquote c:Compiler, token:int>str
+  s := c.tokens[token].text
+  parts := fill(len(s), "")
+  count := 0
+  i := 1
+  while i < len(s) - 1
+    b := byte_at(s, i)
+    if b < 32
+      fail(c, "G001", "control character in string", token)
+    if b == 92
+      i += 1
+      b = byte_at(s, i)
+      value := ""
+      if b == 34 or b == 92 or b == 47
+        value = chr(b)
+      else
+        if b == 110
+          value = "\n"
+        else
+          if b == 114
+            value = "\r"
+          else
+            if b == 116
+              value = "\t"
+            else
+              if b == 98
+                value = chr(8)
+              else
+                if b == 102
+                  value = chr(12)
+                else
+                  if b != 117
+                    fail(c, "G001", "invalid JSON escape", token)
+                  code := hex_four(c, s, i + 1, token)
+                  i += 4
+                  if code >= 55296 and code <= 56319
+                    if i + 6 >= len(s) or slice(s, i + 1, i + 3) != "\\u"
+                      fail(c, "G001", "unpaired Unicode surrogate", token)
+                    low := hex_four(c, s, i + 3, token)
+                    if low < 56320 or low > 57343
+                      fail(c, "G001", "unpaired Unicode surrogate", token)
+                    code = 65536 + (code - 55296) * 1024 + low - 56320
+                    i += 6
+                  if code >= 56320 and code <= 57343
+                    fail(c, "G001", "unpaired Unicode surrogate", token)
+                  value = chr(code)
+      parts[count] = value
+      i += 1
+    else
+      width := utf_width(b)
+      parts[count] = slice(s, i, i + width)
+      i += width
+    count += 1
+  ret join(parts, count, "")
+
+precedence op:str>int
+  if op == "or"
+    ret 1
+  if op == "and"
+    ret 2
+  if op == "==" or op == "!="
+    ret 3
+  if has(["<", "<=", ">", ">="], op)
+    ret 4
+  if op == "+" or op == "-"
+    ret 5
+  if has(["*", "/", "%"], op)
+    ret 6
+  ret -1
+
+parse_expr c:Compiler, minimum:int>int
+  t := pop(c)
+  text := c.tokens[t].text
+  left := 0
+  if text == "fn" and lambda_ahead(c)
+    need(c, "(")
+    params:[Field] = []
+    if peek(c) != ")"
+      more_params := true
+      while more_params
+        arg_token := name_token(c)
+        need(c, ":")
+        param_type := parse_type(c)
+        params = push(params, Field(c.tokens[arg_token].text, param_type, arg_token, false))
+        more_params = accept(c, ",")
+    need(c, ")")
+    need(c, ">")
+    result := parse_type(c)
+    need(c, "=")
+    left = new_node(c, "lambda", result, t, [parse_expr(c, 0)])
+    c.nodes[left].params = params
+    ret left
+  if text == "-" or text == "not"
+    left = new_node(c, "unary", text, t, [parse_expr(c, 7)])
+  else
+    if text == "fold"
+      array := parse_expr(c, 7)
+      initial := parse_expr(c, 7)
+      op := pop(c)
+      if c.tokens[op].text != "+" and c.tokens[op].text != "*"
+        fail(c, "G002", "fold reducer must be + or *", op)
+      left = new_node(c, "fold", c.tokens[op].text, t, [array, initial])
+    else
+      if text == "("
+        left = parse_expr(c, 0)
+        need(c, ")")
+      else
+        if text == "["
+          items:[int] = []
+          if peek(c) != "]"
+            items = push(items, parse_expr(c, 0))
+            while accept(c, ",")
+              items = push(items, parse_expr(c, 0))
+          need(c, "]")
+          left = new_node(c, "array", "", t, items)
+        else
+          if prefix(text, "\"")
+            left = new_node(c, "str", unquote(c, t), t, [])
+          else
+            if digit(byte_at(text, 0))
+              kind := "i64"
+              i := 0
+              while i < len(text)
+                if byte_at(text, i) == 46 or byte_at(text, i) == 101 or byte_at(text, i) == 69
+                  kind = "f64"
+                i += 1
+              left = new_node(c, kind, text, t, [])
+            else
+              if text == "true" or text == "false"
+                left = new_node(c, "bool", text, t, [])
+              else
+                if not ident(text) or reserved(text)
+                  fail(c, "G002", "expected expression", t)
+                left = new_node(c, "name", text, t, [])
+  more := true
+  while more
+    if accept(c, "(")
+      base := c.nodes[left]
+      args:[int] = []
+      reduction := false
+      if peek(c) != ")"
+        args = push(args, parse_expr(c, 0))
+        if accept(c, "for")
+          reduction = true
+          if base.kind != "name" or not has(["sum", "count"], base.value)
+            fail(c, "G002", "generator requires sum or count", base.token)
+          bindings := [name_token(c)]
+          while accept(c, ",")
+            bindings = push(bindings, name_token(c))
+          need(c, "in")
+          source := parse_expr(c, 0)
+          zipped := c.nodes[source].kind == "call" and c.nodes[source].value == "zip"
+          if zipped
+            for item:c.nodes[source].args
+              args = push(args, item)
+          else
+            args = push(args, source)
+          left = new_node(c, "reduce", base.value, base.token, args)
+          c.nodes[left].bindings = bindings
+          c.nodes[left].zipped = zipped
+        else
+          while accept(c, ",")
+            args = push(args, parse_expr(c, 0))
+      need(c, ")")
+      if not reduction
+        if base.kind == "field"
+          all_args := base.args
+          for item:args
+            all_args = push(all_args, item)
+          left = new_node(c, "method_call", base.value, base.token, all_args)
+        else
+          if base.kind == "name"
+            left = new_node(c, "call", base.value, base.token, args)
+          else
+            all_args := [left]
+            for item:args
+              all_args = push(all_args, item)
+            left = new_node(c, "invoke", "", base.token, all_args)
+    else
+      if accept(c, ".")
+        member := name_token(c)
+        left = new_node(c, "field", c.tokens[member].text, member, [left])
+      else
+        if accept(c, "[")
+          if c.nodes[left].kind == "name" and special_ahead(c)
+            items := [parse_type(c)]
+            while accept(c, ",")
+              items = push(items, parse_type(c))
+            need(c, "]")
+            base := c.nodes[left]
+            left = new_node(c, "specialize", base.value, base.token, [])
+            for item:items
+              c.nodes[left].params = push(c.nodes[left].params, Field("", item, base.token, false))
+          else
+            index := parse_expr(c, 0)
+            need(c, "]")
+            left = new_node(c, "index", "", c.nodes[left].token, [left, index])
+        else
+          p := precedence(peek(c))
+          if p >= minimum
+            op := pop(c)
+            right := parse_expr(c, p + 1)
+            left = new_node(c, "binary", c.tokens[op].text, op, [left, right])
+          else
+            more = false
+  ret left
+
+parse_block c:Compiler>[int]
+  need(c, "NEWLINE")
+  need(c, "INDENT")
+  body:[int] = []
+  while peek(c) != "DEDENT" and peek(c) != "EOF"
+    body = push(body, parse_stmt(c))
+  need(c, "DEDENT")
+  ret body
+
+parse_stmt c:Compiler>int
+  t := c.state[1]
+  if accept(c, "match")
+    value := parse_expr(c, 0)
+    need(c, "NEWLINE")
+    need(c, "INDENT")
+    arms:[int] = []
+    while peek(c) != "DEDENT" and peek(c) != "EOF"
+      token := need(c, "case")
+      variant := c.tokens[name_token(c)].text
+      bindings:[int] = []
+      if accept(c, "(")
+        if peek(c) != ")"
+          bindings = push(bindings, name_token(c))
+          while accept(c, ",")
+            bindings = push(bindings, name_token(c))
+        need(c, ")")
+      arm := new_node(c, "case", variant, token, [])
+      c.nodes[arm].bindings = bindings
+      c.nodes[arm].body = parse_block(c)
+      arms = push(arms, arm)
+    need(c, "DEDENT")
+    node := new_node(c, "match", "", t, [value])
+    c.nodes[node].body = arms
+    ret node
+  text := peek(c)
+  if accept(c, "if") or accept(c, "while")
+    value := parse_expr(c, 0)
+    node := new_node(c, text, "", t, [value])
+    c.nodes[node].body = parse_block(c)
+    if text == "if" and accept(c, "else")
+      c.nodes[node].other = parse_block(c)
+    ret node
+  if accept(c, "for")
+    name := c.tokens[name_token(c)].text
+    need(c, ":")
+    value := parse_expr(c, 0)
+    node := new_node(c, "for", name, t, [value])
+    c.nodes[node].body = parse_block(c)
+    ret node
+  if accept(c, "unsafe")
+    node := new_node(c, "unsafe", "", t, [])
+    c.nodes[node].body = parse_block(c)
+    ret node
+  node := 0
+  if accept(c, "ret")
+    args:[int] = []
+    if peek(c) != "NEWLINE"
+      args = push(args, parse_expr(c, 0))
+    node = new_node(c, "ret", "", t, args)
+  else
+    next := c.tokens[c.state[1] + 1].text
+    if ident(text) and (next == ":" or next == ":=")
+      name_token(c)
+      typ := ""
+      if accept(c, ":")
+        typ = parse_type(c)
+        need(c, "=")
+      else
+        need(c, ":=")
+      value := parse_expr(c, 0)
+      node = new_node(c, "var", text, t, [value])
+      c.nodes[node].typ = typ
+    else
+      left := parse_expr(c, 0)
+      if has(["=", "+=", "-=", "*=", "/=", "%="], peek(c))
+        op := pop(c)
+        right := parse_expr(c, 0)
+        node = new_node(c, "set", c.tokens[op].text, t, [left, right])
+      else
+        node = new_node(c, "expr", "", t, [left])
+  need(c, "NEWLINE")
+  ret node
+
+parse_function c:Compiler, t:int, owner:str, mutating:bool, static_method:bool, private:bool>void
+  generic := parse_generic(c)
+  params:[Field] = []
+  more := true
+  while peek(c) != ">" and peek(c) != "=" and more
+    arg_token := name_token(c)
+    need(c, ":")
+    typ := parse_type(c)
+    params = push(params, Field(c.tokens[arg_token].text, typ, arg_token, false))
+    more = accept(c, ",")
+  result := ""
+  if accept(c, ">")
+    result = parse_type(c)
+  if result == "" and peek(c) != "="
+    fail(c, "G002", "omitted result requires an expression body", c.state[1])
+  body:[int] = []
+  if accept(c, "=")
+    value := parse_expr(c, 0)
+    need(c, "NEWLINE")
+    body = [new_node(c, "ret", "", c.nodes[value].token, [value])]
+  else
+    body = parse_block(c)
+  c.funcs[c.state[3]] = Fn(c.tokens[t].text, t, params, result, body, owner, mutating, static_method, private, false, generic)
+  c.state[3] += 1
+
+parse_source c:Compiler>void
+  while peek(c) == "import"
+    parse_import(c)
+  while peek(c) != "EOF"
+    if has(["type", "union", "interface"], peek(c)) and has(["NEWLINE", "["], c.tokens[c.state[1] + 2].text)
+      kind := c.tokens[pop(c)].text
+      t := name_token(c)
+      owner := c.tokens[t].text
+      generic := parse_generic(c)
+      variants:[Variant] = []
+      need(c, "NEWLINE")
+      need(c, "INDENT")
+      fields:[Field] = []
+      while peek(c) != "DEDENT" and peek(c) != "EOF"
+        if kind == "union"
+          v := name_token(c)
+          payload:[Field] = []
+          if peek(c) != "NEWLINE"
+            more := true
+            while more
+              field := name_token(c)
+              need(c, ":")
+              payload = push(payload, Field(c.tokens[field].text, parse_type(c), field, false))
+              more = accept(c, ",")
+          need(c, "NEWLINE")
+          variants = push(variants, Variant(c.tokens[v].text, payload, v))
+        else
+          if kind == "interface"
+            mutating := accept(c, "mut")
+            member := name_token(c)
+            params:[Field] = []
+            more := true
+            while peek(c) != ">" and more
+              arg_token := name_token(c)
+              need(c, ":")
+              params = push(params, Field(c.tokens[arg_token].text, parse_type(c), arg_token, false))
+              more = accept(c, ",")
+            need(c, ">")
+            result := parse_type(c)
+            need(c, "NEWLINE")
+            c.funcs[c.state[3]] = Fn(c.tokens[member].text, member, params, result, [], owner, mutating, false, false, false, [])
+            c.state[3] += 1
+          else
+            private := accept(c, "private")
+            mutating := accept(c, "mut")
+            static_method := false
+            if not mutating
+              static_method = accept(c, "static")
+            member := name_token(c)
+            if accept(c, ":")
+              if mutating or static_method
+                fail(c, "G002", "mut/static apply only to methods", member)
+              fields = push(fields, Field(c.tokens[member].text, parse_type(c), member, private))
+              need(c, "NEWLINE")
+            else
+              parse_function(c, member, owner, mutating, static_method, private)
+      need(c, "DEDENT")
+      c.records[c.state[4]] = Rec(owner, t, fields, 0, generic, kind, variants)
+      c.state[4] += 1
+    else
+      t := name_token(c)
+      parse_function(c, t, "", false, false, false)
+
+# Fixed signatures mirror the public standard-library ABI.
+fixed_signature name:str>[str]
+  if name == "encode_utf8"
+    ret ["str", "[i64]"]
+  if name == "try_decode_utf8"
+    ret ["[i64]", "StringResult"]
+  if name == "try_read_bytes"
+    ret ["str", "BytesResult"]
+  if name == "try_write_bytes"
+    ret ["str", "[i64]", "BoolResult"]
+  if name == "try_open"
+    ret ["str", "str", "IntResult"]
+  if name == "try_read"
+    ret ["i64", "i64", "BytesResult"]
+  if name == "try_write"
+    ret ["i64", "[i64]", "IntResult"]
+  if name == "try_flush"
+    ret ["i64", "BoolResult"]
+  if name == "try_close"
+    ret ["i64", "BoolResult"]
+  if name == "try_json_parse"
+    ret ["str", "StringResult"]
+  if name == "try_json_kind"
+    ret ["str", "StringResult"]
+  if name == "try_json_get"
+    ret ["str", "str", "StringResult"]
+  if name == "try_json_at"
+    ret ["str", "i64", "StringResult"]
+  if name == "try_json_len"
+    ret ["str", "IntResult"]
+  if name == "try_json_keys"
+    ret ["str", "StringsResult"]
+  if name == "try_json_string"
+    ret ["str", "StringResult"]
+  if name == "json_quote"
+    ret ["str", "str"]
+  if name == "try_json_array"
+    ret ["[str]", "StringResult"]
+  if name == "try_json_object"
+    ret ["[str]", "[str]", "StringResult"]
+  if name == "try_parse_i64"
+    ret ["str", "IntResult"]
+  if name == "try_parse_f64"
+    ret ["str", "FloatResult"]
+  if name == "try_read_file"
+    ret ["str", "StringResult"]
+  if name == "try_write_file"
+    ret ["str", "str", "BoolResult"]
+  if name == "try_process"
+    ret ["[str]", "IntResult"]
+  if name == "file_exists"
+    ret ["str", "bool"]
+  if name == "concat"
+    ret ["str", "str", "str"]
+  if name == "slice"
+    ret ["str", "i64", "i64", "str"]
+  if name == "byte_at"
+    ret ["str", "i64", "i64"]
+  if name == "chr"
+    ret ["i64", "str"]
+  if name == "join"
+    ret ["[str]", "i64", "str", "str"]
+  if name == "str_i64"
+    ret ["i64", "str"]
+  if name == "str_f64"
+    ret ["f64", "str"]
+  if name == "parse_i64"
+    ret ["str", "i64"]
+  if name == "parse_f64"
+    ret ["str", "f64"]
+  if name == "valid_f64"
+    ret ["str", "bool"]
+  if name == "read_file"
+    ret ["str", "str"]
+  if name == "write_file"
+    ret ["str", "str", "void"]
+  if name == "same_file"
+    ret ["str", "str", "bool"]
+  if name == "arg"
+    ret ["i64", "str"]
+  if name == "argc"
+    ret ["i64"]
+  if name == "getenv"
+    ret ["str", "str"]
+  if name == "platform"
+    ret ["str"]
+  if name == "process"
+    ret ["[str]", "i64"]
+  if name == "eprint"
+    ret ["str", "void"]
+  if name == "exit"
+    ret ["i64", "void"]
+  if name == "gui_window"
+    ret ["str", "i64", "i64", "void"]
+  if name == "gui_label"
+    ret ["i64", "str", "i64", "i64", "i64", "i64", "void"]
+  if name == "gui_button"
+    ret ["i64", "str", "i64", "i64", "i64", "i64", "void"]
+  if name == "gui_text"
+    ret ["i64", "str", "void"]
+  if name == "gui_number"
+    ret ["i64", "f64", "void"]
+  if name == "gui_next"
+    ret ["i64"]
+  if name == "gui_close"
+    ret ["void"]
+  ret []
+
+builtin_result name:str>bool = has(["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult"], name)
+
+builtin name:str>bool = builtin_result(name) or len(fixed_signature(name)) > 0 or has(["list", "map", "set", "print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"], name)
+
+scalar typ:str>bool = has(["i64", "f64", "bool", "str"], typ)
+
+numeric typ:str>bool = typ == "i64" or typ == "f64"
+
+canon typ:str>str
+  fn := fn_types(typ)
+  if len(fn) > 0
+    params:[str] = []
+    i := 0
+    while i + 1 < len(fn)
+      params = push(params, canon(fn[i]))
+      i += 1
+    ret cat(["fn(", join(params, len(params), ","), ")>", canon(fn[i])])
+  if prefix(typ, "[")
+    ret cat(["[", canon(slice(typ, 1, len(typ) - 1)), "]"])
+  if prefix(typ, "*")
+    ret concat("*", canon(slice(typ, 1, len(typ))))
+  head := type_head(typ)
+  if head != typ
+    items := split_types(slice(typ, len(head) + 1, len(typ) - 1))
+    i := 0
+    while i < len(items)
+      items[i] = canon(items[i])
+      i += 1
+    ret cat([head, "[", join(items, len(items), ","), "]"])
+  if typ == "int"
+    ret "i64"
+  ret typ
+
+record_index c:Compiler, name:str>int
+  i := 0
+  while i < c.state[4]
+    if c.records[i].name == name
+      ret i
+    i += 1
+  ret -1
+
+function_index c:Compiler, owner:str, name:str>int
+  i := 0
+  while i < c.state[3]
+    if c.funcs[i].name == name and c.funcs[i].owner == owner
+      ret i
+    i += 1
+  ret -1
+
+field_index c:Compiler, owner:str, name:str>int
+  r := record_index(c, owner)
+  if r < 0
+    ret -1
+  i := 0
+  while i < len(c.records[r].fields)
+    if c.records[r].fields[i].name == name
+      ret i
+    i += 1
+  ret -1
+
+validate_type c:Compiler, typ:str, token:int>str
+  t := canon(typ)
+  fn := fn_types(t)
+  if len(fn) > 0
+    i := 0
+    while i + 1 < len(fn)
+      if validate_type(c, fn[i], token) == "void"
+        fail(c, "G003", "function parameter cannot be void", token)
+      i += 1
+    validate_type(c, fn[i], token)
+    ret t
+  valid := scalar(t) or t == "void" or record_index(c, t) >= 0
+  if prefix(t, "[")
+    item := slice(t, 1, len(t) - 1)
+    valid = scalar(item) or record_index(c, item) >= 0 or prefix(item, "fn(")
+    if prefix(item, "fn(")
+      validate_type(c, item, token)
+  if prefix(t, "*")
+    valid = has(["i64", "f64", "bool"], slice(t, 1, len(t)))
+  kind := coll_kind(t)
+  if kind != ""
+    items := coll_items(t)
+    valid = true
+    for item:items
+      if not scalar(item) and record_index(c, item) < 0 and not prefix(item, "fn(")
+        valid = false
+      if prefix(item, "fn(")
+        validate_type(c, item, token)
+    if kind != "list" and not has(["i64", "bool", "str"], items[0])
+      valid = false
+  if not valid
+    fail(c, "G003", concat("unknown type ", t), token)
+  ret t
+
+same c:Compiler, actual:str, expected:str, token:int>void
+  if actual != expected
+    fail(c, "G102", cat(["expected ", expected, ", found ", actual]), token)
+
+env_type env:[Var], name:str>str
+  for v:env
+    if v.name == name
+      ret v.typ
+  ret ""
+
+function_env c:Compiler, f:int>[Var]
+  env:[Var] = []
+  if c.funcs[f].owner != "" and not c.funcs[f].static_method
+    env = push(env, Var("self", c.funcs[f].owner))
+  for p:c.funcs[f].params
+    env = push(env, Var(p.name, p.typ))
+  ret env
+
+private_access c:Compiler, owner:str, private:bool, token:int>void
+  if private
+    current := c.state[5]
+    if current < 0 or c.funcs[current].owner != owner
+      fail(c, "G112", "private member is only accessible in its type", token)
+
+writable c:Compiler, node:int>void
+  n := c.nodes[node]
+  if n.kind == "field"
+    writable(c, n.args[0])
+    ret
+  if n.kind != "name" and n.kind != "index"
+    fail(c, "G104", "mutation requires an addressable value", n.token)
+  if n.kind == "name" and n.value == "self" and c.state[5] >= 0
+    f := c.funcs[c.state[5]]
+    if f.owner != "" and not f.mutating and not f.static_method
+      fail(c, "G112", "updating self requires a mut method", n.token)
+
+result_type c:Compiler, index:int>str
+  f := c.funcs[index]
+  if f.result != ""
+    ret f.result
+  if f.busy
+    fail(c, "G111", "recursive inference requires a result annotation", f.token)
+  c.funcs[index].busy = true
+  previous := c.state[5]
+  c.state[5] = index
+  typ := check_expr(c, c.nodes[f.body[0]].args[0], function_env(c, index), false, "")
+  c.state[5] = previous
+  c.funcs[index].result = typ
+  c.funcs[index].busy = false
+  ret typ
+
+trim_zeros text:str>str
+  start := 0
+  while start + 1 < len(text) and byte_at(text, start) == 48
+    start += 1
+  ret slice(text, start, len(text))
+
+valid_integer text:str>bool
+  start := len(text) - len(trim_zeros(text))
+  n := len(text) - start
+  if n < 19
+    ret true
+  if n > 19
+    ret false
+  maximum := "9223372036854775807"
+  i := 0
+  while i < 19
+    if byte_at(text, start + i) < byte_at(maximum, i)
+      ret true
+    if byte_at(text, start + i) > byte_at(maximum, i)
+      ret false
+    i += 1
+  ret true
+
+check_call c:Compiler, node:int, env:[Var], unsafe_mode:bool, expected:str>str
+  n := c.nodes[node]
+  name := n.value
+  if has(["list", "map", "set"], name)
+    arity := 1
+    if name == "map"
+      arity = 2
+    if len(n.args) != arity
+      fail(c, "G107", "wrong collection constructor argument count", n.token)
+    hints := fill(arity, "")
+    if coll_kind(expected) == name
+      hints = coll_items(expected)
+    items:[str] = []
+    i := 0
+    while i < arity
+      hint := ""
+      if hints[i] != ""
+        hint = cat(["[", hints[i], "]"])
+      typ := check_expr(c, n.args[i], env, unsafe_mode, hint)
+      if not prefix(typ, "[")
+        fail(c, "G102", "collection constructor requires arrays", c.nodes[n.args[i]].token)
+      items = push(items, slice(typ, 1, len(typ) - 1))
+      i += 1
+    if name != "list" and not has(["i64", "bool", "str"], items[0])
+      fail(c, "G102", "map/set keys must be int, bool or str", n.token)
+    ret cat([name, "[", join(items, len(items), ","), "]"])
+  sig := fixed_signature(name)
+  if len(sig) > 0
+    if len(n.args) != len(sig) - 1
+      fail(c, "G107", concat("wrong argument count for ", name), n.token)
+    i := 0
+    while i < len(n.args)
+      same(c, check_expr(c, n.args[i], env, unsafe_mode, sig[i]), sig[i], c.nodes[n.args[i]].token)
+      i += 1
+    ret sig[len(sig) - 1]
+  r := record_index(c, name)
+  if r >= 0
+    if c.records[r].kind == "union"
+      fail(c, "G104", "construct a union through a named variant", n.token)
+    fields := c.records[r].fields
+    for field:fields
+      private_access(c, name, field.hidden, n.token)
+    if len(n.args) != len(fields)
+      fail(c, "G107", "wrong number of constructor fields", n.token)
+    i := 0
+    while i < len(fields)
+      same(c, check_expr(c, n.args[i], env, unsafe_mode, fields[i].typ), fields[i].typ, c.nodes[n.args[i]].token)
+      i += 1
+    c.nodes[node].target = r
+    ret name
+  f := function_index(c, "", name)
+  if f >= 0
+    if name == "main"
+      fail(c, "G104", "main cannot be called", n.token)
+    params := c.funcs[f].params
+    if len(n.args) != len(params)
+      fail(c, "G107", "wrong function argument count", n.token)
+    i := 0
+    while i < len(params)
+      same(c, check_expr(c, n.args[i], env, unsafe_mode, params[i].typ), params[i].typ, c.nodes[n.args[i]].token)
+      i += 1
+    ret result_type(c, f)
+  arity := 1
+  if has(["fill", "push", "store", "offset"], name)
+    arity = 2
+  if name == "clock"
+    arity = 0
+  if not builtin(name) and name != "sum" and name != "count"
+    fail(c, "G101", concat("unknown function ", name), n.token)
+  if len(n.args) != arity
+    fail(c, "G107", concat("wrong argument count for ", name), n.token)
+  if has(["ptr", "load", "store", "offset"], name) and not unsafe_mode
+    fail(c, "G110", "pointer operation requires unsafe", n.token)
+  types:[str] = []
+  for item:n.args
+    types = push(types, check_expr(c, item, env, unsafe_mode, ""))
+  if name == "clock"
+    ret "f64"
+  a := types[0]
+  if name == "sum" and has(["[i64]", "[f64]"], a)
+    ret slice(a, 1, len(a) - 1)
+  if name == "count" and a == "[bool]"
+    ret "i64"
+  if name == "print" and scalar(a)
+    ret "void"
+  if name == "range" or name == "argi"
+    same(c, a, "i64", n.token)
+    if name == "range"
+      ret "[i64]"
+    ret "i64"
+  if name == "len" and (prefix(a, "[") or a == "str" or coll_kind(a) != "")
+    ret "i64"
+  if name == "fill" and a == "i64" and (scalar(types[1]) or record_index(c, types[1]) >= 0 or prefix(types[1], "fn("))
+    ret cat(["[", types[1], "]"])
+  if name == "clone" and (prefix(a, "[") or coll_kind(a) != "")
+    ret a
+  if name == "push" and prefix(a, "[") and slice(a, 1, len(a) - 1) == types[1]
+    ret a
+  if name == "ptr" and has(["[i64]", "[f64]", "[bool]"], a)
+    ret concat("*", slice(a, 1, len(a) - 1))
+  if has(["load", "offset", "store"], name) and prefix(a, "*")
+    if name == "load"
+      ret slice(a, 1, len(a))
+    if name == "offset"
+      same(c, types[1], "i64", n.token)
+      ret a
+    same(c, types[1], slice(a, 1, len(a)), n.token)
+    ret "void"
+  if (name == "i64" or name == "f64") and numeric(a)
+    ret name
+  fail(c, "G102", concat("invalid argument types for ", name), n.token)
+  ret "void"
+
+check_expr c:Compiler, node:int, env:[Var], unsafe_mode:bool, expected:str>str
+  n := c.nodes[node]
+  k := n.kind
+  if k == "lambda"
+    ret check_lambda(c, node, env)
+  if k == "invoke"
+    ret check_invoke(c, node, env, unsafe_mode)
+  if k == "variant"
+    ret n.typ
+  if k == "call" and env_type(env, n.value) != ""
+    args := [new_node(c, "name", n.value, n.token, [])]
+    for arg_node:n.args
+      args = push(args, arg_node)
+    c.nodes[node].kind = "invoke"
+    c.nodes[node].args = args
+    ret check_invoke(c, node, env, unsafe_mode)
+  typ := ""
+  if scalar(k)
+    typ = k
+    if k == "i64" and n.value != "-9223372036854775808" and not valid_integer(n.value)
+      fail(c, "G105", "integer literal exceeds i64", n.token)
+    if k == "f64" and not valid_f64(n.value)
+      fail(c, "G105", "floating literal must be finite", n.token)
+  else
+    if k == "name"
+      typ = env_type(env, n.value)
+      if typ == ""
+        index := function_index(c, "", n.value)
+        if index < 0 or n.value == "main"
+          fail(c, "G101", concat("unknown variable ", n.value), n.token)
+        typ = function_type(c, index)
+        c.nodes[node].target = index
+    else
+      if k == "array"
+        item := ""
+        if prefix(expected, "[")
+          item = slice(expected, 1, len(expected) - 1)
+        if len(n.args) == 0 and item == ""
+          fail(c, "G102", "empty array requires an expected array type", n.token)
+        for arg_node:n.args
+          found := check_expr(c, arg_node, env, unsafe_mode, item)
+          if item == ""
+            item = found
+          same(c, found, item, c.nodes[arg_node].token)
+        if not scalar(item) and record_index(c, item) < 0 and not prefix(item, "fn(")
+          fail(c, "G102", "arrays contain scalar or record values", n.token)
+        typ = cat(["[", item, "]"])
+      else
+        if k == "unary"
+          child := c.nodes[n.args[0]]
+          if n.value == "-" and child.kind == "i64" and trim_zeros(child.value) == "9223372036854775808"
+            c.nodes[node].kind = "i64"
+            c.nodes[node].value = "-9223372036854775808"
+            c.nodes[node].args = []
+            typ = "i64"
+          else
+            typ = check_expr(c, n.args[0], env, unsafe_mode, "")
+            if n.value == "not"
+              same(c, typ, "bool", n.token)
+            else
+              if not numeric(typ)
+                fail(c, "G102", "negation requires a number", n.token)
+        else
+          if k == "binary"
+            a := check_expr(c, n.args[0], env, unsafe_mode, "")
+            b := check_expr(c, n.args[1], env, unsafe_mode, "")
+            same(c, b, a, n.token)
+            if n.value == "and" or n.value == "or"
+              same(c, a, "bool", n.token)
+              typ = "bool"
+            else
+              if n.value == "==" or n.value == "!="
+                if not scalar(a)
+                  fail(c, "G102", "equality requires scalar operands", n.token)
+                typ = "bool"
+              else
+                if has(["<", "<=", ">", ">="], n.value)
+                  if not numeric(a)
+                    fail(c, "G102", "ordering requires numbers", n.token)
+                  typ = "bool"
+                else
+                  if not numeric(a) or n.value == "%" and a != "i64"
+                    fail(c, "G102", "arithmetic requires compatible numbers", n.token)
+                  typ = a
+          else
+            if k == "index"
+              base := check_expr(c, n.args[0], env, unsafe_mode, "")
+              same(c, check_expr(c, n.args[1], env, unsafe_mode, ""), "i64", c.nodes[n.args[1]].token)
+              if not prefix(base, "[")
+                fail(c, "G102", "indexing requires an array", n.token)
+              typ = slice(base, 1, len(base) - 1)
+            else
+              if k == "field"
+                base := check_expr(c, n.args[0], env, unsafe_mode, "")
+                field := field_index(c, base, n.value)
+                if field < 0 or c.records[record_index(c, base)].kind == "union"
+                  fail(c, "G101", "unknown field", n.token)
+                member := c.records[record_index(c, base)].fields[field]
+                private_access(c, base, member.hidden, n.token)
+                typ = member.typ
+              else
+                if k == "method_call"
+                  base := c.nodes[n.args[0]]
+                  static_method := base.kind == "name" and record_index(c, base.value) >= 0 and env_type(env, base.value) == ""
+                  owner := base.value
+                  if not static_method
+                    owner = check_expr(c, n.args[0], env, unsafe_mode, "")
+                  ri := record_index(c, owner)
+                  if static_method and ri >= 0 and c.records[ri].kind == "union"
+                    ret check_union_call(c, node, c.records[ri], env, unsafe_mode)
+                  field := field_index(c, owner, n.value)
+                  if not static_method and field >= 0 and prefix(c.records[ri].fields[field].typ, "fn(")
+                    callee := new_node(c, "field", n.value, n.token, [n.args[0]])
+                    c.nodes[node].kind = "invoke"
+                    args := clone(n.args)
+                    args[0] = callee
+                    c.nodes[node].args = args
+                    ret check_invoke(c, node, env, unsafe_mode)
+                  if coll_kind(owner) != ""
+                    sig := coll_signature(owner, n.value)
+                    if len(sig) == 0
+                      fail(c, "G101", "unknown collection method", n.token)
+                    if len(n.args) != len(sig)
+                      fail(c, "G107", "wrong collection method argument count", n.token)
+                    j := 1
+                    while j < len(n.args)
+                      same(c, check_expr(c, n.args[j], env, unsafe_mode, sig[j - 1]), sig[j - 1], c.nodes[n.args[j]].token)
+                      j += 1
+                    typ = sig[len(sig) - 1]
+                    c.nodes[node].typ = typ
+                    ret typ
+                  index := function_index(c, owner, n.value)
+                  if index < 0
+                    fail(c, "G101", "unknown method", n.token)
+                  method := c.funcs[index]
+                  if static_method != method.static_method
+                    fail(c, "G104", "static methods require a type; instance methods require a value", n.token)
+                  private_access(c, owner, method.hidden, n.token)
+                  if method.mutating
+                    writable(c, n.args[0])
+                  if len(n.args) - 1 != len(method.params)
+                    fail(c, "G107", "wrong method argument count", n.token)
+                  i := 0
+                  while i < len(method.params)
+                    same(c, check_expr(c, n.args[i + 1], env, unsafe_mode, method.params[i].typ), method.params[i].typ, c.nodes[n.args[i + 1]].token)
+                    i += 1
+                  c.nodes[node].target = index
+                  typ = result_type(c, index)
+                else
+                  if k == "fold"
+                    base := check_expr(c, n.args[0], env, unsafe_mode, "")
+                    if not has(["[i64]", "[f64]"], base)
+                      fail(c, "G102", "fold requires a numeric array", n.token)
+                    typ = slice(base, 1, len(base) - 1)
+                    same(c, check_expr(c, n.args[1], env, unsafe_mode, ""), typ, c.nodes[n.args[1]].token)
+                  else
+                    if k == "reduce"
+                      if len(n.bindings) != len(n.args) - 1 or n.zipped and len(n.bindings) < 2
+                        fail(c, "G107", "zip requires arrays and one binding per array", n.token)
+                      types:[str] = []
+                      i := 1
+                      while i < len(n.args)
+                        types = push(types, check_expr(c, n.args[i], env, unsafe_mode, ""))
+                        i += 1
+                      inner := env
+                      i = 0
+                      while i < len(types)
+                        binding := c.tokens[n.bindings[i]].text
+                        if not prefix(types[i], "[")
+                          fail(c, "G102", "reduction requires arrays", c.nodes[n.args[i + 1]].token)
+                        if env_type(inner, binding) != ""
+                          fail(c, "G103", "reduction binding shadows a variable", n.bindings[i])
+                        inner = push(inner, Var(binding, slice(types[i], 1, len(types[i]) - 1)))
+                        i += 1
+                      typ = check_expr(c, n.args[0], inner, unsafe_mode, "")
+                      if n.value == "count"
+                        same(c, typ, "bool", c.nodes[n.args[0]].token)
+                        typ = "i64"
+                      else
+                        if not numeric(typ)
+                          fail(c, "G102", "sum requires numeric values", n.token)
+                    else
+                      if k == "call"
+                        typ = check_call(c, node, env, unsafe_mode, expected)
+                      else
+                        fail(c, "G002", "invalid expression node", n.token)
+  c.nodes[node].typ = typ
+  ret typ
+
+check_block c:Compiler, body:[int], outer:[Var], result:str, unsafe_mode:bool>bool
+  env := outer
+  returned := false
+  for index:body
+    n := c.nodes[index]
+    if returned
+      fail(c, "G109", "unreachable statement", n.token)
+    if n.kind == "var"
+      typ := n.typ
+      if typ != ""
+        typ = validate_type(c, typ, n.token)
+      if env_type(env, n.value) != ""
+        fail(c, "G103", "variable shadowing is forbidden", n.token)
+      actual := check_expr(c, n.args[0], env, unsafe_mode, typ)
+      if typ == ""
+        typ = actual
+      if typ == "void"
+        fail(c, "G102", "variable cannot be void", n.token)
+      same(c, actual, typ, c.nodes[n.args[0]].token)
+      c.nodes[index].typ = typ
+      env = push(env, Var(n.value, typ))
+    else
+      if n.kind == "set"
+        typ := check_expr(c, n.args[0], env, unsafe_mode, "")
+        writable(c, n.args[0])
+        same(c, check_expr(c, n.args[1], env, unsafe_mode, typ), typ, c.nodes[n.args[1]].token)
+        if n.value != "=" and (not numeric(typ) or n.value == "%=" and typ != "i64")
+          fail(c, "G102", "compound assignment requires numbers", n.token)
+      else
+        if n.kind == "ret"
+          typ := "void"
+          if len(n.args) > 0
+            typ = check_expr(c, n.args[0], env, unsafe_mode, result)
+          same(c, typ, result, n.token)
+          returned = true
+        else
+          if n.kind == "expr"
+            check_expr(c, n.args[0], env, unsafe_mode, "")
+            if not has(["call", "reduce", "method_call", "invoke", "variant"], c.nodes[n.args[0]].kind)
+              fail(c, "G104", "expression statement must be a call", n.token)
+          else
+            if n.kind == "if" or n.kind == "while"
+              same(c, check_expr(c, n.args[0], env, unsafe_mode, ""), "bool", c.nodes[n.args[0]].token)
+              a := check_block(c, n.body, env, result, unsafe_mode)
+              b := check_block(c, n.other, env, result, unsafe_mode)
+              returned = n.kind == "if" and a and b
+            else
+              if n.kind == "for"
+                typ := check_expr(c, n.args[0], env, unsafe_mode, "")
+                if not prefix(typ, "[") and coll_kind(typ) == ""
+                  fail(c, "G102", "for requires an array or collection", n.token)
+                if env_type(env, n.value) != ""
+                  fail(c, "G103", "loop variable shadows a variable", n.token)
+                item := slice(typ, 1, len(typ) - 1)
+                if coll_kind(typ) != ""
+                  item = coll_items(typ)[0]
+                inner := push(env, Var(n.value, item))
+                check_block(c, n.body, inner, result, unsafe_mode)
+              else
+                if n.kind == "match"
+                  returned = check_match(c, index, env, result, unsafe_mode)
+                if n.kind == "unsafe"
+                  returned = check_block(c, n.body, env, result, true)
+  ret returned
+
+check_layout c:Compiler, index:int>void
+  if c.records[index].mark == 1
+    fail(c, "G113", "recursive inline record layout", c.records[index].token)
+  if c.records[index].mark == 2
+    ret
+  c.records[index].mark = 1
+  for field:c.records[index].fields
+    child := record_index(c, field.typ)
+    if child >= 0
+      check_layout(c, child)
+  c.records[index].mark = 2
+
+check_source c:Compiler>void
+  c.state[5] = -1
+  r := 0
+  while r < c.state[4]
+    rec := c.records[r]
+    if record_index(c, rec.name) != r or builtin(rec.name) and not builtin_result(rec.name) or scalar(rec.name) or has(["int", "void", "main", "sum", "count", "zip"], rec.name)
+      fail(c, "G103", "duplicate or reserved type", rec.token)
+    if len(rec.fields) == 0
+      fail(c, "G102", "a record requires at least one field", rec.token)
+    names:[str] = []
+    i := 0
+    while i < len(rec.fields)
+      field := rec.fields[i]
+      if has(names, field.name)
+        fail(c, "G103", "duplicate record member", field.token)
+      names = push(names, field.name)
+      typ := validate_type(c, field.typ, field.token)
+      if typ == "void"
+        fail(c, "G102", "field cannot be void", field.token)
+      c.records[r].fields[i].typ = typ
+      i += 1
+    i = 0
+    while i < c.state[3]
+      f := c.funcs[i]
+      if f.owner == rec.name
+        if has(names, f.name)
+          fail(c, "G103", "duplicate record member", f.token)
+        names = push(names, f.name)
+      i += 1
+    r += 1
+  r = 0
+  while r < c.state[4]
+    check_layout(c, r)
+    r += 1
+  i := 0
+  while i < c.state[3]
+    f := c.funcs[i]
+    if f.owner == "" and (function_index(c, "", f.name) != i or builtin(f.name) or record_index(c, f.name) >= 0)
+      fail(c, "G103", "duplicate or reserved function", f.token)
+    if f.result != ""
+      c.funcs[i].result = validate_type(c, f.result, f.token)
+    seen:[str] = []
+    if f.owner != "" and not f.static_method
+      seen = ["self"]
+    p := 0
+    while p < len(f.params)
+      param := f.params[p]
+      typ := validate_type(c, param.typ, param.token)
+      if typ == "void" or has(seen, param.name)
+        fail(c, "G103", "duplicate parameter or void parameter", param.token)
+      seen = push(seen, param.name)
+      c.funcs[i].params[p].typ = typ
+      p += 1
+    i += 1
+  check_interfaces(c)
+  main_index := function_index(c, "", "main")
+  if main_index < 0
+    fail(c, "G108", "program requires main", 0)
+  if len(c.funcs[main_index].params) > 0 or not has(["void", "i64"], result_type(c, main_index))
+    fail(c, "G108", "main must take no parameters and return int or void", c.funcs[main_index].token)
+  i = 0
+  while i < c.state[3]
+    typ := result_type(c, i)
+    c.state[5] = i
+    returned := check_block(c, c.funcs[i].body, function_env(c, i), typ, false)
+    if typ != "void" and not returned
+      fail(c, "G106", "not every path returns a value", c.funcs[i].token)
+    i += 1
+  c.state[5] = -1
+
+ctype typ:str>str
+  if prefix(typ, "fn(")
+    ret "g_closure"
+  if coll_kind(typ) != ""
+    ret "g_collection*"
+  if prefix(typ, "[")
+    ret "g_array"
+  if prefix(typ, "*")
+    ret concat(ctype(slice(typ, 1, len(typ))), "*")
+  if typ == "i64"
+    ret "int64_t"
+  if typ == "f64"
+    ret "double"
+  if typ == "bool"
+    ret "bool"
+  if typ == "str"
+    ret "g_str"
+  if typ == "void"
+    ret "void"
+  ret concat("g_record_", typ)
+
+function_name f:Fn>str
+  if f.owner != ""
+    ret cat(["g_method_", str_i64(len(f.owner)), "_", f.owner, "_", f.name])
+  ret concat("f_", f.name)
+
+emit_line c:Compiler, line:str>void
+  if c.state[7] >= len(c.output)
+    fail(c, "G005", "generated output limit exceeded", 0)
+  c.output[c.state[7]] = line
+  c.state[7] += 1
+
+fresh c:Compiler>str
+  c.state[6] += 1
+  ret concat("t", str_i64(c.state[6]))
+
+pointer_free c:Compiler, typ:str>bool
+  if typ == "i64" or typ == "f64" or typ == "bool"
+    ret true
+  r := record_index(c, typ)
+  if r < 0
+    ret false
+  for field:c.records[r].fields
+    if not pointer_free(c, field.typ)
+      ret false
+  ret true
+
+temp c:Compiler, typ:str, value:str>str
+  if prefix(typ, "[") and pointer_free(c, slice(typ, 1, len(typ) - 1))
+    if prefix(value, "g_new(")
+      value = concat("g_new_atomic", slice(value, 5, len(value)))
+    if prefix(value, "g_clone(")
+      value = concat("g_clone_atomic", slice(value, 7, len(value)))
+  if typ == "void"
+    emit_line(c, concat(value, ";"))
+    ret ""
+  name := fresh(c)
+  emit_line(c, cat([ctype(typ), " ", name, " = ", value, ";"]))
+  ret name
+
+location c:Compiler, token:int>str = cat([str_i64(c.tokens[token].line), ", (g_file_json = ", cquote(jquote(c.tokens[token].path)), ", ", str_i64(c.tokens[token].col), ")"])
+
+arithmetic c:Compiler, op:str, typ:str, a:str, b:str, token:int>str
+  if typ == "i64"
+    fn := "mod"
+    if op == "+"
+      fn = "add"
+    if op == "-"
+      fn = "sub"
+    if op == "*"
+      fn = "mul"
+    if op == "/"
+      fn = "div"
+    ret cat(["g_", fn, "(", a, ", ", b, ", ", location(c, token), ")"])
+  ret cat(["(", a, " ", op, " ", b, ")"])
+
+variable c:Compiler, name:str>str
+  if name == "self" and c.state[5] >= 0 and c.funcs[c.state[5]].mutating
+    ret "(*v_self)"
+  ret concat("v_", name)
+
+lvalue c:Compiler, node:int>str
+  n := c.nodes[node]
+  if n.kind == "name"
+    ret variable(c, n.value)
+  if n.kind == "field"
+    ret cat(["(", lvalue(c, n.args[0]), ").m_", n.value])
+  a := emit_expr(c, n.args[0])
+  i := emit_expr(c, n.args[1])
+  checked := temp(c, "i64", cat(["g_index(", a, ", ", i, ", ", location(c, n.token), ")"]))
+  ret cat(["((", ctype(n.typ), "*)", a, ".data)[", checked, "]"])
+
+emit_call c:Compiler, node:int>str
+  n := c.nodes[node]
+  args:[str] = []
+  for arg_node:n.args
+    args = push(args, emit_expr(c, arg_node))
+  name := n.value
+  typ := n.typ
+  loc := location(c, n.token)
+  a := ""
+  if len(args) > 0
+    a = args[0]
+  if has(["list", "map", "set"], name)
+    items := coll_items(typ)
+    key := items[0]
+    item := items[len(items) - 1]
+    kind := "0"
+    key_kind := "0"
+    keys := "(g_array){0}"
+    values := args[len(args) - 1]
+    if name != "list"
+      keys = a
+      kind = "1"
+    if name == "set"
+      kind = "2"
+      values = "(g_array){0}"
+    if key == "bool"
+      key_kind = "1"
+    if key == "str"
+      key_kind = "2"
+    ret temp(c, typ, cat(["g_coll_new(", kind, ", ", key_kind, ", sizeof(", ctype(key), "), sizeof(", ctype(item), "), ", c_bool(pointer_free(c, key)), ", ", c_bool(pointer_free(c, item)), ", ", keys, ", ", values, ", ", loc, ")"]))
+  if (name == "len" or name == "clone") and coll_kind(c.nodes[n.args[0]].typ) != ""
+    if name == "len"
+      ret temp(c, typ, concat(a, "->len"))
+    ret temp(c, typ, cat(["g_coll_clone(", a, ", ", loc, ")"]))
+  r := record_index(c, name)
+  if r >= 0
+    ret temp(c, typ, cat(["(", ctype(typ), "){", join(args, len(args), ", "), "}"]))
+  value := ""
+  if name == "print"
+    value = cat(["g_print_", c.nodes[n.args[0]].typ, "(", a, ")"])
+  else
+    if len(fixed_signature(name)) > 0
+      fn := concat("g_std_", name)
+      if prefix(name, "gui_")
+        fn = concat("g_", name)
+      with_location := push(args, loc)
+      value = cat([fn, "(", join(with_location, len(with_location), ", "), ")"])
+    else
+      if name == "len"
+        value = concat(a, ".len")
+      else
+        if name == "range" or name == "argi"
+          value = cat(["g_", name, "(", a, ", ", loc, ")"])
+        else
+          if name == "clock"
+            value = "g_clock()"
+          else
+            if name == "clone"
+              value = cat(["g_clone(", a, ", sizeof(", ctype(slice(typ, 1, len(typ) - 1)), "), ", loc, ")"])
+            else
+              if name == "fill" or name == "push"
+                ct := ctype(slice(typ, 1, len(typ) - 1))
+                length := a
+                if name == "push"
+                  length = temp(c, "i64", cat(["g_add(", a, ".len, 1, ", loc, ")"]))
+                result := temp(c, typ, cat(["g_new(", length, ", sizeof(", ct, "), ", loc, ")"]))
+                if name == "push"
+                  emit_line(c, cat(["memcpy(", result, ".data, ", a, ".data, (size_t)", a, ".len * sizeof(", ct, ")); "]))
+                  emit_line(c, cat(["((", ct, "*)", result, ".data)[", a, ".len] = ", args[1], ";"]))
+                else
+                  i := fresh(c)
+                  emit_line(c, cat(["for (int64_t ", i, "=0; ", i, "<", a, "; ++", i, ") ((", ct, "*)", result, ".data)[", i, "] = ", args[1], ";"]))
+                ret result
+              else
+                if name == "ptr"
+                  value = cat(["(", ctype(typ), ")", a, ".data"])
+                else
+                  if name == "load"
+                    value = concat("*", a)
+                  else
+                    if name == "store"
+                      emit_line(c, cat(["*", a, " = ", args[1], ";"]))
+                      ret ""
+                    else
+                      if name == "offset"
+                        value = cat(["(", a, " + ", args[1], ")"])
+                      else
+                        if name == "i64" or name == "f64"
+                          if name == "i64" and c.nodes[n.args[0]].typ == "f64"
+                            value = cat(["g_to_i64(", a, ", ", loc, ")"])
+                          else
+                            value = cat(["(", ctype(typ), ")", a])
+                        else
+                          if (name == "sum" or name == "count") and function_index(c, "", name) < 0
+                            if name == "sum" and typ == "i64"
+                              ret temp(c, typ, cat(["g_sum_i64(", a, ", 0, ", loc, ")"]))
+                            result := temp(c, typ, "0")
+                            i := fresh(c)
+                            emit_line(c, cat(["for (int64_t ", i, "=0; ", i, "<", a, ".len; ++", i, ") {"]))
+                            array_type := c.nodes[n.args[0]].typ
+                            ct := ctype(slice(array_type, 1, len(array_type) - 1))
+                            item := cat(["((", ct, "*)", a, ".data)[", i, "]"])
+                            if name == "count"
+                              emit_line(c, cat(["if (", item, ") ++", result, ";"]))
+                            else
+                              emit_line(c, cat([result, " += ", item, ";"]))
+                            emit_line(c, "}")
+                            ret result
+                          else
+                            value = cat(["f_", name, "(", join(args, len(args), ", "), ")"])
+  ret temp(c, typ, value)
+
+emit_reduction c:Compiler, node:int>str
+  n := c.nodes[node]
+  arrays:[str] = []
+  i := 1
+  while i < len(n.args)
+    arrays = push(arrays, emit_expr(c, n.args[i]))
+    i += 1
+  i = 1
+  while i < len(arrays)
+    emit_line(c, cat(["if (", arrays[i], ".len != ", arrays[0], ".len) g_fail(\"R007\", \"zip arrays must have equal lengths\", ", location(c, n.token), ");"]))
+    i += 1
+  result := temp(c, n.typ, "0")
+  counter := fresh(c)
+  emit_line(c, cat(["for (int64_t ", counter, "=0; ", counter, "<", arrays[0], ".len; ++", counter, ") {"]))
+  i = 0
+  while i < len(arrays)
+    array_type := c.nodes[n.args[i + 1]].typ
+    ct := ctype(slice(array_type, 1, len(array_type) - 1))
+    binding := c.tokens[n.bindings[i]].text
+    emit_line(c, cat([ct, " v_", binding, " = ((", ct, "*)", arrays[i], ".data)[", counter, "];"]))
+    i += 1
+  item := emit_expr(c, n.args[0])
+  if n.value == "count"
+    emit_line(c, cat(["if (", item, ") ++", result, ";"]))
+  else
+    emit_line(c, cat([result, " = ", arithmetic(c, "+", n.typ, result, item, n.token), ";"]))
+  emit_line(c, "}")
+  ret result
+
+emit_expr c:Compiler, node:int>str
+  n := c.nodes[node]
+  k := n.kind
+  typ := n.typ
+  loc := location(c, n.token)
+  if k == "invoke"
+    ret emit_invoke(c, node)
+  if k == "lambda"
+    ret emit_lambda(c, node)
+  if k == "variant"
+    ret emit_variant(c, node)
+  if k == "name"
+    if n.target >= 0
+      ret temp(c, typ, cat(["(g_closure){(void (*)(void))g_wrap_", n.value, ", NULL}"]))
+    ret temp(c, typ, variable(c, n.value))
+  if k == "str"
+    ret temp(c, typ, cat(["(g_str){", cquote(n.value), ", ", str_i64(len(n.value)), "}"]))
+  if k == "i64"
+    if n.value == "-9223372036854775808"
+      ret temp(c, typ, "INT64_MIN")
+    ret temp(c, typ, cat(["INT64_C(", str_i64(parse_i64(n.value)), ")"]))
+  if k == "f64"
+    ret temp(c, typ, str_f64(parse_f64(n.value)))
+  if k == "bool"
+    ret temp(c, typ, n.value)
+  if k == "unary"
+    a := emit_expr(c, n.args[0])
+    if n.value == "not"
+      ret temp(c, typ, concat("!", a))
+    ret temp(c, typ, arithmetic(c, "-", typ, "0", a, n.token))
+  if k == "binary"
+    a := emit_expr(c, n.args[0])
+    op := n.value
+    if op == "and" or op == "or"
+      result := temp(c, "bool", a)
+      condition := result
+      if op == "or"
+        condition = concat("!", result)
+      emit_line(c, cat(["if (", condition, ") {"]))
+      b := emit_expr(c, n.args[1])
+      emit_line(c, cat([result, " = ", b, ";"]))
+      emit_line(c, "}")
+      ret result
+    b := emit_expr(c, n.args[1])
+    value := ""
+    if has(["+", "-", "*", "/", "%"], op)
+      value = arithmetic(c, op, typ, a, b, n.token)
+    else
+      if c.nodes[n.args[0]].typ == "str"
+        value = cat(["g_eq(", a, ", ", b, ")"])
+        if op == "!="
+          value = concat("!", value)
+      else
+        value = cat(["(", a, " ", op, " ", b, ")"])
+    ret temp(c, typ, value)
+  if k == "array"
+    values:[str] = []
+    for arg_node:n.args
+      values = push(values, emit_expr(c, arg_node))
+    ct := ctype(slice(typ, 1, len(typ) - 1))
+    result := temp(c, typ, cat(["g_new(", str_i64(len(values)), ", sizeof(", ct, "), ", loc, ")"]))
+    i := 0
+    while i < len(values)
+      emit_line(c, cat(["((", ct, "*)", result, ".data)[", str_i64(i), "] = ", values[i], ";"]))
+      i += 1
+    ret result
+  if k == "index"
+    ret temp(c, typ, lvalue(c, node))
+  if k == "field"
+    base := emit_expr(c, n.args[0])
+    ret temp(c, typ, cat([base, ".m_", n.value]))
+  if k == "method_call"
+    if coll_kind(c.nodes[n.args[0]].typ) != ""
+      ret emit_coll_method(c, node)
+    method := c.funcs[n.target]
+    args:[str] = []
+    if not method.static_method
+      if method.mutating
+        receiver := lvalue(c, n.args[0])
+        ref := fresh(c)
+        emit_line(c, cat([ctype(method.owner), " *", ref, " = &(", receiver, ");"]))
+        args = push(args, ref)
+      else
+        args = push(args, emit_expr(c, n.args[0]))
+    i := 1
+    while i < len(n.args)
+      args = push(args, emit_expr(c, n.args[i]))
+      i += 1
+    ret temp(c, typ, cat([function_name(method), "(", join(args, len(args), ", "), ")"]))
+  if k == "fold"
+    array := emit_expr(c, n.args[0])
+    result := emit_expr(c, n.args[1])
+    if typ == "i64" and n.value == "+"
+      ret temp(c, typ, cat(["g_sum_i64(", array, ", ", result, ", ", loc, ")"]))
+    i := fresh(c)
+    emit_line(c, cat(["for (int64_t ", i, "=0; ", i, "<", array, ".len; ++", i, ") {"]))
+    item := cat(["((", ctype(typ), "*)", array, ".data)[", i, "]"])
+    emit_line(c, cat([result, " = ", arithmetic(c, n.value, typ, result, item, n.token), ";"]))
+    emit_line(c, "}")
+    ret result
+  if k == "reduce"
+    ret emit_reduction(c, node)
+  ret emit_call(c, node)
+
+emit_block c:Compiler, body:[int]>void
+  for index:body
+    n := c.nodes[index]
+    if n.kind == "var"
+      value := emit_expr(c, n.args[0])
+      emit_line(c, cat([ctype(n.typ), " v_", n.value, " = ", value, ";"]))
+    else
+      if n.kind == "set"
+        left := lvalue(c, n.args[0])
+        old := ""
+        typ := c.nodes[n.args[0]].typ
+        if n.value != "="
+          old = temp(c, typ, left)
+        value := emit_expr(c, n.args[1])
+        if n.value != "="
+          value = arithmetic(c, slice(n.value, 0, 1), typ, old, value, n.token)
+        emit_line(c, cat([left, " = ", value, ";"]))
+      else
+        if n.kind == "ret"
+          value := ""
+          if len(n.args) > 0
+            value = emit_expr(c, n.args[0])
+          emit_line(c, cat(["return ", value, ";"]))
+        else
+          if n.kind == "expr"
+            emit_expr(c, n.args[0])
+          else
+            if n.kind == "if"
+              condition := emit_expr(c, n.args[0])
+              emit_line(c, cat(["if (", condition, ") {"]))
+              emit_block(c, n.body)
+              if len(n.other) > 0
+                emit_line(c, "} else {")
+                emit_block(c, n.other)
+              emit_line(c, "}")
+            else
+              if n.kind == "while"
+                emit_line(c, "while (true) {")
+                condition := emit_expr(c, n.args[0])
+                emit_line(c, cat(["if (!", condition, ") break;"]))
+                emit_block(c, n.body)
+                emit_line(c, "}")
+              else
+                if n.kind == "for"
+                  array := emit_expr(c, n.args[0])
+                  typ := c.nodes[n.args[0]].typ
+                  kind := coll_kind(typ)
+                  if kind != ""
+                    typ = cat(["[", coll_items(typ)[0], "]"])
+                    array = temp(c, typ, cat(["g_coll_snapshot(", array, ", ", c_bool(kind != "list"), ", ", location(c, n.token), ")"]))
+                  i := fresh(c)
+                  emit_line(c, cat(["for (int64_t ", i, "=0; ", i, "<", array, ".len; ++", i, ") {"]))
+                  ct := ctype(slice(typ, 1, len(typ) - 1))
+                  emit_line(c, cat([ct, " v_", n.value, " = ((", ct, "*)", array, ".data)[", i, "];"]))
+                  emit_block(c, n.body)
+                  emit_line(c, "}")
+                else
+                  if n.kind == "match"
+                    emit_match(c, index)
+                  else
+                    emit_line(c, "{")
+                    emit_block(c, n.body)
+                    emit_line(c, "}")
+
+signature f:Fn>str
+  params:[str] = []
+  if f.owner != "" and not f.static_method
+    pointer := " "
+    if f.mutating
+      pointer = " *"
+    params = push(params, cat([ctype(f.owner), pointer, "v_self"]))
+  for p:f.params
+    params = push(params, cat([ctype(p.typ), " v_", p.name]))
+  text := "void"
+  if len(params) > 0
+    text = join(params, len(params), ", ")
+  ret cat(["static ", ctype(f.result), " ", function_name(f), "(", text, ")"])
+
+emit_record c:Compiler, index:int>void
+  if c.records[index].mark == 3 or builtin_result(c.records[index].name)
+    ret
+  for field:c.records[index].fields
+    child := record_index(c, field.typ)
+    if child >= 0
+      emit_record(c, child)
+  emit_line(c, cat(["struct ", ctype(c.records[index].name), " {"]))
+  rec := c.records[index]
+  if rec.kind == "union"
+    emit_line(c, "int64_t m__tag; union {")
+    i := 0
+    for v:rec.variants
+      emit_line(c, "struct {")
+      for field:v.fields
+        emit_line(c, cat([ctype(field.typ), " m_", field.name, ";"]))
+      if len(v.fields) == 0
+        emit_line(c, "char empty;")
+      emit_line(c, cat(["} v", str_i64(i), ";"]))
+      i += 1
+    emit_line(c, "} data;")
+  else
+    for field:rec.fields
+      emit_line(c, cat([ctype(field.typ), " m_", field.name, ";"]))
+  emit_line(c, "};")
+  c.records[index].mark = 3
+
+emit_program c:Compiler, runtime:str>str
+  emit_line(c, concat("#define G_FILE_JSON ", cquote(jquote(c.path))))
+  emit_line(c, read_file(concat(runtime, "/runtime.h")))
+  emit_line(c, read_file(concat(runtime, "/std_runtime.h")))
+  emit_line(c, read_file(concat(runtime, "/io_runtime.h")))
+  emit_line(c, read_file(concat(runtime, "/json_runtime.h")))
+  emit_line(c, read_file(concat(runtime, "/collections_runtime.h")))
+  emit_line(c, "typedef struct { void (*code)(void); void *env; } g_closure;")
+  i := 0
+  while i < c.state[2]
+    if c.nodes[i].kind == "call" and prefix(c.nodes[i].value, "gui_")
+      c.state[8] = 1
+    i += 1
+  if c.state[8] == 1
+    emit_line(c, "#define GLYPH_GUI 1")
+    emit_line(c, read_file(concat(runtime, "/gui.h")))
+    emit_line(c, read_file(concat(runtime, "/gui_runtime.h")))
+  i = 0
+  while i < c.state[4]
+    ct := ctype(c.records[i].name)
+    emit_line(c, cat(["typedef struct ", ct, " ", ct, ";"]))
+    i += 1
+  i = 0
+  while i < c.state[4]
+    emit_record(c, i)
+    i += 1
+  i = 0
+  while i < c.state[3]
+    emit_line(c, concat(signature(c.funcs[i]), ";"))
+    i += 1
+  emit_closures(c)
+  i = 0
+  while i < c.state[3]
+    c.state[5] = i
+    emit_line(c, concat(signature(c.funcs[i]), " {"))
+    emit_block(c, c.funcs[i].body)
+    emit_line(c, "}")
+    i += 1
+  c.state[5] = -1
+  emit_line(c, "int main(int argc, char **argv) {")
+  emit_line(c, "g_argc=argc; g_argv=argv; g_gc_init();")
+  f := function_index(c, "", "main")
+  if c.funcs[f].result == "void"
+    emit_line(c, "f_main(); return 0;")
+  else
+    emit_line(c, "return (int)((uint64_t)f_main() & 255);")
+  emit_line(c, "}")
+  ret concat(join(c.output, c.state[7], "\n"), "\n")
+
+usage>void
+  eprint("usage: glyphc check|emit-c|build|run source.gly [-o output] [--runtime-dir dir] [--cc executable] [-O0..-O3] [--json] [-- program arguments]")
+  exit(1)
+
+main>int
+  if argc() < 2
+    usage()
+    ret 1
+  command := arg(0)
+  if not has(["check", "emit-c", "build", "run"], command)
+    usage()
+    ret 1
+  path := arg(1)
+  if len(path) < 4 or slice(path, len(path) - 4, len(path)) != ".gly"
+    eprint("G004: source must have .gly extension")
+    ret 1
+  runtime := getenv("GLYPH_RUNTIME_DIR")
+  if runtime == ""
+    runtime = "glyph"
+  cc := getenv("CC")
+  if cc == ""
+    cc = "cc"
+  output := concat(path, ".out")
+  if command == "emit-c"
+    output = concat(path, ".c")
+  optimization := "-O2"
+  program_args:[str] = []
+  i := 2
+  while i < argc()
+    option := arg(i)
+    if option == "--"
+      i += 1
+      while i < argc()
+        program_args = push(program_args, arg(i))
+        i += 1
+    else
+      if has(["-o", "--runtime-dir", "--cc"], option)
+        i += 1
+        if i >= argc()
+          usage()
+          ret 1
+        if option == "-o"
+          output = arg(i)
+        if option == "--runtime-dir"
+          runtime = arg(i)
+        if option == "--cc"
+          cc = arg(i)
+      else
+        if has(["-O0", "-O1", "-O2", "-O3"], option)
+          optimization = option
+        else
+          if option != "--json"
+            usage()
+            ret 1
+      i += 1
+  if len(program_args) > 0 and command != "run"
+    eprint("G004: program arguments require run")
+    ret 1
+  modules := fill(128, Module("", "", [], [], fill(6, 0)))
+  graph := fill(130, 0)
+  load_module(path, make_tok("", 1, 1, path), modules, graph)
+  c := compile_modules(modules, graph)
+  c = expand_program(c)
+  check_source(c)
+  if command == "check"
+    ret 0
+  cpath := concat(output, ".c")
+  if command == "emit-c"
+    cpath = output
+  protected := false
+  i = 0
+  while i < graph[0]
+    if same_file(modules[i].path, output) or same_file(modules[i].path, cpath)
+      protected = true
+    i += 1
+  if protected or command != "emit-c" and same_file(cpath, output)
+    eprint("G004: source, generated C and executable paths must differ")
+    ret 1
+  generated := emit_program(c, runtime)
+  write_file(cpath, generated)
+  if command == "emit-c"
+    ret 0
+  args := [cc, "-x", "c", cpath, "-std=c11", optimization, "-fno-fast-math", "-ffp-contract=off", "-o", output, "-lm"]
+  gc_args := [concat("-I", concat(runtime, "/vendor/bdwgc/include")), "-DGC_NOT_DLL", "-DGC_BUILTIN_ATOMIC", "-DALL_INTERIOR_POINTERS", "-DNO_EXECUTE_PERMISSION", "-DGC_DISABLE_INCREMENTAL", "-fno-strict-aliasing", concat(runtime, "/vendor/bdwgc/extra/gc.c")]
+  if platform() == "macos"
+    gc_args = push(gc_args, "-D_DARWIN_C_SOURCE")
+    gc_args = push(gc_args, "-DLARGE_CONFIG")
+  if platform() == "posix"
+    gc_args = push(gc_args, "-D_GNU_SOURCE")
+    gc_args = push(gc_args, "-ldl")
+  for option:gc_args
+    args = push(args, option)
+  if c.state[8] == 1
+    if platform() != "macos"
+      eprint("G203: GUI builds currently require macOS")
+      ret 1
+    args = ["xcrun", "clang", "-x", "c", cpath, "-std=c11", optimization, "-fno-fast-math", "-ffp-contract=off", "-D_DARWIN_C_SOURCE", "-o", output]
+    for option:gc_args
+      args = push(args, option)
+    for option:["-x", "objective-c", concat(runtime, "/gui_macos.m"), "-fobjc-arc", "-framework", "AppKit"]
+      args = push(args, option)
+  status := process(args)
+  if status != 0
+    ret status
+  if command == "run"
+    executable := output
+    if not prefix(output, "/")
+      executable = concat("./", output)
+    run_args := [executable]
+    for item:program_args
+      run_args = push(run_args, item)
+    ret process(run_args)
+  ret 0
+
+# File graph resolution and module-local symbol rewriting.
+type ImportDecl
+  names:[Tok]
+  path:str
+  token:Tok
+  target:int
+
+type Module
+  path:str
+  source:str
+  imports:[ImportDecl]
+  symbols:[Var]
+  bounds:[int]
+
+parse_import c:Compiler>ImportDecl
+  token := c.tokens[need(c, "import")]
+  names := [c.tokens[name_token(c)]]
+  while accept(c, ",")
+    names = push(names, c.tokens[name_token(c)])
+  need(c, "from")
+  t := pop(c)
+  if not prefix(c.tokens[t].text, "\"")
+    fail(c, "G002", "import path must be a string literal", t)
+  path := unquote(c, t)
+  need(c, "NEWLINE")
+  ret ImportDecl(names, path, token, -1)
+
+module_error token:Tok, code:str, message:str>void
+  die(make_compiler(token.path, ""), code, message, token)
+
+relative_path parent:str, child:str>str
+  i := len(parent)
+  while i > 0
+    i -= 1
+    if byte_at(parent, i) == 47
+      ret concat(slice(parent, 0, i + 1), child)
+  ret child
+
+load_module path:str, token:Tok, modules:[Module], graph:[int]>int
+  i := 0
+  while i < graph[0]
+    if same_file(path, modules[i].path)
+      if graph[i + 2] == 1
+        module_error(token, "G402", concat("circular import of ", path))
+      ret i
+    i += 1
+  if graph[0] >= 128
+    module_error(token, "G005", "program exceeds the 128-file import limit")
+  if not file_exists(path)
+    module_error(token, "G400", concat("cannot read module ", path))
+  source := read_file(path)
+  graph[1] += len(source)
+  if graph[1] > 1048576
+    module_error(token, "G005", "program exceeds the 1 MiB source limit")
+  c := Compiler(path, source, fill(len(source) + 16, make_tok("", 1, 1, path)), [], [], [], fill(16, 0), [], [], [], [], [])
+  lex_source(c)
+  imports:[ImportDecl] = []
+  while peek(c) == "import"
+    imports = push(imports, parse_import(c))
+  index := graph[0]
+  graph[0] += 1
+  graph[index + 2] = 1
+  modules[index] = Module(path, source, imports, [], fill(6, 0))
+  i = 0
+  while i < len(imports)
+    target := imports[i].path
+    valid := len(target) >= 4 and not prefix(target, "/")
+    if valid
+      valid = slice(target, len(target) - 4, len(target)) == ".gly"
+    j := 0
+    while j < len(target)
+      if byte_at(target, j) == 0
+        valid = false
+      j += 1
+    if not valid
+      module_error(imports[i].token, "G400", "import path must be a relative .gly file path")
+    imports[i].target = load_module(relative_path(path, target), imports[i].token, modules, graph)
+    i += 1
+  graph[index + 2] = 2
+  ret index
+
+module_name index:int, name:str>str
+  if index == 0 and name == "main"
+    ret name
+  ret cat(["gmod", str_i64(index), "_", name])
+
+bind_name index:int, bindings:[Var], name:str>str
+  for binding:bindings
+    if binding.name == name
+      ret binding.typ
+  if name == "" or builtin(name) or scalar(name) or has(["int", "void", "self", "main", "sum", "count", "zip"], name)
+    ret name
+  ret module_name(index, name)
+
+bind_type index:int, bindings:[Var], typ:str>str
+  fn := fn_types(typ)
+  if len(fn) > 0
+    params:[str] = []
+    i := 0
+    while i + 1 < len(fn)
+      params = push(params, bind_type(index, bindings, fn[i]))
+      i += 1
+    ret cat(["fn(", join(params, len(params), ","), ")>", bind_type(index, bindings, fn[i])])
+  if prefix(typ, "[")
+    ret cat(["[", bind_type(index, bindings, slice(typ, 1, len(typ) - 1)), "]"])
+  if prefix(typ, "*")
+    ret concat("*", bind_type(index, bindings, slice(typ, 1, len(typ))))
+  head := type_head(typ)
+  if head != typ
+    items := split_types(slice(typ, len(head) + 1, len(typ) - 1))
+    i := 0
+    while i < len(items)
+      items[i] = bind_type(index, bindings, items[i])
+      i += 1
+    ret cat([bind_name(index, bindings, head), "[", join(items, len(items), ","), "]"])
+  ret bind_name(index, bindings, typ)
+
+module_symbols c:Compiler, m:Module, index:int>[Var]
+  symbols:[Var] = []
+  r := m.bounds[4]
+  while r < m.bounds[5]
+    rec := c.records[r]
+    if env_type(symbols, rec.name) != "" or builtin(rec.name) or scalar(rec.name) or has(["int", "void", "main", "sum", "count", "zip"], rec.name)
+      fail(c, "G103", concat("duplicate or reserved declaration ", rec.name), rec.token)
+    symbols = push(symbols, Var(rec.name, module_name(index, rec.name)))
+    r += 1
+  f := m.bounds[2]
+  while f < m.bounds[3]
+    fn := c.funcs[f]
+    if fn.owner == ""
+      if env_type(symbols, fn.name) != "" or builtin(fn.name)
+        fail(c, "G103", concat("duplicate or reserved declaration ", fn.name), fn.token)
+      if index > 0 and fn.name == "main"
+        fail(c, "G401", "imported modules must not declare main", fn.token)
+      symbols = push(symbols, Var(fn.name, module_name(index, fn.name)))
+    f += 1
+  ret symbols
+
+rename_module c:Compiler, m:Module, index:int, bindings:[Var]>void
+  i := m.bounds[0]
+  while i < m.bounds[1]
+    n := c.nodes[i]
+    if n.kind == "call" or n.kind == "specialize"
+      c.nodes[i].value = bind_name(index, bindings, n.value)
+    if has(["name", "var", "for"], n.kind)
+      c.nodes[i].value = bind_name(index, bindings, n.value)
+    if n.kind == "var"
+      c.nodes[i].typ = bind_type(index, bindings, n.typ)
+    if n.kind == "lambda"
+      c.nodes[i].value = bind_type(index, bindings, n.value)
+    if n.kind == "lambda" or n.kind == "specialize"
+      j := 0
+      while j < len(n.params)
+        n.params[j].typ = bind_type(index, bindings, n.params[j].typ)
+        n.params[j].name = bind_name(index, bindings, n.params[j].name)
+        j += 1
+    if n.kind == "reduce" or n.kind == "case"
+      for t:n.bindings
+        c.tokens[t].text = bind_name(index, bindings, c.tokens[t].text)
+    i += 1
+  i = m.bounds[2]
+  while i < m.bounds[3]
+    fn := c.funcs[i]
+    if fn.owner != "" and not fn.static_method
+      for node:fn.body
+        restore_receiver(c, node, bind_name(index, bindings, "self"))
+    if fn.owner == ""
+      c.funcs[i].name = bind_name(index, bindings, fn.name)
+    else
+      c.funcs[i].owner = bind_name(index, bindings, fn.owner)
+    c.funcs[i].result = bind_type(index, bindings, fn.result)
+    for parameter:range(len(fn.generic))
+      fn.generic[parameter].name = bind_name(index, bindings, fn.generic[parameter].name)
+      fn.generic[parameter].typ = bind_name(index, bindings, fn.generic[parameter].typ)
+    j := 0
+    while j < len(fn.params)
+      if fn.params[j].name != "self" or fn.owner == "" or fn.static_method
+        fn.params[j].name = bind_name(index, bindings, fn.params[j].name)
+      fn.params[j].typ = bind_type(index, bindings, fn.params[j].typ)
+      j += 1
+    i += 1
+  i = m.bounds[4]
+  while i < m.bounds[5]
+    rec := c.records[i]
+    c.records[i].name = bind_name(index, bindings, rec.name)
+    for parameter:range(len(rec.generic))
+      rec.generic[parameter].name = bind_name(index, bindings, rec.generic[parameter].name)
+      rec.generic[parameter].typ = bind_name(index, bindings, rec.generic[parameter].typ)
+    for variant:rec.variants
+      for field:range(len(variant.fields))
+        variant.fields[field].typ = bind_type(index, bindings, variant.fields[field].typ)
+    j := 0
+    while j < len(rec.fields)
+      rec.fields[j].typ = bind_type(index, bindings, rec.fields[j].typ)
+      j += 1
+    i += 1
+
+compile_modules modules:[Module], graph:[int]>Compiler
+  sources := fill(graph[0], "")
+  i := 0
+  while i < graph[0]
+    sources[i] = modules[i].source
+    i += 1
+  c := make_compiler(modules[0].path, join(sources, graph[0], "\n"))
+  i = 0
+  while i < graph[0]
+    m := modules[i]
+    view := Compiler(m.path, m.source, c.tokens, c.nodes, c.funcs, c.records, c.state, c.output, c.templates, c.type_templates, c.requirements, c.keys)
+    c.state[1] = c.state[0]
+    lex_source(view)
+    m.bounds[0] = c.state[2]
+    m.bounds[2] = c.state[3]
+    m.bounds[4] = c.state[4]
+    parse_source(view)
+    m.bounds[1] = c.state[2]
+    m.bounds[3] = c.state[3]
+    m.bounds[5] = c.state[4]
+    if graph[0] > 1
+      modules[i].symbols = module_symbols(c, m, i)
+    i += 1
+  if graph[0] == 1 and len(modules[0].imports) == 0
+    ret c
+  i = 0
+  while i < graph[0]
+    m := modules[i]
+    bindings := m.symbols
+    for imp:m.imports
+      exports := modules[imp.target].symbols
+      for token:imp.names
+        target := env_type(exports, token.text)
+        if target == "" or token.text == "main"
+          module_error(token, "G401", concat("module does not declare ", token.text))
+        if env_type(bindings, token.text) != "" or builtin(token.text)
+          module_error(token, "G401", concat("import conflicts with ", token.text))
+        bindings = push(bindings, Var(token.text, target))
+    rename_module(c, m, i, bindings)
+    i += 1
+  ret c
+
+restore_receiver c:Compiler, node:int, renamed:str>void
+  n := c.nodes[node]
+  if has(["name", "var", "for"], n.kind) and n.value == renamed
+    c.nodes[node].value = "self"
+  if n.kind == "reduce"
+    for t:n.bindings
+      if c.tokens[t].text == renamed
+        c.tokens[t].text = "self"
+  for arg:n.args
+    restore_receiver(c, arg, renamed)
+  for item:n.body
+    restore_receiver(c, item, renamed)
+  for item:n.other
+    restore_receiver(c, item, renamed)
+
+make_tok text:str, line:int, col:int, path:str>Tok
+  end := col
+  if not has(["EOF", "NEWLINE", "INDENT", "DEDENT"], text)
+    end += column(text, 0, len(text)) - 1
+  ret Tok(text, line, col, path, end)
+
+# Builtin collection constructors also accept concrete generic record and function values.
+coll_kind typ:str>str
+  for kind:["list", "map", "set"]
+    if prefix(typ, concat(kind, "["))
+      ret kind
+  ret ""
+
+coll_items typ:str>[str]
+  ret split_types(slice(typ, len(coll_kind(typ)) + 1, len(typ) - 1))
+
+coll_signature typ:str, name:str>[str]
+  kind := coll_kind(typ)
+  items := coll_items(typ)
+  key := items[0]
+  value := items[len(items) - 1]
+  if name == "clear"
+    ret ["void"]
+  if kind == "list"
+    if name == "append"
+      ret [value, "void"]
+    if name == "get" or name == "remove"
+      ret ["i64", value]
+    if name == "set"
+      ret ["i64", value, "void"]
+    if name == "pop"
+      ret [value]
+    if name == "to_array"
+      ret [cat(["[", value, "]"])]
+  else
+    if name == "contains" or name == "remove"
+      ret [key, "bool"]
+    if name == "keys"
+      ret [cat(["[", key, "]"])]
+    if kind == "map"
+      if name == "put"
+        ret [key, value, "void"]
+      if name == "get"
+        ret [key, value]
+      if name == "get_or"
+        ret [key, value, value]
+      if name == "values"
+        ret [cat(["[", value, "]"])]
+    else
+      if name == "add"
+        ret [key, "bool"]
+      if name == "to_array"
+        ret [cat(["[", key, "]"])]
+  ret []
+
+c_bool value:bool>str
+  if value
+    ret "1"
+  ret "0"
+
+emit_coll_method c:Compiler, node:int>str
+  n := c.nodes[node]
+  args:[str] = []
+  for arg_node:n.args
+    args = push(args, emit_expr(c, arg_node))
+  a := args[0]
+  name := n.value
+  loc := location(c, n.token)
+  kind := coll_kind(c.nodes[n.args[0]].typ)
+  key := "NULL"
+  if len(args) > 1
+    key = concat("&", args[1])
+  value := ""
+  if name == "clear"
+    value = cat(["g_coll_clear(", a, ")"])
+  if has(["to_array", "keys", "values"], name)
+    keys := c_bool(kind == "set" or name == "keys")
+    value = cat(["g_coll_snapshot(", a, ", ", keys, ", ", loc, ")"])
+  if name == "append"
+    value = cat(["g_coll_append(", a, ", ", key, ", ", loc, ")"])
+  if name == "set"
+    value = cat(["g_coll_set(", a, ", ", args[1], ", &", args[2], ", ", loc, ")"])
+  if (name == "pop" or name == "remove") and kind == "list"
+    index := concat(a, "->len - 1")
+    if name == "remove"
+      index = args[1]
+    value = cat(["*(", ctype(n.typ), "*)g_coll_take(", a, ", ", index, ", ", loc, ")"])
+  if name == "get" or name == "get_or"
+    fallback := "NULL"
+    if name == "get_or"
+      fallback = concat("&", args[2])
+    value = cat(["*(", ctype(n.typ), "*)g_coll_get(", a, ", ", key, ", ", fallback, ", ", loc, ")"])
+  if name == "put" or name == "add"
+    item := "NULL"
+    if name == "put"
+      item = concat("&", args[2])
+    value = cat(["g_coll_put(", a, ", ", key, ", ", item, ", ", loc, ")"])
+  if name == "contains" or name == "remove" and kind != "list"
+    value = cat(["g_coll_", name, "(", a, ", ", key, ")"])
+  ret temp(c, n.typ, value)
+
+# Explicit generic expansion. State 9/10 preserve template counts;
+# 12 requirements, 13 instance keys, 14 expansion depth.
+split_types text:str>[str]
+  result:[str] = []
+  depth := 0
+  start := 0
+  i := 0
+  while i < len(text)
+    b := byte_at(text, i)
+    if b == 91 or b == 40
+      depth += 1
+    if b == 93 or b == 41
+      depth -= 1
+    if b == 44 and depth == 0
+      result = push(result, slice(text, start, i))
+      start = i + 1
+    i += 1
+  if start < len(text)
+    result = push(result, slice(text, start, len(text)))
+  ret result
+
+fn_types typ:str>[str]
+  if not prefix(typ, "fn(")
+    ret []
+  depth := 1
+  i := 3
+  while i < len(typ)
+    b := byte_at(typ, i)
+    if b == 40
+      depth += 1
+    if b == 41
+      depth -= 1
+      if depth == 0
+        ret push(split_types(slice(typ, 3, i)), slice(typ, i + 2, len(typ)))
+    i += 1
+  ret []
+
+type_head typ:str>str
+  i := 0
+  while i < len(typ)
+    if byte_at(typ, i) == 91
+      ret slice(typ, 0, i)
+    i += 1
+  ret typ
+
+special_ahead c:Compiler>bool
+  i := c.state[1]
+  depth := 1
+  while i < c.state[0]
+    text := c.tokens[i].text
+    if text == "["
+      depth += 1
+    if text == "]"
+      depth -= 1
+      if depth == 0
+        ret true
+    if reserved(text)
+      ret false
+    if text == "(" and c.tokens[i - 1].text != "fn"
+      ret false
+    if not ident(text) and not has(["[", "]", ",", "*", "(", ")", ">"], text)
+      ret false
+    i += 1
+  ret false
+
+template_record c:Compiler, name:str>int
+  i := 0
+  while i < c.state[10]
+    if c.type_templates[i].name == name
+      ret i
+    i += 1
+  ret -1
+
+template_function c:Compiler, name:str>int
+  i := 0
+  while i < c.state[9]
+    if c.templates[i].name == name and c.templates[i].owner == ""
+      ret i
+    i += 1
+  ret -1
+
+is_template c:Compiler, name:str>bool
+  r := template_record(c, name)
+  if r >= 0 and len(c.type_templates[r].generic) > 0
+    ret true
+  f := template_function(c, name)
+  ret f >= 0 and len(c.templates[f].generic) > 0
+
+expand_type c:Compiler, typ:str, bindings:[Var], token:int>str
+  if typ == ""
+    ret typ
+  fn := fn_types(typ)
+  if len(fn) > 0
+    params:[str] = []
+    i := 0
+    while i + 1 < len(fn)
+      params = push(params, expand_type(c, fn[i], bindings, token))
+      i += 1
+    result := expand_type(c, fn[i], bindings, token)
+    ret cat(["fn(", join(params, len(params), ","), ")>", result])
+  if prefix(typ, "[")
+    ret cat(["[", expand_type(c, slice(typ, 1, len(typ) - 1), bindings, token), "]"])
+  if prefix(typ, "*")
+    ret concat("*", expand_type(c, slice(typ, 1, len(typ)), bindings, token))
+  head := type_head(typ)
+  if head != typ
+    args := split_types(slice(typ, len(head) + 1, len(typ) - 1))
+    i := 0
+    while i < len(args)
+      args[i] = expand_type(c, args[i], bindings, token)
+      i += 1
+    if has(["list", "map", "set"], head)
+      arity := 1
+      if head == "map"
+        arity = 2
+      if len(args) != arity
+        fail(c, "G003", "invalid collection type arguments", token)
+      ret cat([head, "[", join(args, len(args), ","), "]"])
+    if template_record(c, head) < 0
+      fail(c, "G003", "expected a generic type", token)
+    ret instantiate(c, head, args, token)
+  replacement := env_type(bindings, typ)
+  if replacement != ""
+    ret replacement
+  if is_template(c, typ)
+    fail(c, "G003", "explicit type arguments required", token)
+  if typ == "int"
+    ret "i64"
+  ret typ
+
+expand_fields c:Compiler, fields:[Field], bindings:[Var]>[Field]
+  result:[Field] = []
+  for f:fields
+    result = push(result, Field(f.name, expand_type(c, f.typ, bindings, f.token), f.token, f.hidden))
+  ret result
+
+expand_nodes c:Compiler, nodes:[int], bindings:[Var]>[int]
+  result:[int] = []
+  for node:nodes
+    result = push(result, expand_node(c, node, bindings))
+  ret result
+
+expand_node c:Compiler, node:int, bindings:[Var]>int
+  n := c.nodes[node]
+  if n.kind == "specialize"
+    name := n.value
+    if not is_template(c, name) and len(n.params) == 1
+      base := new_node(c, "name", name, n.token, [])
+      index := index_expression(c, n.params[0].typ, n.token)
+      ret new_node(c, "index", "", n.token, [base, index])
+    args:[str] = []
+    for param:n.params
+      args = push(args, expand_type(c, param.typ, bindings, n.token))
+    ret new_node(c, "name", instantiate(c, name, args, n.token), n.token, [])
+  if n.kind == "index" and c.nodes[n.args[0]].kind == "name" and is_template(c, c.nodes[n.args[0]].value)
+    arg_node := c.nodes[n.args[1]]
+    if arg_node.kind != "name"
+      fail(c, "G003", "expected explicit type argument", arg_node.token)
+    actual := expand_type(c, arg_node.value, bindings, arg_node.token)
+    ret new_node(c, "name", instantiate(c, c.nodes[n.args[0]].value, [actual], n.token), n.token, [])
+  n.args = expand_nodes(c, n.args, bindings)
+  n.body = expand_nodes(c, n.body, bindings)
+  n.other = expand_nodes(c, n.other, bindings)
+  if n.kind == "var"
+    n.typ = expand_type(c, n.typ, bindings, n.token)
+  if n.kind == "lambda"
+    n.value = expand_type(c, n.value, bindings, n.token)
+    n.params = expand_fields(c, n.params, bindings)
+  if n.kind == "invoke" and c.nodes[n.args[0]].kind == "name"
+    n.kind = "call"
+    n.value = c.nodes[n.args[0]].value
+    args:[int] = []
+    i := 1
+    while i < len(n.args)
+      args = push(args, n.args[i])
+      i += 1
+    n.args = args
+  if n.kind == "call" and is_template(c, n.value)
+    fail(c, "G003", "explicit type arguments required", n.token)
+  result := new_node(c, n.kind, n.value, n.token, n.args)
+  c.nodes[result] = n
+  ret result
+
+expand_function c:Compiler, f:Fn, bindings:[Var]>Fn
+  f.generic = []
+  f.params = expand_fields(c, f.params, bindings)
+  f.result = expand_type(c, f.result, bindings, f.token)
+  f.body = expand_nodes(c, f.body, bindings)
+  ret f
+
+expand_record c:Compiler, rec:Rec, bindings:[Var]>Rec
+  rec.generic = []
+  if rec.kind == "union"
+    rec.fields = [Field("_tag", "i64", rec.token, true)]
+    variants:[Variant] = []
+    names:[str] = []
+    i := 0
+    for v:rec.variants
+      if has(names, v.name)
+        fail(c, "G103", "duplicate union variant", v.token)
+      names = push(names, v.name)
+      v.fields = expand_fields(c, v.fields, bindings)
+      fields:[str] = []
+      for f:v.fields
+        if has(fields, f.name)
+          fail(c, "G103", "duplicate payload field", f.token)
+        fields = push(fields, f.name)
+        rec.fields = push(rec.fields, Field(cat(["_v", str_i64(i), "_", f.name]), f.typ, f.token, true))
+      variants = push(variants, v)
+      i += 1
+    if len(variants) == 0
+      fail(c, "G102", "union requires variants", rec.token)
+    rec.variants = variants
+  else
+    rec.fields = expand_fields(c, rec.fields, bindings)
+  ret rec
+
+instantiate c:Compiler, name:str, args:[str], token:int>str
+  r := template_record(c, name)
+  f := template_function(c, name)
+  params:[Field] = []
+  if r >= 0
+    params = c.type_templates[r].generic
+  else
+    if f >= 0
+      params = c.templates[f].generic
+  if len(params) == 0
+    fail(c, "G003", "not a generic declaration", token)
+  if len(args) != len(params)
+    fail(c, "G107", "wrong number of type arguments", token)
+  if has(args, "void")
+    fail(c, "G003", "void is not a type argument", token)
+  key := cat([name, "[", join(args, len(args), ","), "]"])
+  i := 0
+  while i < c.state[13]
+    if c.keys[i].name == key
+      ret c.keys[i].typ
+    i += 1
+  if c.state[13] >= 256 or c.state[14] >= 64
+    fail(c, "G005", "generic expansion limit exceeded", token)
+  generated := concat("_glyph_inst_", str_i64(c.state[13]))
+  while template_record(c, generated) >= 0 or template_function(c, generated) >= 0
+    generated = concat(generated, "_")
+  c.keys[c.state[13]] = Var(key, generated)
+  c.state[13] += 1
+  bindings:[Var] = []
+  i = 0
+  while i < len(params)
+    bindings = push(bindings, Var(params[i].name, args[i]))
+    if c.state[12] >= len(c.requirements)
+      fail(c, "G005", "generic argument limit exceeded", token)
+    c.requirements[c.state[12]] = Field(args[i], params[i].typ, token, false)
+    c.state[12] += 1
+    i += 1
+  c.state[14] += 1
+  if c.state[3] + c.state[9] + 1 >= len(c.funcs) or c.state[4] + 1 >= len(c.records)
+    fail(c, "G005", "expanded declaration limit exceeded", token)
+  if r >= 0
+    rec := c.type_templates[r]
+    rec.name = generated
+    index := c.state[4]
+    c.state[4] += 1
+    c.records[index] = expand_record(c, rec, bindings)
+    i = 0
+    while i < c.state[9]
+      method := c.templates[i]
+      if method.owner == name
+        method.owner = generated
+        fi := c.state[3]
+        c.state[3] += 1
+        c.funcs[fi] = expand_function(c, method, bindings)
+      i += 1
+  else
+    func := c.templates[f]
+    func.name = generated
+    index := c.state[3]
+    c.state[3] += 1
+    c.funcs[index] = expand_function(c, func, bindings)
+  c.state[14] -= 1
+  ret generated
+
+validate_generic c:Compiler, params:[Field], owner:str>void
+  seen:[str] = []
+  for p:params
+    if has(seen, p.name) or builtin(p.name) or scalar(p.name) or has(["int", "void", "self", owner], p.name)
+      fail(c, "G103", "duplicate or reserved type parameter", p.token)
+    seen = push(seen, p.name)
+    if p.typ != ""
+      r := template_record(c, p.typ)
+      if r < 0 or c.type_templates[r].kind != "interface"
+        fail(c, "G003", "unknown interface constraint", p.token)
+
+expand_program c:Compiler>Compiler
+  c.templates = clone(c.funcs)
+  c.type_templates = clone(c.records)
+  c.state[9] = c.state[3]
+  c.state[10] = c.state[4]
+  c.state[3] = 0
+  c.state[4] = 0
+  seen:[str] = []
+  r := 0
+  while r < c.state[10]
+    rec := c.type_templates[r]
+    if has(seen, rec.name)
+      fail(c, "G103", "duplicate type", rec.token)
+    seen = push(seen, rec.name)
+    validate_generic(c, rec.generic, rec.name)
+    if (len(rec.generic) > 0 or rec.kind == "interface") and (builtin(rec.name) or scalar(rec.name) or has(["int", "void", "main", "sum", "count", "zip"], rec.name))
+      fail(c, "G103", "reserved template or interface name", rec.token)
+    if rec.kind == "interface" and len(rec.generic) > 0
+      fail(c, "G003", "interfaces cannot take type parameters", rec.token)
+    r += 1
+  i := 0
+  while i < c.state[9]
+    f := c.templates[i]
+    if f.owner == ""
+      if has(seen, f.name)
+        fail(c, "G103", "duplicate declaration", f.token)
+      seen = push(seen, f.name)
+      if len(f.generic) > 0 and (builtin(f.name) or scalar(f.name) or has(["main", "int", "void", "sum", "count", "zip"], f.name))
+        fail(c, "G103", "reserved template name", f.token)
+    else
+      if len(f.generic) > 0
+        fail(c, "G003", "put type parameters on the enclosing record", f.token)
+    validate_generic(c, f.generic, f.name)
+    i += 1
+  i = 0
+  while i < c.state[9]
+    f := c.templates[i]
+    owner := template_record(c, f.owner)
+    if owner >= 0 and c.type_templates[owner].kind == "interface"
+      c.templates[i].params = expand_fields(c, f.params, [])
+      c.templates[i].result = expand_type(c, f.result, [], f.token)
+    i += 1
+  r = 0
+  while r < c.state[10]
+    rec := c.type_templates[r]
+    if len(rec.generic) == 0 and rec.kind != "interface"
+      index := c.state[4]
+      c.state[4] += 1
+      c.records[index] = expand_record(c, rec, [])
+    r += 1
+  i = 0
+  while i < c.state[9]
+    f := c.templates[i]
+    include := len(f.generic) == 0
+    if f.owner != ""
+      owner := c.type_templates[template_record(c, f.owner)]
+      include = include and len(owner.generic) == 0 and owner.kind != "interface"
+    if include
+      index := c.state[3]
+      c.state[3] += 1
+      c.funcs[index] = expand_function(c, f, [])
+    i += 1
+  ret c
+
+function_type c:Compiler, index:int>str
+  params:[str] = []
+  for p:c.funcs[index].params
+    params = push(params, p.typ)
+  ret cat(["fn(", join(params, len(params), ","), ")>", result_type(c, index)])
+
+check_invoke c:Compiler, node:int, env:[Var], unsafe_mode:bool>str
+  n := c.nodes[node]
+  typ := check_expr(c, n.args[0], env, unsafe_mode, "")
+  sig := fn_types(typ)
+  if len(sig) == 0
+    fail(c, "G102", "value is not callable", n.token)
+  if len(n.args) != len(sig)
+    fail(c, "G107", "wrong function value argument count", n.token)
+  i := 1
+  while i < len(n.args)
+    same(c, check_expr(c, n.args[i], env, unsafe_mode, sig[i - 1]), sig[i - 1], c.nodes[n.args[i]].token)
+    i += 1
+  result := sig[len(sig) - 1]
+  c.nodes[node].typ = result
+  ret result
+
+uses_local c:Compiler, node:int, name:str, bound:[str]>bool
+  n := c.nodes[node]
+  if has(["name", "call"], n.kind) and n.value == name and not has(bound, name)
+    ret true
+  if n.kind == "lambda"
+    for p:n.params
+      bound = push(bound, p.name)
+  for arg_node:n.args
+    if uses_local(c, arg_node, name, bound)
+      ret true
+  ret false
+
+check_lambda c:Compiler, node:int, env:[Var]>str
+  n := c.nodes[node]
+  result := validate_type(c, n.value, n.token)
+  inner := env
+  types:[str] = []
+  bound:[str] = []
+  for p:n.params
+    typ := validate_type(c, p.typ, p.token)
+    if typ == "void" or env_type(inner, p.name) != ""
+      fail(c, "G103", "duplicate/shadowed lambda parameter or void type", p.token)
+    inner = push(inner, Var(p.name, typ))
+    types = push(types, typ)
+    bound = push(bound, p.name)
+  captures:[Field] = []
+  for v:env
+    if uses_local(c, n.args[0], v.name, bound)
+      captures = push(captures, Field(v.name, v.typ, n.token, false))
+  same(c, check_expr(c, n.args[0], inner, false, result), result, c.nodes[n.args[0]].token)
+  typ := cat(["fn(", join(types, len(types), ","), ")>", result])
+  c.nodes[node].captures = captures
+  c.nodes[node].typ = typ
+  ret typ
+
+variant_index rec:Rec, name:str>int
+  i := 0
+  while i < len(rec.variants)
+    if rec.variants[i].name == name
+      ret i
+    i += 1
+  ret -1
+
+check_union_call c:Compiler, node:int, rec:Rec, env:[Var], unsafe_mode:bool>str
+  n := c.nodes[node]
+  index := variant_index(rec, n.value)
+  if index < 0
+    fail(c, "G101", "unknown union variant", n.token)
+  fields := rec.variants[index].fields
+  if len(n.args) != len(fields) + 1
+    fail(c, "G107", "wrong variant payload count", n.token)
+  i := 0
+  while i < len(fields)
+    same(c, check_expr(c, n.args[i + 1], env, unsafe_mode, fields[i].typ), fields[i].typ, c.nodes[n.args[i + 1]].token)
+    i += 1
+  c.nodes[node].kind = "variant"
+  c.nodes[node].target = index
+  c.nodes[node].typ = rec.name
+  ret rec.name
+
+check_match c:Compiler, node:int, env:[Var], result:str, unsafe_mode:bool>bool
+  n := c.nodes[node]
+  typ := check_expr(c, n.args[0], env, unsafe_mode, "")
+  index := record_index(c, typ)
+  if index < 0 or c.records[index].kind != "union"
+    fail(c, "G102", "match requires a tagged union", n.token)
+  rec := c.records[index]
+  seen:[str] = []
+  all_return := true
+  for arm_node:n.body
+    arm := c.nodes[arm_node]
+    variant := variant_index(rec, arm.value)
+    if variant < 0 or has(seen, arm.value)
+      fail(c, "G115", "unknown or duplicate case", arm.token)
+    seen = push(seen, arm.value)
+    fields := rec.variants[variant].fields
+    if len(fields) != len(arm.bindings)
+      fail(c, "G107", "wrong case binding count", arm.token)
+    inner := env
+    i := 0
+    while i < len(fields)
+      binding := c.tokens[arm.bindings[i]].text
+      if env_type(inner, binding) != ""
+        fail(c, "G103", "case binding shadows a variable", arm.token)
+      inner = push(inner, Var(binding, fields[i].typ))
+      i += 1
+    c.nodes[arm_node].target = variant
+    c.nodes[arm_node].params = fields
+    returns := check_block(c, arm.body, inner, result, unsafe_mode)
+    all_return = all_return and returns
+  if len(seen) != len(rec.variants)
+    fail(c, "G115", "match must cover every variant", n.token)
+  ret all_return
+
+check_interfaces c:Compiler>void
+  r := 0
+  while r < c.state[10]
+    rec := c.type_templates[r]
+    if rec.kind == "interface"
+      names:[str] = []
+      i := 0
+      while i < c.state[9]
+        f := c.templates[i]
+        if f.owner == rec.name
+          if has(names, f.name)
+            fail(c, "G103", "duplicate interface method", f.token)
+          names = push(names, f.name)
+          validate_type(c, f.result, f.token)
+          params:[str] = []
+          for p:f.params
+            if has(params, p.name)
+              fail(c, "G103", "duplicate interface parameter", p.token)
+            params = push(params, p.name)
+            if validate_type(c, p.typ, p.token) == "void"
+              fail(c, "G103", "void interface parameter", p.token)
+        i += 1
+      if len(names) == 0
+        fail(c, "G102", "interface requires a method", rec.token)
+    r += 1
+  i := 0
+  while i < c.state[12]
+    requirement := c.requirements[i]
+    validate_type(c, requirement.name, requirement.token)
+    j := 0
+    while j < c.state[9]
+      required := c.templates[j]
+      if requirement.typ != "" and required.owner == requirement.typ
+        index := function_index(c, requirement.name, required.name)
+        if index < 0
+          fail(c, "G114", "missing interface method", requirement.token)
+        actual := c.funcs[index]
+        valid := not actual.static_method and not actual.hidden and actual.mutating == required.mutating and len(actual.params) == len(required.params)
+        if valid
+          p := 0
+          while p < len(actual.params)
+            if actual.params[p].typ != canon(required.params[p].typ)
+              valid = false
+            p += 1
+        if not valid or result_type(c, index) != canon(required.result)
+          fail(c, "G114", "incompatible interface method", requirement.token)
+      j += 1
+    i += 1
+
+emit_invoke c:Compiler, node:int>str
+  n := c.nodes[node]
+  callee := emit_expr(c, n.args[0])
+  args := [concat(callee, ".env")]
+  i := 1
+  while i < len(n.args)
+    args = push(args, emit_expr(c, n.args[i]))
+    i += 1
+  types := fn_types(c.nodes[n.args[0]].typ)
+  params := ["void *"]
+  i = 0
+  while i + 1 < len(types)
+    params = push(params, ctype(types[i]))
+    i += 1
+  ret temp(c, n.typ, cat(["((", ctype(n.typ), " (*)(", join(params, len(params), ", "), "))", callee, ".code)(", join(args, len(args), ", "), ")"]))
+
+emit_lambda c:Compiler, node:int>str
+  n := c.nodes[node]
+  id := str_i64(node)
+  env := "NULL"
+  if len(n.captures) > 0
+    allocation := temp(c, "[str]", cat(["g_new(1, sizeof(g_env_", id, "), ", location(c, n.token), ")"]))
+    env = concat(allocation, ".data")
+    for field:n.captures
+      emit_line(c, cat(["((g_env_", id, "*)", env, ")->v_", field.name, " = ", variable(c, field.name), ";"]))
+  ret temp(c, n.typ, cat(["(g_closure){(void (*)(void))g_lambda_", id, ", ", env, "}"]))
+
+emit_variant c:Compiler, node:int>str
+  n := c.nodes[node]
+  rec := c.records[record_index(c, n.typ)]
+  fields := rec.variants[n.target].fields
+  values:[str] = []
+  i := 1
+  while i < len(n.args)
+    values = push(values, emit_expr(c, n.args[i]))
+    i += 1
+  initializers := [concat(".m__tag = ", str_i64(n.target))]
+  i = 0
+  while i < len(fields)
+    initializers = push(initializers, cat([".data.v", str_i64(n.target), ".m_", fields[i].name, " = ", values[i]]))
+    i += 1
+  ret temp(c, n.typ, cat(["(", ctype(n.typ), "){", join(initializers, len(initializers), ", "), "}"]))
+
+emit_match c:Compiler, node:int>void
+  n := c.nodes[node]
+  value := emit_expr(c, n.args[0])
+  emit_line(c, cat(["switch (", value, ".m__tag) {"]))
+  for arm_node:n.body
+    arm := c.nodes[arm_node]
+    id := str_i64(arm.target)
+    emit_line(c, cat(["case ", id, ": {"]))
+    i := 0
+    while i < len(arm.params)
+      field := arm.params[i]
+      name := c.tokens[arm.bindings[i]].text
+      emit_line(c, cat([ctype(field.typ), " v_", name, " = ", value, ".data.v", id, ".m_", field.name, ";"]))
+      i += 1
+    emit_block(c, arm.body)
+    emit_line(c, "break; }")
+  emit_line(c, "default: abort(); }")
+
+lambda_signature c:Compiler, node:int>str
+  n := c.nodes[node]
+  params := ["void *env"]
+  for p:n.params
+    params = push(params, cat([ctype(p.typ), " v_", p.name]))
+  ret cat(["static ", ctype(n.value), " g_lambda_", str_i64(node), "(", join(params, len(params), ", "), ")"])
+
+emit_closures c:Compiler>void
+  i := 0
+  while i < c.state[3]
+    f := c.funcs[i]
+    if f.owner == "" and f.name != "main"
+      params := ["void *env"]
+      args:[str] = []
+      for p:f.params
+        params = push(params, cat([ctype(p.typ), " v_", p.name]))
+        args = push(args, concat("v_", p.name))
+      emit_line(c, cat(["static ", ctype(f.result), " g_wrap_", f.name, "(", join(params, len(params), ", "), ") {"]))
+      start := "return "
+      if f.result == "void"
+        start = ""
+      emit_line(c, cat([start, function_name(f), "(", join(args, len(args), ", "), "); }"]))
+    i += 1
+  i = 0
+  while i < c.state[2]
+    n := c.nodes[i]
+    if n.kind == "lambda" and n.typ != ""
+      if len(n.captures) > 0
+        emit_line(c, "typedef struct {")
+        for field:n.captures
+          emit_line(c, cat([ctype(field.typ), " v_", field.name, ";"]))
+        emit_line(c, cat(["} g_env_", str_i64(i), ";"]))
+      emit_line(c, concat(lambda_signature(c, i), ";"))
+    i += 1
+  c.state[5] = -1
+  i = 0
+  while i < c.state[2]
+    n := c.nodes[i]
+    if n.kind == "lambda" and n.typ != ""
+      emit_line(c, concat(lambda_signature(c, i), " {"))
+      for field:n.captures
+        emit_line(c, cat([ctype(field.typ), " v_", field.name, " = ((g_env_", str_i64(i), "*)env)->v_", field.name, ";"]))
+      value := emit_expr(c, n.args[0])
+      if n.value == "void"
+        emit_line(c, "return;")
+      else
+        emit_line(c, cat(["return ", value, ";"]))
+      emit_line(c, "}")
+    i += 1
+
+index_expression c:Compiler, typ:str, token:int>int
+  if ident(typ)
+    ret new_node(c, "name", typ, token, [])
+  if prefix(typ, "[")
+    ret new_node(c, "array", "", token, [index_expression(c, slice(typ, 1, len(typ) - 1), token)])
+  head := type_head(typ)
+  if head != typ and not prefix(typ, "fn(")
+    args := split_types(slice(typ, len(head) + 1, len(typ) - 1))
+    if len(args) == 1
+      base := new_node(c, "name", head, token, [])
+      index := index_expression(c, args[0], token)
+      ret new_node(c, "index", "", token, [base, index])
+  fail(c, "G003", "invalid type arguments or index", token)
+  ret 0
+
+lambda_ahead c:Compiler>bool
+  if peek(c) != "("
+    ret false
+  i := c.state[1] + 1
+  if c.tokens[i].text != ")" and (not ident(c.tokens[i].text) or c.tokens[i + 1].text != ":")
+    ret false
+  depth := 1
+  while i < c.state[0]
+    text := c.tokens[i].text
+    if has(["NEWLINE", "EOF"], text)
+      ret false
+    if text == "("
+      depth += 1
+    if text == ")"
+      depth -= 1
+      if depth == 0
+        if c.tokens[i + 1].text != ">"
+          ret false
+        i += 2
+        while i < c.state[0] and not has(["NEWLINE", "EOF"], c.tokens[i].text)
+          if c.tokens[i].text == "="
+            ret true
+          i += 1
+        ret false
+    i += 1
+  ret false

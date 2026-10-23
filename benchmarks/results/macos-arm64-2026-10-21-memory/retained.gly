@@ -1,0 +1,16 @@
+type Chunk
+  data:[int]
+  label:str
+setup>[Chunk] = fill(32, Chunk([], ""))
+work seed:int, keep:[Chunk]>int
+  a := fill(4096, seed)
+  text := concat("entry-", str_i64(seed))
+  keep[seed % 32] = Chunk(a, slice(text, 6, len(text)))
+  ret keep[seed % 32].data[4095]
+validate keep:[Chunk]>int
+  total := 0
+  for chunk:keep
+    total += chunk.data[4095] + parse_i64(chunk.label)
+  ret total
+main>void
+  ret

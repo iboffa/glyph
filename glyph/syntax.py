@@ -10,6 +10,7 @@ class Token:
     line: int
     col: int
     end: int
+    path: str = ""
 
 
 class Diagnostic(Exception):
@@ -20,7 +21,7 @@ class Diagnostic(Exception):
     def record(self, path):
         t = self.token
         return {"code": self.code, "severity": "error", "message": self.message,
-                "file": str(path), "span": {"start": {"line": t.line, "column": t.col},
+                "file": t.path or str(path), "span": {"start": {"line": t.line, "column": t.col},
                 "end": {"line": t.line, "column": t.end}}}
 
 
@@ -31,6 +32,7 @@ class Expr:
     value: object = None
     args: list = field(default_factory=list)
     typ: str = ""
+    target: object = None
 
 
 @dataclass
@@ -51,11 +53,50 @@ class Function:
     result: str
     body: list
     short: bool = False
+    owner: str = ""
+    mut: bool = False
+    static: bool = False
+    private: bool = False
+    type_params: list = field(default_factory=list)
 
 
-LEX = re.compile(r'"(?:[^"\\\r\n]|\\.)*"|[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[A-Za-z_][A-Za-z_0-9]*|==|!=|<=|>=|\+=|-=|\*=|/=|%=|[+*/%<>=!,:()\[\]>\-]')
+@dataclass
+class Field:
+    name: str
+    typ: str
+    token: Token
+    private: bool = False
+
+
+@dataclass
+class Record:
+    name: str
+    token: Token
+    fields: list = field(default_factory=list)
+    methods: list = field(default_factory=list)
+    type_params: list = field(default_factory=list)
+
+
+@dataclass
+class Union(Record):
+    variants: list = field(default_factory=list)
+
+
+@dataclass
+class Interface(Record):
+    pass
+
+
+@dataclass
+class Import:
+    names: list
+    path: str
+    token: Token
+
+
+LEX = re.compile(r'"(?:[^"\\\r\n]|\\.)*"|[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[A-Za-z_][A-Za-z_0-9]*|==|!=|<=|>=|:=|\+=|-=|\*=|/=|%=|[.+*/%<>=!,:()\[\]>\-]')
 IDENT = re.compile(r"[A-Za-z_][A-Za-z_0-9]*\Z")
-RESERVED = {"if", "else", "while", "for", "ret", "unsafe", "true", "false", "and", "or", "not", "fold"}
+RESERVED = {"if", "else", "while", "for", "ret", "unsafe", "true", "false", "and", "or", "not", "fold", "import", "from"}
 PREC = {"or": 1, "and": 2, "==": 3, "!=": 3, "<": 4, "<=": 4, ">": 4, ">=": 4,
         "+": 5, "-": 5, "*": 6, "/": 6, "%": 6}
 
@@ -97,8 +138,10 @@ def lex(source):
 
 
 class Parser:
-    def __init__(self, source):
+    def __init__(self, source, path=""):
         self.tokens, self.i = lex(source), 0
+        for token in self.tokens:
+            token.path = str(path)
 
     @property
     def t(self):
@@ -126,43 +169,144 @@ class Parser:
 
     def type(self):
         if self.accept("["):
-            item = self.name()
+            item = self.type()
             self.need("]")
-            if item.text not in {"i64", "f64", "bool", "str"}:
-                raise Diagnostic("G003", "array element must be i64, f64, bool or str", item)
-            return f"[{item.text}]"
+            return f"[{item}]"
         if self.accept("*"):
-            item = self.name()
-            if item.text not in {"i64", "f64", "bool"}:
-                raise Diagnostic("G003", "pointer element must be i64, f64 or bool", item)
-            return "*" + item.text
+            return "*" + self.type()
         token = self.name()
-        if token.text not in {"i64", "f64", "bool", "str", "void"}:
-            raise Diagnostic("G003", f"unknown type {token.text}", token)
+        if token.text == "fn" and self.accept("("):
+            items = []
+            if self.t.text != ")":
+                items.append(self.type())
+                while self.accept(","):
+                    items.append(self.type())
+            self.need(")")
+            self.need(">")
+            return "fn(" + ",".join(items) + ")>" + self.type()
+        if self.accept("["):
+            items = [self.type()]
+            while self.accept(","):
+                items.append(self.type())
+            self.need("]")
+            return token.text + "[" + ",".join(items) + "]"
         return token.text
+
+    def type_parameters(self):
+        params = []
+        if self.accept("["):
+            while True:
+                token = self.name()
+                constraint = self.name().text if self.accept(":") else ""
+                params.append((token.text, constraint, token))
+                if not self.accept(","):
+                    break
+            self.need("]")
+        return params
 
     def parse(self):
         result = []
         while self.t.text != "EOF":
+            if self.t.text == "import":
+                if any(not isinstance(d, Import) for d in result):
+                    raise Diagnostic("G002", "imports must precede declarations", self.t)
+                result.append(self.import_statement())
+                continue
+            if (self.t.text in {"type", "union", "interface"} and self.i + 2 < len(self.tokens)
+                    and self.tokens[self.i + 2].text in {"NEWLINE", "["}):
+                result.append(self.record())
+                continue
             name = self.name()
-            params = []
-            while self.t.text != ">":
-                arg = self.name()
-                self.need(":")
-                params.append((arg.text, self.type(), arg))
-                if not self.accept(","):
-                    break
-            self.need(">")
-            typ = self.type()
-            short = bool(self.accept("="))
-            if short:
-                expr = self.expr()
-                self.need("NEWLINE")
-                body = [Stmt("ret", expr.token, args=[expr])]
-            else:
-                body = self.block()
-            result.append(Function(name.text, name, params, typ, body, short))
+            result.append(self.function(name))
         return result
+
+    def import_statement(self):
+        token = self.need("import")
+        names = [self.name()]
+        while self.accept(","):
+            names.append(self.name())
+        self.need("from")
+        path = self.pop()
+        if not path.text.startswith('"'):
+            raise Diagnostic("G002", "import path must be a string literal", path)
+        try:
+            value = json.loads(path.text)
+            value.encode("utf-8")
+        except (ValueError, UnicodeError):
+            raise Diagnostic("G001", "invalid JSON string escape or Unicode scalar", path) from None
+        self.need("NEWLINE")
+        return Import(names, value, token)
+
+    def function(self, name, owner="", mut=False, static=False, private=False):
+        type_params = self.type_parameters()
+        params = []
+        while self.t.text not in {">", "="}:
+            arg = self.name()
+            self.need(":")
+            params.append((arg.text, self.type(), arg))
+            if not self.accept(","):
+                break
+        typ = self.type() if self.accept(">") else ""
+        if not typ and self.t.text != "=":
+            raise Diagnostic("G002", "omitted result type requires an expression body", self.t)
+        short = bool(self.accept("="))
+        if short:
+            expr = self.expr()
+            self.need("NEWLINE")
+            body = [Stmt("ret", expr.token, args=[expr])]
+        else:
+            body = self.block()
+        return Function(name.text, name, params, typ, body, short, owner, mut, static, private, type_params)
+
+    def record(self):
+        kind = self.pop().text
+        name = self.name()
+        record = {"type": Record, "union": Union, "interface": Interface}[kind](name.text, name)
+        record.type_params = self.type_parameters()
+        self.need("NEWLINE")
+        self.need("INDENT")
+        while self.t.text not in {"DEDENT", "EOF"}:
+            if kind == "union":
+                variant = self.name()
+                fields = []
+                if self.t.text != "NEWLINE":
+                    while True:
+                        member = self.name()
+                        self.need(":")
+                        fields.append(Field(member.text, self.type(), member))
+                        if not self.accept(","):
+                            break
+                record.variants.append((variant.text, fields, variant))
+                self.need("NEWLINE")
+                continue
+            if kind == "interface":
+                mut = bool(self.accept("mut"))
+                member = self.name()
+                params = []
+                while self.t.text != ">":
+                    arg = self.name()
+                    self.need(":")
+                    params.append((arg.text, self.type(), arg))
+                    if not self.accept(","):
+                        break
+                self.need(">")
+                result = self.type()
+                self.need("NEWLINE")
+                record.methods.append(Function(member.text, member, params, result, [], owner=name.text, mut=mut))
+                continue
+            private = bool(self.accept("private"))
+            mut = bool(self.accept("mut"))
+            static = bool(self.accept("static")) if not mut else False
+            member = self.name()
+            if self.accept(":"):
+                if mut or static:
+                    raise Diagnostic("G002", "mut/static apply only to methods", member)
+                record.fields.append(Field(member.text, self.type(), member, private))
+                self.need("NEWLINE")
+            else:
+                record.methods.append(self.function(member, name.text, mut, static, private))
+        self.need("DEDENT")
+        return record
 
     def block(self):
         self.need("NEWLINE")
@@ -175,6 +319,24 @@ class Parser:
 
     def statement(self):
         t = self.t
+        if self.accept("match"):
+            value = self.expr()
+            self.need("NEWLINE")
+            self.need("INDENT")
+            arms = []
+            while self.t.text not in {"DEDENT", "EOF"}:
+                token = self.need("case")
+                variant = self.name().text
+                bindings = []
+                if self.accept("("):
+                    if self.t.text != ")":
+                        bindings.append(self.name().text)
+                        while self.accept(","):
+                            bindings.append(self.name().text)
+                    self.need(")")
+                arms.append(Stmt("case", token, (variant, bindings), body=self.block()))
+            self.need("DEDENT")
+            return Stmt("match", t, args=[value], body=arms)
         if self.accept("if"):
             expr = self.expr()
             body = self.block()
@@ -193,6 +355,10 @@ class Parser:
         if self.accept("ret"):
             args = [] if self.t.text == "NEWLINE" else [self.expr()]
             stmt = Stmt("ret", t, args=args)
+        elif IDENT.fullmatch(t.text) and self.tokens[self.i + 1].text == ":=":
+            name = self.name().text
+            self.need(":=")
+            stmt = Stmt("var", t, (name, ""), [self.expr()])
         elif IDENT.fullmatch(t.text) and self.tokens[self.i + 1].text == ":":
             name = self.name().text
             self.need(":")
@@ -209,9 +375,59 @@ class Parser:
         self.need("NEWLINE")
         return stmt
 
+    def lambda_ahead(self):
+        saved = self.i
+        try:
+            self.need("(")
+            if self.t.text != ")":
+                while True:
+                    self.name()
+                    self.need(":")
+                    self.type()
+                    if not self.accept(","):
+                        break
+            self.need(")")
+            self.need(">")
+            self.type()
+            self.need("=")
+            return True
+        except Diagnostic:
+            return False
+        finally:
+            self.i = saved
+
+    def specialization_ahead(self):
+        saved = self.i
+        try:
+            self.pop()
+            self.type()
+            while self.accept(","):
+                self.type()
+            self.need("]")
+            return True
+        except Diagnostic:
+            return False
+        finally:
+            self.i = saved
+
     def expr(self, minimum=0):
         t = self.pop()
-        if t.text in {"-", "not"}:
+        if t.text == "fn" and self.lambda_ahead():
+            self.need("(")
+            params = []
+            if self.t.text != ")":
+                while True:
+                    arg = self.name()
+                    self.need(":")
+                    params.append((arg.text, self.type(), arg))
+                    if not self.accept(","):
+                        break
+            self.need(")")
+            self.need(">")
+            result = self.type()
+            self.need("=")
+            left = Expr("lambda", t, (params, result), [self.expr()])
+        elif t.text in {"-", "not"}:
             left = Expr("unary", t, t.text, [self.expr(7)])
         elif t.text == "fold":
             array = self.expr(7)
@@ -249,15 +465,41 @@ class Parser:
             raise Diagnostic("G002", "expected expression", t)
         while True:
             if self.accept("("):
-                if left.kind != "name":
-                    raise Diagnostic("G002", "only named functions can be called", left.token)
                 args = []
                 if self.t.text != ")":
                     args.append(self.expr())
+                    if self.accept("for"):
+                        if left.kind != "name" or left.value not in {"sum", "count"}:
+                            raise Diagnostic("G002", "generator expressions require sum or count", left.token)
+                        bindings = [self.name()]
+                        while self.accept(","):
+                            bindings.append(self.name())
+                        self.need("in")
+                        source = self.expr()
+                        zipped = source.kind == "call" and source.value == "zip"
+                        sources = source.args if zipped else [source]
+                        self.need(")")
+                        left = Expr("reduce", left.token, (left.value, bindings, zipped), args + sources)
+                        continue
                     while self.accept(","):
                         args.append(self.expr())
                 self.need(")")
-                left = Expr("call", left.token, left.value, args)
+                if left.kind == "field":
+                    left = Expr("method_call", left.token, left.value, left.args + args)
+                elif left.kind == "name":
+                    left = Expr("call", left.token, left.value, args)
+                else:
+                    left = Expr("invoke", left.token, args=[left] + args)
+            elif self.accept("."):
+                member = self.name()
+                left = Expr("field", member, member.text, [left])
+            elif self.t.text == "[" and left.kind == "name" and self.specialization_ahead():
+                self.pop()
+                items = [self.type()]
+                while self.accept(","):
+                    items.append(self.type())
+                self.need("]")
+                left = Expr("specialize", left.token, (left.value, items))
             elif self.accept("["):
                 index = self.expr()
                 self.need("]")

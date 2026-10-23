@@ -1,0 +1,15 @@
+{
+  "started_at": "2026-10-19T23:03:02.746827+03:00",
+  "revision": "6c62ba566e302ad29e084c98cb3b202ceada471b",
+  "developer_dir": "/Library/Developer/CommandLineTools",
+  "sdk": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+  "steps": {
+    "tests": 0,
+    "codegen": 0,
+    "agent": 0,
+    "runtime": 0,
+    "report": 0
+  },
+  "finished_at": "2026-10-19T23:03:48.013558+03:00",
+  "runtime_process_inspection": "Run outside the sandbox: psutil process enumeration requires sysctl access on macOS."
+}

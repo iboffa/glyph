@@ -1,0 +1,38 @@
+# Reusable libraries: concrete generics, sum types, callbacks and contracts.
+interface Named
+  name>str
+
+type Item
+  label:str
+  name>str = self.label
+
+union Result[T, E]
+  Ok value:T
+  Err error:E
+
+label[T:Named] value:T>str = value.name()
+
+transform[A, B] values:[A], callback:fn(A)>B>[B]
+  output:list[B] = list([])
+  for value:values
+    output.append(callback(value))
+  ret output.to_array()
+
+adder offset:int>fn(int)>int = fn(value:int)>int = offset + value
+
+parse_number text:str>Result[int,str]
+  parsed := try_parse_i64(text)
+  if parsed.ok
+    ret Result[int,str].Ok(parsed.value)
+  ret Result[int,str].Err(parsed.message)
+
+main>void
+  print(label[Item](Item("Reusable Glyph")))
+  increment := adder(10)
+  for value:transform[int,int]([1, 2, 3], increment)
+    print(value)
+  match parse_number("42")
+    case Ok(value)
+      print(value)
+    case Err(message)
+      print(message)

@@ -1,0 +1,32 @@
+# Run with an output path: glyph run examples/binary_json.gly -- data.json
+main>void
+  values := try_json_array([json_quote("Café 🙂"), "9007199254740993", "true", "null"])
+  if not values.ok
+    eprint(values.message)
+    exit(1)
+  document := try_json_object(["items"], [values.value])
+  if not document.ok
+    eprint(document.message)
+    exit(1)
+  file := try_open(arg(0), "w")
+  if not file.ok
+    eprint(file.message)
+    exit(1)
+  wrote := try_write(file.value, encode_utf8(document.value))
+  closed := try_close(file.value)
+  if not wrote.ok or not closed.ok
+    eprint("could not write and close output")
+    exit(1)
+  bytes := try_read_bytes(arg(0))
+  if not bytes.ok
+    eprint(bytes.message)
+    exit(1)
+  text := try_decode_utf8(bytes.value)
+  if not text.ok
+    eprint(text.message)
+    exit(1)
+  items := try_json_get(text.value, "items")
+  if not items.ok
+    eprint(items.message)
+    exit(1)
+  print(items.value)

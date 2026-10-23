@@ -1,0 +1,7 @@
+work seed:int>int
+  a := fill(4096, seed)
+  b := clone(a)
+  b[0] += 1
+  ret sum(a) + sum(b)
+main>void
+  ret

@@ -1,0 +1,37 @@
+test_bad_paths_and_syntax (test_modules.ModuleTests.test_bad_paths_and_syntax) ... ok
+test_conflicts_missing_names_and_module_main (test_modules.ModuleTests.test_conflicts_missing_names_and_module_main) ... ok
+test_cycles_and_path_aliases (test_modules.ModuleTests.test_cycles_and_path_aliases) ... ok
+test_format_imports_without_resolving_files (test_modules.ModuleTests.test_format_imports_without_resolving_files) ... ok
+test_imported_diagnostics_and_privacy (test_modules.ModuleTests.test_imported_diagnostics_and_privacy) ... ok
+test_module_graph_limits (test_modules.ModuleTests.test_module_graph_limits) ... ok
+test_nested_diamond_imports_and_local_helpers (test_modules.ModuleTests.test_nested_diamond_imports_and_local_helpers) ... ok
+test_protects_all_imported_source_outputs (test_modules.ModuleTests.test_protects_all_imported_source_outputs) ... ok
+test_records_methods_arrays_and_shadowed_names (test_modules.ModuleTests.test_records_methods_arrays_and_shadowed_names) ... ok
+test_runtime_diagnostics_track_caller_after_imported_call (test_modules.ModuleTests.test_runtime_diagnostics_track_caller_after_imported_call) ... ok
+test_self_receiver_and_module_type_name (test_modules.ModuleTests.test_self_receiver_and_module_type_name) ... ok
+test_unicode_paths_and_inferred_import_results (test_modules.ModuleTests.test_unicode_paths_and_inferred_import_results) ... ok
+test_unimported_names_do_not_leak_or_reexport (test_modules.ModuleTests.test_unimported_names_do_not_leak_or_reexport) ... ok
+test_callback_containers_gc_and_multi_parameter_function_values (test_abstractions.AbstractionTests.test_callback_containers_gc_and_multi_parameter_function_values) ... ok
+test_callee_argument_order_and_contextual_fn_name (test_abstractions.AbstractionTests.test_callee_argument_order_and_contextual_fn_name) ... ok
+test_closures_escape_nested_capture_and_function_fields (test_abstractions.AbstractionTests.test_closures_escape_nested_capture_and_function_fields) ... ok
+test_generic_records_functions_recursion_and_collections (test_abstractions.AbstractionTests.test_generic_records_functions_recursion_and_collections) ... ok
+test_interface_constraints_and_mutation (test_abstractions.AbstractionTests.test_interface_constraints_and_mutation) ... ok
+test_invalid_programs (test_abstractions.AbstractionTests.test_invalid_programs) ... ok
+test_modules_share_specializations_and_preserve_private_helpers (test_abstractions.AbstractionTests.test_modules_share_specializations_and_preserve_private_helpers) ... ok
+test_tagged_unions_exhaustiveness_and_recursive_arrays (test_abstractions.AbstractionTests.test_tagged_unions_exhaustiveness_and_recursive_arrays) ... ok
+
+----------------------------------------------------------------------
+Ran 21 tests in 15.794s
+
+OK
+{
+  "native_checks": 32,
+  "native_emissions": 7,
+  "parser_rejections": 0,
+  "tests": 21,
+  "skipped": 0,
+  "failures": 0,
+  "errors": 0,
+  "success": true,
+  "compiler": "/Users/igino/glyph/build/abstractions-selfhost/glyphc"
+}

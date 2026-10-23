@@ -1,0 +1,10 @@
+WARNING: The directory '/Users/igino/Library/Caches/pip' or its parent directory is not owned or is not writable by the current user. The cache has been disabled. Check the permissions and owner of that directory. If executing pip with sudo, you should use sudo's -H flag.
+Processing ./.
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: glyph-lang
+  Building wheel for glyph-lang (pyproject.toml): started
+  Building wheel for glyph-lang (pyproject.toml): finished with status 'done'
+  Created wheel for glyph-lang: filename=glyph_lang-0.1.0-py3-none-any.whl size=545325 sha256=0702e7078238806594f1e9b1235a8ab776b2dac424f254a1e90522b1764c081c
+  Stored in directory: /private/var/folders/n0/x410x4h51x14kxbmwkjt68vc0000gn/T/pip-ephem-wheel-cache-l1le2mh2/wheels/2b/8e/15/4885a6d5b65f8aa87da033165576df2c826b9eaf88d903cabb
+Successfully built glyph-lang

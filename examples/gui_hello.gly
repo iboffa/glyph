@@ -1,0 +1,15 @@
+# Each gui_next call waits for a button click or window close.
+main>void
+  gui_window("Hello from Glyph", 360, 160)
+  gui_label(1, "Hello, Glyph!", 20, 20, 320, 40)
+  gui_button(2, "Count", 20, 90, 150, 44)
+  gui_button(3, "Close", 190, 90, 150, 44)
+  clicks := 0
+  event := gui_next()
+  while event != 0
+    if event == 2
+      clicks += 1
+      gui_number(1, f64(clicks))
+    if event == 3
+      gui_close()
+    event = gui_next()

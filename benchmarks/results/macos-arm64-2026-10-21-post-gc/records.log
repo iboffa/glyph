@@ -1,0 +1,22 @@
+verified record trial 1
+verified record trial 2
+verified record trial 3
+verified record trial 4
+verified record trial 5
+verified record trial 6
+verified record trial 7
+verified record trial 8
+verified record trial 9
+verified record trial 10
+verified record trial 11
+verified record trial 12
+verified record trial 13
+verified record trial 14
+verified record trial 15
+point/glyph: 7.523 ms
+point/c: 7.647 ms
+particle/glyph: 7.768 ms
+particle/c: 7.766 ms
+point {'glyph': 54, 'python': 65, 'c': 60}
+particle {'glyph': 94, 'python': 112, 'c': 114}
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-21-post-gc/records.json

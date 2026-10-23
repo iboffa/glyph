@@ -1,0 +1,110 @@
+# Native GUI calculator. Keys: digits, . + - * / and Return.
+# Operations are evaluated left to right; C clears an error.
+type Calculator
+  entry:f64
+  total:f64
+  fraction:f64
+  negative:bool
+  fresh:bool
+  pending:int
+  digits:int
+  error:bool
+  static make = Calculator(0.0, 0.0, 0.0, false, true, 0, 0, false)
+  number>f64
+    if self.negative
+      ret -self.entry
+    ret self.entry
+  mut calculate>void
+    value := self.number()
+    if self.pending == 14
+      self.total += value
+    if self.pending == 15
+      self.total -= value
+    if self.pending == 16
+      self.total *= value
+    if self.pending == 17
+      if value == 0.0
+        self.error = true
+        ret
+      self.total /= value
+    if self.total != self.total or self.total > 1e+100 or self.total < -1e+100
+      self.error = true
+      ret
+    self.negative = self.total < 0.0
+    self.entry = self.total
+    if self.negative
+      self.entry = -self.total
+  mut press key:int>void
+    if key == 18
+      self = Calculator.make()
+      ret
+    if self.error
+      ret
+    if key >= 1 and key <= 10
+      if self.fresh
+        self.entry = 0.0
+        self.fraction = 0.0
+        self.negative = false
+        self.digits = 0
+        self.fresh = false
+      if self.digits < 15
+        digit := f64(key - 1)
+        if self.fraction == 0.0
+          self.entry = self.entry * 10.0 + digit
+        else
+          self.entry += digit * self.fraction
+          self.fraction *= 0.1
+        self.digits += 1
+      ret
+    if key == 11
+      if self.fresh
+        self.entry = 0.0
+        self.fraction = 0.0
+        self.negative = false
+        self.digits = 0
+        self.fresh = false
+      if self.fraction == 0.0
+        self.fraction = 0.1
+      ret
+    if key == 12
+      if self.fresh and (self.pending != 0 or self.entry == 0.0)
+        self.entry = 0.0
+        self.fraction = 0.0
+        self.negative = false
+        self.digits = 0
+        self.fresh = false
+      self.negative = not self.negative
+      ret
+    if key >= 14 and key <= 17
+      if self.pending != 0 and not self.fresh
+        self.calculate()
+      else
+        if self.pending == 0
+          self.total = self.number()
+      self.pending = key
+      self.fresh = true
+      ret
+    if key == 13 and self.pending != 0 and not self.fresh
+      self.calculate()
+      self.pending = 0
+      self.fresh = true
+
+main>void
+  gui_window("Glyph Calculator", 340, 410)
+  gui_label(100, "0", 20, 20, 300, 48)
+  labels := ["C", "+/-", "/", "*", "7", "8", "9", "-", "4", "5", "6", "+", "1", "2", "3", "=", "0", "."]
+  ids := [18, 12, 17, 16, 8, 9, 10, 15, 5, 6, 7, 14, 2, 3, 4, 13, 1, 11]
+  i := 0
+  while i < len(labels)
+    gui_button(ids[i], labels[i], 20 + i % 4 * 76, 90 + i / 4 * 60, 68, 50)
+    i += 1
+  calculator := Calculator.make()
+  event := gui_next()
+  while event != 0
+    calculator.press(event)
+    if calculator.error
+      gui_text(100, "Error")
+    else
+      gui_number(100, calculator.number())
+    event = gui_next()
+  gui_close()

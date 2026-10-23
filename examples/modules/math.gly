@@ -1,0 +1,9 @@
+square n:int>int = n * n
+
+type Counter
+  value:int
+
+  mut add amount:int>void
+    self.value += amount
+
+  static create value:int>Counter = Counter(value)

@@ -1,0 +1,34 @@
+# Value records compose without inheritance.
+type Point
+  x:f64
+  y:f64
+  norm2 = self.x * self.x + self.y * self.y
+  mut move dx:f64, dy:f64>void
+    self.x += dx
+    self.y += dy
+
+type Counter
+  private value:int
+  static start = Counter(0)
+  get = self.value
+  mut add n:int>void
+    self.value += n
+
+type Particle
+  position:Point
+  mass:f64
+
+main>void
+  p := Point(3.0, 4.0)
+  q := p
+  q.move(1.0, 0.0)
+  print(p.norm2())
+  print(q.norm2())
+  particle := Particle(p, 2.0)
+  particle.position.move(2.0, 0.0)
+  print(particle.position.x)
+  counter := Counter.start()
+  counter.add(3)
+  print(counter.get())
+  points := [p, q]
+  print(sum(point.x for point in points))

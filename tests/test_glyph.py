@@ -115,7 +115,7 @@ class FrontendTests(unittest.TestCase):
 
 class NativeTests(unittest.TestCase):
     def test_examples(self):
-        outputs = {"hello": "Hello from Glyph\n42\n", "sum": "15\n15\n", "collections": "6\n151\nλ\n2\n", "unsafe": "10\n42\n", "fibonacci": "6765\n"}
+        outputs = {"hello": "Hello from Glyph\n42\n", "sum": "15\n15\n", "collections": "4\n10\n2\n3\n42\n0\ntrue\n2\ntrue\ntrue\n", "unsafe": "10\n42\n", "fibonacci": "6765\n", "reductions": "3\n2\n18\n", "records": "25\n32\n5\n3\n7\n"}
         executables = {}
         for name in outputs:
             source = (ROOT / "examples" / (name + ".gly")).read_text(encoding="utf-8")

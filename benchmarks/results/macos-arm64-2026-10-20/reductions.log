@@ -1,0 +1,9 @@
+small/fold: 2.476 ms
+small/sum: 2.509 ms
+small/loop: 6.604 ms
+small/c: 1.892 ms
+wide/fold: 6.700 ms
+wide/sum: 6.591 ms
+wide/loop: 6.583 ms
+wide/c: 1.877 ms
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-20/reductions.json

@@ -1,0 +1,56 @@
+# Text helpers shared by the native compiler.
+cat parts:[str]>str = join(parts, len(parts), "")
+
+has items:[str], value:str>bool
+  for item:items
+    if item == value
+      ret true
+  ret false
+
+prefix s:str, p:str>bool
+  if len(s) < len(p)
+    ret false
+  ret slice(s, 0, len(p)) == p
+
+utf_width b:int>int
+  if b < 128
+    ret 1
+  if b < 224
+    ret 2
+  if b < 240
+    ret 3
+  ret 4
+
+jquote s:str>str
+  parts := fill(len(s) + 2, "")
+  parts[0] = "\""
+  n := 1
+  i := 0
+  hex := "0123456789abcdef"
+  while i < len(s)
+    b := byte_at(s, i)
+    if b == 34 or b == 92
+      parts[n] = cat(["\\", chr(b)])
+      i += 1
+    else
+      if b < 32
+        parts[n] = cat(["\\u00", slice(hex, b / 16, b / 16 + 1), slice(hex, b % 16, b % 16 + 1)])
+        i += 1
+      else
+        width := utf_width(b)
+        parts[n] = slice(s, i, i + width)
+        i += width
+    n += 1
+  parts[n] = "\""
+  ret join(parts, n + 1, "")
+
+cquote s:str>str
+  parts := fill(len(s) + 2, "")
+  parts[0] = "\""
+  i := 0
+  while i < len(s)
+    b := byte_at(s, i)
+    parts[i + 1] = cat(["\\", str_i64(b / 64), str_i64(b / 8 % 8), str_i64(b % 8)])
+    i += 1
+  parts[i + 1] = "\""
+  ret join(parts, i + 2, "")

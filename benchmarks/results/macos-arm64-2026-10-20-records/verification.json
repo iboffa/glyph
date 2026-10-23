@@ -1,0 +1,76 @@
+{
+  "started_at": "2026-10-20T09:39:55.482282+03:00",
+  "platform": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "python": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "base_revision": "6c62ba566e302ad29e084c98cb3b202ceada471b",
+  "worktree_has_changes": true,
+  "source_sha256": {
+    "benchmarks/results/macos-arm64-2026-10-20-records/verify.py": "ee52c826daf1a4620fd16f82f3ad68df955d4d1c33e68ac3e4dc095029adf27e",
+    "docs/AGENT_GUIDE.md": "77e088af36bfafcfaa8b3b67078a27930fb90ea48fc0a10b4ae6dbfd938835ab",
+    "examples/collections.gly": "a45885bd591bc3cf94d6ef1cf07a0b31f8f3c1b077f22c033b5ee56be3693fbb",
+    "examples/fibonacci.gly": "393610edc91267bcc43542459b72f59d2061db262194b2431ff84ca94dcee9fe",
+    "examples/hello.gly": "4d48cd943716cf7ded68b8fb36555a4b2f543bf8594c88796e0054a2e88a1752",
+    "examples/records.gly": "3e3db6732a58f550406804a419f5d6c889787e01317d6471a3b911894aed9e1d",
+    "examples/reductions.gly": "6bce3f0d410e3cd20df41788f459a0b2577d903676233025ff553523482617cd",
+    "examples/sum.gly": "e3f071fac1e44a45224ebcad2ca63b1abc056482369b0544e966b5e7a2c6d3f0",
+    "examples/unsafe.gly": "32382014817cd2d0692139555a2f8fe73829ea73dd324aa186daf0be17edd81e",
+    "glyph/__init__.py": "41be3440a5279cd6989754af75067ba11ec2869406679b306055058be75e6aec",
+    "glyph/__main__.py": "935a1c1166b0c1ea35a82256345000bf2c73ded718d77773bc27a71ecce28f7d",
+    "glyph/backend.py": "70ffad0e26b0ee5d1ec79279b869b3b6554f77eba483ac34a3cad60abe83207c",
+    "glyph/checker.py": "887033b89d0c7dfea35a5f26e83308ddbccc8c10a79f71c329aea4637ea07430",
+    "glyph/cli.py": "e2100691ace3c03517217707931509855bac12392f8bd167a2730c6bc3caadc9",
+    "glyph/formatter.py": "d5d10391784ab3da76e1bb8b7c96f4e3bcf973f0c40610649fe2da7189944f6c",
+    "glyph/runtime.h": "f718068176709cc6c0c1898805502a082f668e496dc1a5f30106212913f0dc95",
+    "glyph/syntax.py": "df9945091a755138c6bb3e880babe58414030d588ebbf251c715a823eb73d712",
+    "tests/test_glyph.py": "77ca69bf32d7d2bd66c997079c8fdbc2e56c85848d832028647ffccf52d0ab37",
+    "tests/test_records.py": "066ca8aa5a3088045240eceef8d7501e38b94dcc1ed110ed8141752dcead9fe7",
+    "tests/test_reductions.py": "5992ff64e52053fb423118503cb31cbc01036e37ee3ca98f08240c2757be109a"
+  },
+  "developer_dir": "/Library/Developer/CommandLineTools",
+  "sdk": "/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk",
+  "scope": "Native correctness and CLI verification; no new speed or AI-cost measurements.",
+  "steps": {
+    "tests": {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "-m",
+        "unittest",
+        "discover",
+        "-s",
+        "tests",
+        "-v"
+      ],
+      "exit_code": 0
+    },
+    "format": {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "-m",
+        "glyph",
+        "fmt",
+        "examples/records.gly",
+        "--check"
+      ],
+      "exit_code": 0
+    },
+    "example": {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "-m",
+        "glyph",
+        "run",
+        "examples/records.gly"
+      ],
+      "exit_code": 0
+    },
+    "diff_check": {
+      "command": [
+        "git",
+        "diff",
+        "--check"
+      ],
+      "exit_code": 0
+    }
+  },
+  "finished_at": "2026-10-20T09:40:09.309194+03:00"
+}

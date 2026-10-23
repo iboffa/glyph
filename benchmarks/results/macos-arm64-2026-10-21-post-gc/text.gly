@@ -1,0 +1,9 @@
+work seed:int>int
+  s := str_i64(seed)
+  i := 0
+  while i < 64
+    s = concat(s, "abcdefghijklmnop")
+    i += 1
+  ret len(s) + byte_at(s, len(s) - 1)
+main>void
+  ret

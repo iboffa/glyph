@@ -1,0 +1,98 @@
+[
+  {
+    "target": "x86_64-linux-gnu",
+    "command": [
+      "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+      "cc",
+      "-target",
+      "x86_64-linux-gnu",
+      "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+      "-DGC_NOT_DLL",
+      "-std=c11",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-DGC_BUILTIN_ATOMIC",
+      "-DALL_INTERIOR_POINTERS",
+      "-DNO_EXECUTE_PERMISSION",
+      "-DGC_DISABLE_INCREMENTAL",
+      "-D_GNU_SOURCE",
+      "-c",
+      "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+      "-o",
+      "/Users/igino/glyph/build/gc-cross/x86_64-linux-gnu.o"
+    ],
+    "returncode": 0
+  },
+  {
+    "target": "x86_64-linux-gnu",
+    "command": [
+      "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+      "cc",
+      "-target",
+      "x86_64-linux-gnu",
+      "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+      "-DGC_NOT_DLL",
+      "-std=c11",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-DGC_BUILTIN_ATOMIC",
+      "-DALL_INTERIOR_POINTERS",
+      "-DNO_EXECUTE_PERMISSION",
+      "-DGC_DISABLE_INCREMENTAL",
+      "-D_GNU_SOURCE",
+      "/Users/igino/glyph/build/gc-cross/smoke.c",
+      "/Users/igino/glyph/build/gc-cross/x86_64-linux-gnu.o",
+      "-o",
+      "/Users/igino/glyph/build/gc-cross/x86_64-linux-gnu",
+      "-lm",
+      "-ldl"
+    ],
+    "returncode": 0
+  },
+  {
+    "target": "x86_64-windows-gnu",
+    "command": [
+      "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+      "cc",
+      "-target",
+      "x86_64-windows-gnu",
+      "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+      "-DGC_NOT_DLL",
+      "-std=c11",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-DGC_BUILTIN_ATOMIC",
+      "-DALL_INTERIOR_POINTERS",
+      "-DNO_EXECUTE_PERMISSION",
+      "-DGC_DISABLE_INCREMENTAL",
+      "-c",
+      "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+      "-o",
+      "/Users/igino/glyph/build/gc-cross/x86_64-windows-gnu.o"
+    ],
+    "returncode": 0
+  },
+  {
+    "target": "x86_64-windows-gnu",
+    "command": [
+      "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+      "cc",
+      "-target",
+      "x86_64-windows-gnu",
+      "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+      "-DGC_NOT_DLL",
+      "-std=c11",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-DGC_BUILTIN_ATOMIC",
+      "-DALL_INTERIOR_POINTERS",
+      "-DNO_EXECUTE_PERMISSION",
+      "-DGC_DISABLE_INCREMENTAL",
+      "/Users/igino/glyph/build/gc-cross/smoke.c",
+      "/Users/igino/glyph/build/gc-cross/x86_64-windows-gnu.o",
+      "-o",
+      "/Users/igino/glyph/build/gc-cross/x86_64-windows-gnu.exe"
+    ],
+    "returncode": 0
+  }
+]

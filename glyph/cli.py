@@ -9,6 +9,7 @@ from .syntax import parse, Diagnostic, Token
 from .checker import check
 from .backend import Emitter, compile_c
 from .formatter import format_source
+from .modules import load_program
 
 
 def main(argv=None):
@@ -44,14 +45,17 @@ def main(argv=None):
             if not args.check:
                 args.source.write_text(formatted, encoding="utf-8", newline="\n")
             return 0
-        functions = check(parse(source))
+        program = load_program(args.source)
+        functions = check(program)
         if args.command == "check":
             return 0
         output = args.output or Path("build") / (args.source.stem + (".exe" if os.name == "nt" else ""))
         output = output.resolve()
         cpath = args.emit_c or output.with_suffix(".c")
         cpath = cpath.resolve()
-        if cpath in {output, args.source.resolve()} or output == args.source.resolve():
+        def aliases(a, b):
+            return a == b or a.exists() and b.exists() and a.samefile(b)
+        if aliases(cpath, output) or any(aliases(target, p) for target in (output, cpath) for p in program.paths):
             raise Diagnostic("G004", "source, generated C and executable paths must differ", Token("", 1, 1, 1))
         cpath.parent.mkdir(parents=True, exist_ok=True)
         cpath.write_text(Emitter().emit(functions, args.source), encoding="utf-8")
@@ -64,7 +68,7 @@ def main(argv=None):
             print(json.dumps(error.record(args.source), ensure_ascii=False), file=sys.stderr)
         else:
             t = error.token
-            print(f"{args.source}:{t.line}:{t.col}: {error.code}: {error.message}", file=sys.stderr)
+            print(f"{t.path or args.source}:{t.line}:{t.col}: {error.code}: {error.message}", file=sys.stderr)
         return 1
     except (OSError, UnicodeError) as error:
         d = Diagnostic("G200", str(error), Token("", 1, 1, 1))

@@ -1,0 +1,11 @@
+total a:[int] = sum(a)
+
+positives a:[int] = count(x > 0 for x in a)
+
+dot a:[int], b:[int] = sum(x * y for x, y in zip(a, b))
+
+main>void
+  a := [1, -2, 4]
+  print(total(a))
+  print(positives(a))
+  print(dot(a, [4, 5, 6]))

@@ -1,0 +1,165 @@
+test_argument_evaluation_order (test_collections.CollectionTests.test_argument_evaluation_order) ... ok
+test_differential_hash_churn (test_collections.CollectionTests.test_differential_hash_churn) ... ok
+test_empty_types_format_and_inference (test_collections.CollectionTests.test_empty_types_format_and_inference) ... ok
+test_gc_records_recursive_collections_and_value_copies (test_collections.CollectionTests.test_gc_records_recursive_collections_and_value_copies) ... ok
+test_imported_record_collection_parameters (test_collections.CollectionTests.test_imported_record_collection_parameters) ... ok
+test_list_alias_copy_and_snapshots (test_collections.CollectionTests.test_list_alias_copy_and_snapshots) ... ok
+test_maps_sets_and_string_keys (test_collections.CollectionTests.test_maps_sets_and_string_keys) ... ok
+test_runtime_traps (test_collections.CollectionTests.test_runtime_traps) ... ok
+test_type_rejections (test_collections.CollectionTests.test_type_rejections) ... ok
+test_inline_records_zero_length_and_scanned_nested_records (test_gc.GcTests.test_inline_records_zero_length_and_scanned_nested_records) ... ok
+test_live_graphs_survive_collection_at_all_optimization_levels (test_gc.GcTests.test_live_graphs_survive_collection_at_all_optimization_levels) ... ok
+test_temporary_arrays_strings_and_cycles_have_bounded_heap (test_gc.GcTests.test_temporary_arrays_strings_and_cycles_have_bounded_heap) ... ok
+test_vendor_integrity (test_gc.GcTests.test_vendor_integrity) ... ok
+test_cli_json_and_format_check (test_glyph.FrontendTests.test_cli_json_and_format_check) ... ok
+test_diagnostic_span (test_glyph.FrontendTests.test_diagnostic_span) ... ok
+test_formatter (test_glyph.FrontendTests.test_formatter) ... ok
+test_malformed_sources_never_crash (test_glyph.FrontendTests.test_malformed_sources_never_crash) ... ok
+test_rejections (test_glyph.FrontendTests.test_rejections) ... ok
+test_cli_run_arguments_exit_and_build (test_glyph.NativeTests.test_cli_run_arguments_exit_and_build) ... ok
+test_examples (test_glyph.NativeTests.test_examples) ... ok
+test_random_arithmetic_differential (test_glyph.NativeTests.test_random_arithmetic_differential) ... ok
+test_runtime_traps (test_glyph.NativeTests.test_runtime_traps) ... ok
+test_semantics (test_glyph.NativeTests.test_semantics) ... ok
+test_appkit_controls_and_lifecycle (test_gui.GuiTests.test_appkit_controls_and_lifecycle) ... ok
+test_calculator_logic (test_gui.GuiTests.test_calculator_logic) ... ok
+test_native_builds_and_runtime_errors (test_gui.GuiTests.test_native_builds_and_runtime_errors) ... ok
+test_optional_backend_and_formatting (test_gui.GuiTests.test_optional_backend_and_formatting) ... ok
+test_signatures_and_reservations (test_gui.GuiTests.test_signatures_and_reservations) ... ok
+test_bad_paths_and_syntax (test_modules.ModuleTests.test_bad_paths_and_syntax) ... ok
+test_conflicts_missing_names_and_module_main (test_modules.ModuleTests.test_conflicts_missing_names_and_module_main) ... ok
+test_cycles_and_path_aliases (test_modules.ModuleTests.test_cycles_and_path_aliases) ... ok
+test_format_imports_without_resolving_files (test_modules.ModuleTests.test_format_imports_without_resolving_files) ... ok
+test_imported_diagnostics_and_privacy (test_modules.ModuleTests.test_imported_diagnostics_and_privacy) ... ok
+test_module_graph_limits (test_modules.ModuleTests.test_module_graph_limits) ... ok
+test_nested_diamond_imports_and_local_helpers (test_modules.ModuleTests.test_nested_diamond_imports_and_local_helpers) ... ok
+test_protects_all_imported_source_outputs (test_modules.ModuleTests.test_protects_all_imported_source_outputs) ... ok
+test_records_methods_arrays_and_shadowed_names (test_modules.ModuleTests.test_records_methods_arrays_and_shadowed_names) ... ok
+test_runtime_diagnostics_track_caller_after_imported_call (test_modules.ModuleTests.test_runtime_diagnostics_track_caller_after_imported_call) ... ok
+test_self_receiver_and_module_type_name (test_modules.ModuleTests.test_self_receiver_and_module_type_name) ... ok
+test_unicode_paths_and_inferred_import_results (test_modules.ModuleTests.test_unicode_paths_and_inferred_import_results) ... ok
+test_unimported_names_do_not_leak_or_reexport (test_modules.ModuleTests.test_unimported_names_do_not_leak_or_reexport) ... ok
+test_formatter_and_malformed_records (test_records.RecordFrontendTests.test_formatter_and_malformed_records) ... ok
+test_forward_types_recursion_and_contextual_type_name (test_records.RecordFrontendTests.test_forward_types_recursion_and_contextual_type_name) ... ok
+test_invalid_calls_and_mutation (test_records.RecordFrontendTests.test_invalid_calls_and_mutation) ... ok
+test_invalid_layouts_and_members (test_records.RecordFrontendTests.test_invalid_layouts_and_members) ... ok
+test_privacy (test_records.RecordFrontendTests.test_privacy) ... ok
+test_copy_composition_and_arrays (test_records.RecordNativeTests.test_copy_composition_and_arrays) ... ok
+test_private_factory_and_inferred_methods (test_records.RecordNativeTests.test_private_factory_and_inferred_methods) ... ok
+test_receiver_snapshot_reference_and_evaluation_order (test_records.RecordNativeTests.test_receiver_snapshot_reference_and_evaluation_order) ... ok
+test_runtime_traps (test_records.RecordNativeTests.test_runtime_traps) ... ok
+test_formatter_preserves_inference (test_reductions.InferenceTests.test_formatter_preserves_inference) ... ok
+test_forward_inference_and_aliases (test_reductions.InferenceTests.test_forward_inference_and_aliases) ... ok
+test_malformed_reduction_diagnostics (test_reductions.InferenceTests.test_malformed_reduction_diagnostics) ... ok
+test_rejections (test_reductions.InferenceTests.test_rejections) ... ok
+test_generator_overflow_and_sequencing (test_reductions.ReductionTests.test_generator_overflow_and_sequencing) ... ok
+test_guarded_sum_prefix_reference (test_reductions.ReductionTests.test_guarded_sum_prefix_reference) ... ok
+test_ordinary_calls_can_use_existing_sum_function (test_reductions.ReductionTests.test_ordinary_calls_can_use_existing_sum_function) ... ok
+test_reducers_and_evaluation_order (test_reductions.ReductionTests.test_reducers_and_evaluation_order) ... ok
+test_zip_length_failure_precedes_body (test_reductions.ReductionTests.test_zip_length_failure_precedes_body) ... ok
+test_custom_errors_propagation_collections_and_modules (test_results.ResultTests.test_custom_errors_propagation_collections_and_modules) ... ok
+test_files_recover_and_do_not_truncate_nul_paths (test_results.ResultTests.test_files_recover_and_do_not_truncate_nul_paths) ... ok
+test_parsing_recovers_and_retains_independent_results (test_results.ResultTests.test_parsing_recovers_and_retains_independent_results) ... ok
+test_process_failures_and_child_exit (test_results.ResultTests.test_process_failures_and_child_exit) ... ok
+test_type_errors (test_results.ResultTests.test_type_errors) ... ok
+test_write_or_close_failure_recovers (test_results.ResultTests.test_write_or_close_failure_recovers) ... skipped '/dev/full is required for a deterministic write failure'
+test_literal_edges_and_line_endings (test_selfhost.SelfhostDriverTests.test_literal_edges_and_line_endings) ... skipped 'set GLYPH_SELFHOST to a bootstrapped glyphc'
+test_protects_source_and_aliases (test_selfhost.SelfhostDriverTests.test_protects_source_and_aliases) ... skipped 'set GLYPH_SELFHOST to a bootstrapped glyphc'
+test_run_arguments_and_utf8_paths (test_selfhost.SelfhostDriverTests.test_run_arguments_and_utf8_paths) ... skipped 'set GLYPH_SELFHOST to a bootstrapped glyphc'
+test_files_arguments_and_process (test_systems.SystemsTests.test_files_arguments_and_process) ... ok
+test_runtime_errors (test_systems.SystemsTests.test_runtime_errors) ... ok
+test_signatures (test_systems.SystemsTests.test_signatures) ... ok
+test_text_and_unicode (test_systems.SystemsTests.test_text_and_unicode) ... ok
+
+----------------------------------------------------------------------
+Ran 72 tests in 57.502s
+
+OK (skipped=4)
+
+Running codegen
+{"equal_optimized_function_ir": false, "opcode_counts": {"loop": {"add": 1, "br": 3, "extractvalue": 4, "getelementptr": 1, "icmp": 2, "inttoptr": 1, "load": 5, "phi": 3, "ret": 1, "tail": 6, "unreachable": 1}, "fold": {"add": 17, "br": 8, "extractvalue": 4, "getelementptr": 5, "icmp": 7, "inttoptr": 1, "load": 9, "or": 8, "phi": 16, "ret": 1, "select": 1, "tail": 8, "unreachable": 1}, "sum": {"add": 17, "br": 8, "extractvalue": 4, "getelementptr": 5, "icmp": 7, "inttoptr": 1, "load": 9, "or": 8, "phi": 16, "ret": 1, "select": 1, "tail": 8, "unreachable": 1}}, "equal_opcode_counts": false, "sum_matches_fold_opcode_counts": true, "method": "Clang -O2 LLVM function IR; exported reduce; identical source-span locations; metadata/attribute indices normalized; no native execution", "scope": "i64 fold and sum use guarded reduction; explicit loops retain per-add checks; opcode counts are structural evidence, not a semantic proof or runtime measurement"}
+
+Running agent
+sum glyph solution tokens 9 verified True
+sum python solution tokens 9 verified True
+sum c solution tokens 53 verified True
+positive_count glyph solution tokens 16 verified True
+positive_count python solution tokens 16 verified True
+positive_count c solution tokens 59 verified True
+dot glyph solution tokens 24 verified True
+dot python solution tokens 22 verified True
+dot c solution tokens 64 verified True
+
+Running runtime
+built startup/glyph
+built startup/c
+built startup/python
+built array/glyph
+built array/c
+built array/python
+built array_loop/glyph
+built recurrence/glyph
+built recurrence/c
+built recurrence/python
+verified trial 1
+verified trial 2
+verified trial 3
+verified trial 4
+verified trial 5
+verified trial 6
+verified trial 7
+verified trial 8
+verified trial 9
+verified trial 10
+verified trial 11
+verified trial 12
+verified trial 13
+verified trial 14
+verified trial 15
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-21-post-gc-rerun-2/runtime.json
+
+Running reductions
+small/fold: 2.259 ms
+small/sum: 2.245 ms
+small/loop: 6.157 ms
+small/c: 1.710 ms
+wide/fold: 6.101 ms
+wide/sum: 6.145 ms
+wide/loop: 6.227 ms
+wide/c: 1.713 ms
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-21-post-gc-rerun-2/reductions.json
+
+Running records
+verified record trial 1
+verified record trial 2
+verified record trial 3
+verified record trial 4
+verified record trial 5
+verified record trial 6
+verified record trial 7
+verified record trial 8
+verified record trial 9
+verified record trial 10
+verified record trial 11
+verified record trial 12
+verified record trial 13
+verified record trial 14
+verified record trial 15
+point/glyph: 5.253 ms
+point/c: 5.187 ms
+particle/glyph: 5.269 ms
+particle/c: 5.282 ms
+point {'glyph': 54, 'python': 65, 'c': 60}
+particle {'glyph': 94, 'python': 112, 'c': 114}
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-21-post-gc-rerun-2/records.json
+
+Running memory
+verified production memory trial 1
+verified production memory trial 2
+verified production memory trial 3
+verified production memory trial 4
+verified production memory trial 5
+
+Running report
+/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-21-post-gc-rerun-2/REPORT.md
+

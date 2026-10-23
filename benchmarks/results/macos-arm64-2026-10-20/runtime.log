@@ -1,0 +1,16 @@
+built startup/glyph
+built startup/c
+built startup/python
+built array/glyph
+built array/c
+built array/python
+built array_loop/glyph
+built recurrence/glyph
+built recurrence/c
+built recurrence/python
+verified trial 1
+verified trial 2
+verified trial 3
+verified trial 4
+verified trial 5
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-20/runtime.json

@@ -14,7 +14,7 @@ from .runtime import ROOT, BUILD, OUT
 TASKS = {
     "sum": {
         "prompt": "Implement solve(a), the sum of signed integers. Empty input returns zero. Verify [1, -2, 4] -> 3, [] -> 0. Test inputs do not overflow i64.",
-        "glyph": "solve a:[i64]>i64 = fold a 0 +\n",
+        "glyph": "solve a:[int] = sum(a)\n",
         "python": "def solve(a):\n    return sum(a)\n",
         "c": "int64_t solve(const int64_t *a, int64_t n) {\n    int64_t s = 0;\n    for (int64_t i = 0; i < n; i++) s += a[i];\n    return s;\n}\n",
         "glyph_main": "main>void\n  print(solve([1, -2, 4]))\n  print(solve([]))\n",
@@ -24,7 +24,7 @@ TASKS = {
     },
     "positive_count": {
         "prompt": "Implement solve(a), counting values strictly greater than zero. Verify [-2, 0, 3, 7] -> 2, [] -> 0. Test inputs fit i64.",
-        "glyph": "solve a:[i64]>i64\n  n:i64 = 0\n  for x:a\n    if x > 0\n      n += 1\n  ret n\n",
+        "glyph": "solve a:[int] = count(x > 0 for x in a)\n",
         "python": "def solve(a):\n    return sum(x > 0 for x in a)\n",
         "c": "int64_t solve(const int64_t *a, int64_t n) {\n    int64_t count = 0;\n    for (int64_t i = 0; i < n; i++) if (a[i] > 0) count++;\n    return count;\n}\n",
         "glyph_main": "main>void\n  print(solve([-2, 0, 3, 7]))\n  print(solve([]))\n",
@@ -34,7 +34,7 @@ TASKS = {
     },
     "dot": {
         "prompt": "Implement solve(a, b), the dot product of equal-length signed integer arrays. Verify [1, 2, 3] and [4, 5, 6] -> 32, two empty arrays -> 0. No operation overflows i64.",
-        "glyph": "solve a:[i64], b:[i64]>i64\n  s:i64 = 0\n  i:i64 = 0\n  while i < len(a)\n    s += a[i] * b[i]\n    i += 1\n  ret s\n",
+        "glyph": "solve a:[int], b:[int] = sum(x * y for x, y in zip(a, b))\n",
         "python": "def solve(a, b):\n    return sum(x * y for x, y in zip(a, b))\n",
         "c": "int64_t solve(const int64_t *a, const int64_t *b, int64_t n) {\n    int64_t s = 0;\n    for (int64_t i = 0; i < n; i++) s += a[i] * b[i];\n    return s;\n}\n",
         "glyph_main": "main>void\n  print(solve([1, 2, 3], [4, 5, 6]))\n  print(solve([], []))\n",

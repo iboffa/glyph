@@ -1,0 +1,17 @@
+# Recover, report and continue after each bad input.
+positive text:str>IntResult
+  parsed := try_parse_i64(text)
+  if not parsed.ok
+    ret parsed
+  if parsed.value <= 0
+    ret IntResult(false, 0, "positive", "expected a positive number")
+  ret parsed
+
+main>void
+  for text:["bad", "0", "42"]
+    result := positive(text)
+    if result.ok
+      print(result.value)
+    else
+      eprint(concat(result.code, concat(": ", result.message)))
+  print("finished all inputs")

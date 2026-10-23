@@ -1,0 +1,192 @@
+depbase=`echo allchblk.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT allchblk.lo -MD -MP -MF $depbase.Tpo -c -o allchblk.lo allchblk.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo alloc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT alloc.lo -MD -MP -MF $depbase.Tpo -c -o alloc.lo alloc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo blacklst.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT blacklst.lo -MD -MP -MF $depbase.Tpo -c -o blacklst.lo blacklst.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo dbg_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT dbg_mlc.lo -MD -MP -MF $depbase.Tpo -c -o dbg_mlc.lo dbg_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT blacklst.lo -MD -MP -MF .deps/blacklst.Tpo -c blacklst.c -o blacklst.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT alloc.lo -MD -MP -MF .deps/alloc.Tpo -c alloc.c -o alloc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT dbg_mlc.lo -MD -MP -MF .deps/dbg_mlc.Tpo -c dbg_mlc.c -o dbg_mlc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT allchblk.lo -MD -MP -MF .deps/allchblk.Tpo -c allchblk.c -o allchblk.o
+depbase=`echo dyn_load.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT dyn_load.lo -MD -MP -MF $depbase.Tpo -c -o dyn_load.lo dyn_load.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo finalize.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT finalize.lo -MD -MP -MF $depbase.Tpo -c -o finalize.lo finalize.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo gc_dlopen.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT gc_dlopen.lo -MD -MP -MF $depbase.Tpo -c -o gc_dlopen.lo gc_dlopen.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo headers.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT headers.lo -MD -MP -MF $depbase.Tpo -c -o headers.lo headers.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT dyn_load.lo -MD -MP -MF .deps/dyn_load.Tpo -c dyn_load.c -o dyn_load.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT gc_dlopen.lo -MD -MP -MF .deps/gc_dlopen.Tpo -c gc_dlopen.c -o gc_dlopen.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT finalize.lo -MD -MP -MF .deps/finalize.Tpo -c finalize.c -o finalize.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT headers.lo -MD -MP -MF .deps/headers.Tpo -c headers.c -o headers.o
+depbase=`echo mach_dep.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT mach_dep.lo -MD -MP -MF $depbase.Tpo -c -o mach_dep.lo mach_dep.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo malloc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT malloc.lo -MD -MP -MF $depbase.Tpo -c -o malloc.lo malloc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT mach_dep.lo -MD -MP -MF .deps/mach_dep.Tpo -c mach_dep.c -o mach_dep.o
+depbase=`echo mallocx.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT mallocx.lo -MD -MP -MF $depbase.Tpo -c -o mallocx.lo mallocx.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT malloc.lo -MD -MP -MF .deps/malloc.Tpo -c malloc.c -o malloc.o
+depbase=`echo mark.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT mark.lo -MD -MP -MF $depbase.Tpo -c -o mark.lo mark.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT mallocx.lo -MD -MP -MF .deps/mallocx.Tpo -c mallocx.c -o mallocx.o
+depbase=`echo mark_rts.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT mark_rts.lo -MD -MP -MF $depbase.Tpo -c -o mark_rts.lo mark_rts.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT mark.lo -MD -MP -MF .deps/mark.Tpo -c mark.c -o mark.o
+depbase=`echo misc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT misc.lo -MD -MP -MF $depbase.Tpo -c -o misc.lo misc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT mark_rts.lo -MD -MP -MF .deps/mark_rts.Tpo -c mark_rts.c -o mark_rts.o
+depbase=`echo new_hblk.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT new_hblk.lo -MD -MP -MF $depbase.Tpo -c -o new_hblk.lo new_hblk.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT misc.lo -MD -MP -MF .deps/misc.Tpo -c misc.c -o misc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT new_hblk.lo -MD -MP -MF .deps/new_hblk.Tpo -c new_hblk.c -o new_hblk.o
+depbase=`echo obj_map.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT obj_map.lo -MD -MP -MF $depbase.Tpo -c -o obj_map.lo obj_map.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo os_dep.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT os_dep.lo -MD -MP -MF $depbase.Tpo -c -o os_dep.lo os_dep.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo ptr_chck.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT ptr_chck.lo -MD -MP -MF $depbase.Tpo -c -o ptr_chck.lo ptr_chck.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT obj_map.lo -MD -MP -MF .deps/obj_map.Tpo -c obj_map.c -o obj_map.o
+depbase=`echo reclaim.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT reclaim.lo -MD -MP -MF $depbase.Tpo -c -o reclaim.lo reclaim.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT os_dep.lo -MD -MP -MF .deps/os_dep.Tpo -c os_dep.c -o os_dep.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT ptr_chck.lo -MD -MP -MF .deps/ptr_chck.Tpo -c ptr_chck.c -o ptr_chck.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT reclaim.lo -MD -MP -MF .deps/reclaim.Tpo -c reclaim.c -o reclaim.o
+depbase=`echo specific.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT specific.lo -MD -MP -MF $depbase.Tpo -c -o specific.lo specific.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+os_dep.c:3202:35: warning: a function declaration without a prototype is deprecated in all versions of C [-Wstrict-prototypes]
+    typedef void (* SIG_HNDLR_PTR)();
+                                  ^
+                                   void
+depbase=`echo typd_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT typd_mlc.lo -MD -MP -MF $depbase.Tpo -c -o typd_mlc.lo typd_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT specific.lo -MD -MP -MF .deps/specific.Tpo -c specific.c -o specific.o
+1 warning generated.
+depbase=`echo gcj_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT gcj_mlc.lo -MD -MP -MF $depbase.Tpo -c -o gcj_mlc.lo gcj_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+depbase=`echo fnlz_mlc.lo | sed 's|[^/]*$|.deps/&|;s|\.lo$||'`;\
+	/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT fnlz_mlc.lo -MD -MP -MF $depbase.Tpo -c -o fnlz_mlc.lo fnlz_mlc.c &&\
+	mv -f $depbase.Tpo $depbase.Plo
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT typd_mlc.lo -MD -MP -MF .deps/typd_mlc.Tpo -c typd_mlc.c -o typd_mlc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT gcj_mlc.lo -MD -MP -MF .deps/gcj_mlc.Tpo -c gcj_mlc.c -o gcj_mlc.o
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordbscs.lo -MD -MP -MF cord/.deps/libcord_la-cordbscs.Tpo -c -o cord/libcord_la-cordbscs.lo `test -f 'cord/cordbscs.c' || echo './'`cord/cordbscs.c
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT fnlz_mlc.lo -MD -MP -MF .deps/fnlz_mlc.Tpo -c fnlz_mlc.c -o fnlz_mlc.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordbscs.lo -MD -MP -MF cord/.deps/libcord_la-cordbscs.Tpo -c cord/cordbscs.c -o cord/libcord_la-cordbscs.o
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordprnt.lo -MD -MP -MF cord/.deps/libcord_la-cordprnt.Tpo -c -o cord/libcord_la-cordprnt.lo `test -f 'cord/cordprnt.c' || echo './'`cord/cordprnt.c
+/bin/sh ./libtool  --tag=CC   --mode=compile gcc -DHAVE_CONFIG_H   -I./include -I./include      -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -MT cord/libcord_la-cordxtra.lo -MD -MP -MF cord/.deps/libcord_la-cordxtra.Tpo -c -o cord/libcord_la-cordxtra.lo `test -f 'cord/cordxtra.c' || echo './'`cord/cordxtra.c
+/bin/sh ./libtool  --tag=CC   --mode=link gcc   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -Wl,-single_module -version-info 6:6:5 -no-undefined  -o libgc.la -rpath /Users/igino/glyph/build/memory-deps/install/lib allchblk.lo alloc.lo blacklst.lo dbg_mlc.lo dyn_load.lo finalize.lo gc_dlopen.lo headers.lo mach_dep.lo malloc.lo mallocx.lo mark.lo mark_rts.lo misc.lo new_hblk.lo obj_map.lo os_dep.lo ptr_chck.lo reclaim.lo specific.lo typd_mlc.lo        gcj_mlc.lo fnlz_mlc.lo     
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordprnt.lo -MD -MP -MF cord/.deps/libcord_la-cordprnt.Tpo -c cord/cordprnt.c -o cord/libcord_la-cordprnt.o
+libtool: compile:  gcc -DHAVE_CONFIG_H -I./include -I./include -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address -MT cord/libcord_la-cordxtra.lo -MD -MP -MF cord/.deps/libcord_la-cordxtra.Tpo -c cord/cordxtra.c -o cord/libcord_la-cordxtra.o
+./libtool: line 11473: test: : integer expression expected
+./libtool: line 11473: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+libtool: link: ar cr .libs/libgc.a allchblk.o
+mv -f cord/.deps/libcord_la-cordprnt.Tpo cord/.deps/libcord_la-cordprnt.Plo
+mv -f cord/.deps/libcord_la-cordbscs.Tpo cord/.deps/libcord_la-cordbscs.Plo
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a alloc.o
+mv -f cord/.deps/libcord_la-cordxtra.Tpo cord/.deps/libcord_la-cordxtra.Plo
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a blacklst.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a dbg_mlc.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a dyn_load.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a finalize.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a gc_dlopen.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a headers.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a mach_dep.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a malloc.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a mallocx.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a mark.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a mark_rts.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a misc.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a new_hblk.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a obj_map.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a os_dep.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a ptr_chck.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a reclaim.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a specific.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a typd_mlc.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a gcj_mlc.o
+libtool: link: : .libs/libgc.a
+libtool: link: ar cr .libs/libgc.a fnlz_mlc.o
+libtool: link: ranlib .libs/libgc.a
+libtool: link: ( cd ".libs" && rm -f "libgc.la" && ln -s "../libgc.la" "libgc.la" )
+/bin/sh ./libtool  --tag=CC   --mode=link gcc   -fexceptions -Wall -Wextra -Wpedantic -Wno-long-long -g -O2 -fno-strict-aliasing -Wno-frame-address  -version-info 6:1:5 -no-undefined  -o libcord.la -rpath /Users/igino/glyph/build/memory-deps/install/lib cord/libcord_la-cordbscs.lo cord/libcord_la-cordprnt.lo cord/libcord_la-cordxtra.lo libgc.la 
+./libtool: line 11473: test: : integer expression expected
+./libtool: line 11473: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+./libtool: line 11509: test: : integer expression expected
+libtool: link: ar cr .libs/libcord.a cord/libcord_la-cordbscs.o
+libtool: link: : .libs/libcord.a
+libtool: link: ar cr .libs/libcord.a cord/libcord_la-cordprnt.o
+libtool: link: : .libs/libcord.a
+libtool: link: ar cr .libs/libcord.a cord/libcord_la-cordxtra.o
+libtool: link: ranlib .libs/libcord.a
+libtool: link: ( cd ".libs" && rm -f "libcord.la" && ln -s "../libcord.la" "libcord.la" )

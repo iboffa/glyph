@@ -1,0 +1,24 @@
+test_cli_json_and_format_check (test_glyph.FrontendTests.test_cli_json_and_format_check) ... ok
+test_diagnostic_span (test_glyph.FrontendTests.test_diagnostic_span) ... ok
+test_formatter (test_glyph.FrontendTests.test_formatter) ... ok
+test_malformed_sources_never_crash (test_glyph.FrontendTests.test_malformed_sources_never_crash) ... ok
+test_rejections (test_glyph.FrontendTests.test_rejections) ... ok
+test_cli_run_arguments_exit_and_build (test_glyph.NativeTests.test_cli_run_arguments_exit_and_build) ... ok
+test_examples (test_glyph.NativeTests.test_examples) ... ok
+test_random_arithmetic_differential (test_glyph.NativeTests.test_random_arithmetic_differential) ... ok
+test_runtime_traps (test_glyph.NativeTests.test_runtime_traps) ... ok
+test_semantics (test_glyph.NativeTests.test_semantics) ... ok
+test_formatter_preserves_inference (test_reductions.InferenceTests.test_formatter_preserves_inference) ... ok
+test_forward_inference_and_aliases (test_reductions.InferenceTests.test_forward_inference_and_aliases) ... ok
+test_malformed_reduction_diagnostics (test_reductions.InferenceTests.test_malformed_reduction_diagnostics) ... ok
+test_rejections (test_reductions.InferenceTests.test_rejections) ... ok
+test_generator_overflow_and_sequencing (test_reductions.ReductionTests.test_generator_overflow_and_sequencing) ... ok
+test_guarded_sum_prefix_reference (test_reductions.ReductionTests.test_guarded_sum_prefix_reference) ... ok
+test_ordinary_calls_can_use_existing_sum_function (test_reductions.ReductionTests.test_ordinary_calls_can_use_existing_sum_function) ... ok
+test_reducers_and_evaluation_order (test_reductions.ReductionTests.test_reducers_and_evaluation_order) ... ok
+test_zip_length_failure_precedes_body (test_reductions.ReductionTests.test_zip_length_failure_precedes_body) ... ok
+
+----------------------------------------------------------------------
+Ran 19 tests in 7.272s
+
+OK
