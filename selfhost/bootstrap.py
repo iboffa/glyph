@@ -53,9 +53,16 @@ def main():
 
     run([sys.executable, '-m', 'glyph', 'build', source, '-o', stages[0]])
     # No shell and no Python executable on PATH in either native generation.
-    empty_path = out / 'empty-path'
-    empty_path.mkdir(exist_ok=True)
-    native_env = dict(os.environ, PATH=str(empty_path))
+    # GCC invokes its assembler/linker through PATH. Keep those tools available
+    # without exposing a shell or Python to either native generation.
+    tool_path = out / 'native-tools'
+    tool_path.mkdir(exist_ok=True)
+    for name in ('as', 'ld', 'ld.lld'):
+        tool = shutil.which(name)
+        link = tool_path / name
+        if tool and not link.exists():
+            link.symlink_to(Path(tool).resolve())
+    native_env = dict(os.environ, PATH=str(tool_path))
     for previous, current in zip(stages, stages[1:]):
         run([previous, 'build', source, '-o', current,
              '--runtime-dir', runtime, '--cc', cc], env=native_env)
