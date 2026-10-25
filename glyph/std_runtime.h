@@ -24,6 +24,15 @@ G_RESULT_TYPE(BoolResult, bool, false)
 G_RESULT_TYPE(BytesResult, g_array, ((g_array){NULL,0}))
 G_RESULT_TYPE(StringsResult, g_array, ((g_array){NULL,0}))
 #undef G_RESULT_TYPE
+/* HTTP transport success includes non-2xx responses; payload and headers are bytes. */
+typedef struct g_record_HttpResult {
+    bool m_ok; g_array m_value; g_str m_code, m_message;
+    int64_t m_status; g_array m_headers;
+} g_record_HttpResult;
+static g_record_HttpResult g_error_HttpResult(const char *message) {
+    return (g_record_HttpResult){false,{NULL,0},{"R014",4},
+        {message,(int64_t)strlen(message)},0,{NULL,0}};
+}
 
 /* Legacy APIs turn the same result into their established fatal diagnostic. */
 static void g_result_require(bool ok, g_str code, g_str message, int l, int c) {

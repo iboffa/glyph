@@ -85,12 +85,15 @@ fail c:Compiler, code:str, message:str, token:int>void
 
 make_compiler path:str, source:str>Compiler
   size := len(source) + 16
-  c := Compiler(path, source, fill(size, make_tok("", 1, 1, path)), fill(size * 2 + 65536, Node("", "", "", 0, [], [], [], [], -1, false, [], [])), fill(size / 4 + 1024, Fn("", 0, [], "", [], "", false, false, false, false, [])), fill(size / 4 + 1024, Rec("", 0, [], 0, [], "type", [])), fill(16, 0), fill(size * 8, ""), [], [], fill(size + 4096, Field("", "", 0, false)), fill(256, Var("", "")))
-  names := ["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult"]
-  values := ["i64", "f64", "str", "bool", "[i64]", "[str]"]
+  c := Compiler(path, source, fill(size, make_tok("", 1, 1, path)), fill(size * 2 + 65536, Node("", "", "", 0, [], [], [], [], -1, false, [], [])), fill(size / 4 + 1024, Fn("", 0, [], "", [], "", false, false, false, false, [])), fill(size / 4 + 1024, Rec("", 0, [], 0, [], "type", [])), fill(19, 0), fill(size * 8, ""), [], [], fill(size + 4096, Field("", "", 0, false)), fill(256, Var("", "")))
+  names := ["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult", "HttpResult"]
+  values := ["i64", "f64", "str", "bool", "[i64]", "[str]", "[i64]"]
   i := 0
   while i < len(names)
     c.records[i] = Rec(names[i], 0, [Field("ok", "bool", 0, false), Field("value", values[i], 0, false), Field("code", "str", 0, false), Field("message", "str", 0, false)], 0, [], "type", [])
+    if names[i] == "HttpResult"
+      c.records[i].fields = push(c.records[i].fields, Field("status", "i64", 0, false))
+      c.records[i].fields = push(c.records[i].fields, Field("headers", "[i64]", 0, false))
     i += 1
   c.state[4] = len(names)
   ret c
@@ -697,6 +700,76 @@ parse_source c:Compiler>void
 
 # Fixed signatures mirror the public standard-library ABI.
 fixed_signature name:str>[str]
+  if name == "try_tcp_connect"
+    ret ["str", "i64", "i64", "IntResult"]
+  if name == "try_tcp_listen"
+    ret ["str", "i64", "i64", "IntResult"]
+  if name == "try_tcp_accept"
+    ret ["i64", "i64", "IntResult"]
+  if name == "try_tcp_port"
+    ret ["i64", "IntResult"]
+  if name == "try_tcp_read"
+    ret ["i64", "i64", "BytesResult"]
+  if name == "try_tcp_write"
+    ret ["i64", "[i64]", "IntResult"]
+  if name == "try_tcp_close"
+    ret ["i64", "BoolResult"]
+  if name == "try_http_request"
+    ret ["str", "str", "[str]", "[i64]", "i64", "i64", "str", "HttpResult"]
+  if name == "try_db_open"
+    ret ["str", "IntResult"]
+  if name == "try_db_close"
+    ret ["i64", "BoolResult"]
+  if name == "try_db_exec"
+    ret ["i64", "str", "BoolResult"]
+  if name == "try_db_prepare"
+    ret ["i64", "str", "IntResult"]
+  if name == "try_db_bind_int"
+    ret ["i64", "i64", "i64", "BoolResult"]
+  if name == "try_db_bind_float"
+    ret ["i64", "i64", "f64", "BoolResult"]
+  if name == "try_db_bind_text"
+    ret ["i64", "i64", "str", "BoolResult"]
+  if name == "try_db_bind_bytes"
+    ret ["i64", "i64", "[i64]", "BoolResult"]
+  if name == "try_db_bind_null"
+    ret ["i64", "i64", "BoolResult"]
+  if name == "try_db_step"
+    ret ["i64", "BoolResult"]
+  if name == "try_db_reset"
+    ret ["i64", "BoolResult"]
+  if name == "try_db_finalize"
+    ret ["i64", "BoolResult"]
+  if name == "try_db_columns"
+    ret ["i64", "IntResult"]
+  if name == "try_db_column_name"
+    ret ["i64", "i64", "StringResult"]
+  if name == "try_db_column_type"
+    ret ["i64", "i64", "StringResult"]
+  if name == "try_db_column_int"
+    ret ["i64", "i64", "IntResult"]
+  if name == "try_db_column_float"
+    ret ["i64", "i64", "FloatResult"]
+  if name == "try_db_column_text"
+    ret ["i64", "i64", "StringResult"]
+  if name == "try_db_column_bytes"
+    ret ["i64", "i64", "BytesResult"]
+  if name == "try_db_changes"
+    ret ["i64", "IntResult"]
+  if name == "try_db_last_id"
+    ret ["i64", "IntResult"]
+  if name == "try_base64_encode"
+    ret ["[i64]", "StringResult"]
+  if name == "try_base64_decode"
+    ret ["str", "BytesResult"]
+  if name == "try_csv_parse"
+    ret ["str", "StringsResult"]
+  if name == "try_csv_row"
+    ret ["str", "StringsResult"]
+  if name == "csv_row"
+    ret ["[str]", "str"]
+  if name == "try_csv_write"
+    ret ["[str]", "StringResult"]
   if name == "encode_utf8"
     ret ["str", "[i64]"]
   if name == "try_decode_utf8"
@@ -803,7 +876,7 @@ fixed_signature name:str>[str]
     ret ["void"]
   ret []
 
-builtin_result name:str>bool = has(["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult"], name)
+builtin_result name:str>bool = has(["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult", "HttpResult"], name)
 
 builtin name:str>bool = builtin_result(name) or len(fixed_signature(name)) > 0 or has(["list", "map", "set", "print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"], name)
 
@@ -1868,13 +1941,30 @@ emit_program c:Compiler, runtime:str>str
   emit_line(c, read_file(concat(runtime, "/std_runtime.h")))
   emit_line(c, read_file(concat(runtime, "/io_runtime.h")))
   emit_line(c, read_file(concat(runtime, "/json_runtime.h")))
+  emit_line(c, read_file(concat(runtime, "/serialization_runtime.h")))
   emit_line(c, read_file(concat(runtime, "/collections_runtime.h")))
   emit_line(c, "typedef struct { void (*code)(void); void *env; } g_closure;")
   i := 0
   while i < c.state[2]
+    if c.nodes[i].kind == "call" and len(fixed_signature(c.nodes[i].value)) > 0
+      if prefix(c.nodes[i].value, "try_tcp_")
+        c.state[16] = 1
+      if prefix(c.nodes[i].value, "try_http_")
+        c.state[17] = 1
+      if prefix(c.nodes[i].value, "try_db_")
+        c.state[18] = 1
     if c.nodes[i].kind == "call" and prefix(c.nodes[i].value, "gui_")
       c.state[8] = 1
     i += 1
+  if c.state[16] == 1
+    emit_line(c, "#define GLYPH_TCP 1")
+    emit_line(c, read_file(concat(runtime, "/tcp_runtime.h")))
+  if c.state[17] == 1
+    emit_line(c, "#define GLYPH_HTTP 1")
+    emit_line(c, read_file(concat(runtime, "/http_runtime.h")))
+  if c.state[18] == 1
+    emit_line(c, "#define GLYPH_DB 1")
+    emit_line(c, read_file(concat(runtime, "/db_runtime.h")))
   if c.state[8] == 1
     emit_line(c, "#define GLYPH_GUI 1")
     emit_line(c, read_file(concat(runtime, "/gui.h")))
@@ -2012,6 +2102,10 @@ main>int
       args = push(args, option)
     for option:["-x", "objective-c", concat(runtime, "/gui_macos.m"), "-fobjc-arc", "-framework", "AppKit"]
       args = push(args, option)
+  if c.state[17] == 1
+    args = push(args, "-lcurl")
+  if c.state[18] == 1
+    args = push(args, "-lsqlite3")
   status := process(args)
   if status != 0
     ret status

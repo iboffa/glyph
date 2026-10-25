@@ -3,21 +3,51 @@ on: [push, pull_request, workflow_dispatch]
 jobs:
   test:
     strategy:
+      fail-fast: false
       matrix:
         os: [ubuntu-latest, windows-latest, macos-latest]
     runs-on: ${{ matrix.os }}
+    env:
+      GLYPH_TEST_NATIVE_LIBS: '1'
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-python@v5
         with:
           python-version: '3.12'
       - run: python -m pip install -e ".[bench]"
-      - run: python -m unittest discover -s tests -v
+      - if: runner.os == 'Linux'
+        run: sudo apt-get update && sudo apt-get install -y libcurl4-openssl-dev libsqlite3-dev
+      - if: runner.os == 'Windows'
+        id: msys2
+        uses: msys2/setup-msys2@v2
+        with:
+          msystem: UCRT64
+          update: true
+          install: >-
+            mingw-w64-ucrt-x86_64-clang
+            mingw-w64-ucrt-x86_64-curl
+            mingw-w64-ucrt-x86_64-sqlite3
+            mingw-w64-ucrt-x86_64-openssl
+      - if: runner.os == 'Windows'
+        shell: pwsh
+        run: '"${{ steps.msys2.outputs.msys2-location }}\ucrt64\bin" | Out-File -FilePath $env:GITHUB_PATH -Encoding utf8 -Append'
+      - name: Reference compiler and runtime tests
+        shell: bash
+        run: |
+          mkdir -p build/verification
+          python -m unittest discover -s tests -v 2>&1 | tee build/verification/reference.log
+      - name: Native bootstrap and runtime tests
+        if: runner.os != 'Windows'
+        shell: bash
+        run: python selfhost/bootstrap.py --verify --output-dir build/verification/selfhost 2>&1 | tee build/verification/native.log
       - run: python -m benchmarks.codegen
       - run: python -m benchmarks.agent
       - run: python -m benchmarks.runtime --samples 5
       - run: python -m benchmarks.report
       - uses: actions/upload-artifact@v4
+        if: always()
         with:
           name: glyph-results-${{ matrix.os }}
-          path: benchmarks/results/
+          path: |
+            benchmarks/results/
+            build/verification/

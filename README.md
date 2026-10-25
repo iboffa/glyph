@@ -66,13 +66,14 @@ If this sandboxed Python distribution cannot bootstrap pip into a venv because o
 * Optional native GUI library on macOS: windows, labels, buttons and a blocking event loop, with a calculator written in Glyph.
 * UTF-8 text operations, file access, string arguments and POSIX process execution.
 * Binary file reads/writes, blocking chunked I/O with checked handles, and JSON validation, lookup, quoting and construction. See [binary I/O and JSON](docs/SYSTEMS.md#binary-and-streaming-io).
+* Blocking TCP client/server sockets, HTTP with verified TLS through optional system libcurl, SQLite prepared statements through optional system SQLite, and CSV/Base64 serialization. See [services and dependencies](docs/SERVICES.md).
 * Recoverable `try_` parsing, file and process operations returning typed result records with error codes and messages. See [error handling](docs/SYSTEMS.md#recoverable-failures).
 * Named file imports with isolated module names, shared dependency identity and circular-import diagnostics.
 * A self-hosted compiler with a verified three-stage bootstrap and native regression checks.
 
 Start with [the little Glyph manual](docs/MANUAL.md), or read [the specification](docs/SPEC.md), [architecture and tradeoffs](docs/ARCHITECTURE.md), and [the short agent guide](docs/AGENT_GUIDE.md). Examples are in [examples](examples/).
 
-Garbage collection can pause execution and conservatively retain unused storage; live slices keep their entire backing allocation alive. `push` copies and is O(n). Inheritance, runtime interface dispatch, network I/O, concurrency, scoped regions and alternate presentation layers are not implemented. These are future work. The frontend is deliberately small and has not been hardened against hostile resource-exhaustion inputs.
+Garbage collection can pause execution and conservatively retain unused storage; live slices keep their entire backing allocation alive. `push` copies and is O(n). Inheritance, runtime interface dispatch, concurrency, scoped regions and alternate presentation layers are not implemented. These are future work. The frontend is deliberately small and has not been hardened against hostile resource-exhaustion inputs.
 
 ## Self-hosting
 

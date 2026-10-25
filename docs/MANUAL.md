@@ -251,7 +251,7 @@ Keep these current limits in mind:
   fields separately.
 - Array allocations stay alive until the program exits. Repeated `push` copies
   the array each time; prefer `fill` and indexed updates when the size is known.
-- There is no network I/O or inheritance. User generics, tagged unions, closures, and interface constraints are covered in [library abstractions](ABSTRACTIONS.md).
+- Blocking TCP, HTTP/TLS, SQLite, CSV and Base64 are available through [service APIs](SERVICES.md). Inheritance remains unimplemented. User generics, tagged unions, closures, and interface constraints are covered in [library abstractions](ABSTRACTIONS.md).
 
 For more runnable programs, browse [examples](../examples/). For precise rules
 and advanced `unsafe` pointer operations, use the [language specification](SPEC.md).

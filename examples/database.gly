@@ -1,0 +1,54 @@
+save db:int, text:str>BoolResult
+  prepared := try_db_prepare(db, "INSERT INTO messages(text) VALUES(?)")
+  if not prepared.ok
+    ret BoolResult(false, false, prepared.code, prepared.message)
+  bound := try_db_bind_text(prepared.value, 1, text)
+  if not bound.ok
+    try_db_finalize(prepared.value)
+    ret bound
+  stepped := try_db_step(prepared.value)
+  finalized := try_db_finalize(prepared.value)
+  if not stepped.ok
+    ret stepped
+  ret finalized
+
+show db:int>BoolResult
+  prepared := try_db_prepare(db, "SELECT text FROM messages ORDER BY rowid")
+  if not prepared.ok
+    ret BoolResult(false, false, prepared.code, prepared.message)
+  done := false
+  while not done
+    row := try_db_step(prepared.value)
+    if not row.ok
+      try_db_finalize(prepared.value)
+      ret row
+    if row.value
+      text := try_db_column_text(prepared.value, 0)
+      if not text.ok
+        try_db_finalize(prepared.value)
+        ret BoolResult(false, false, text.code, text.message)
+      print(text.value)
+    else
+      done = true
+  ret try_db_finalize(prepared.value)
+
+main>void
+  path := ":memory:"
+  if argc() > 0
+    path = arg(0)
+  opened := try_db_open(path)
+  if not opened.ok
+    eprint(opened.message)
+    exit(1)
+  result := try_db_exec(opened.value, "CREATE TABLE IF NOT EXISTS messages(text TEXT)")
+  if result.ok
+    result = save(opened.value, "hello, SQLite — quotes ' are bound as data")
+  if result.ok
+    result = show(opened.value)
+  closed := try_db_close(opened.value)
+  if not result.ok
+    eprint(result.message)
+    exit(1)
+  if not closed.ok
+    eprint(closed.message)
+    exit(1)

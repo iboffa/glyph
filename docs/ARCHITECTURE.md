@@ -80,3 +80,15 @@ See [collection semantics and costs](COLLECTIONS.md).
 ## Library abstractions
 
 Before ordinary type checking, both frontends expand explicit generic instantiations, substitute structural types, and check interface constraints against concrete method signatures. The expansion cache bounds code growth and preserves module identity. Tagged unions lower to a discriminant and C union; exhaustive matching checks both payload binding and return coverage. Function values pair code and environment pointers. Closures capture snapshots into collector-scanned environments, and nested function signatures remain statically checked. See [semantics and limits](ABSTRACTIONS.md).
+
+## Optional services
+
+`tcp_runtime.h` adapts POSIX/Winsock TCP with checked, never-reused handles.
+`http_runtime.h` uses libcurl with certificate and hostname verification,
+request timeouts and bounded response callbacks. `db_runtime.h` wraps SQLite
+connections and prepared statements with explicit lifetimes and copied bindings.
+Both emitters include these adapters only for referenced service calls and
+mark generated C for the corresponding linker libraries. HTTP/SQLite builds
+use system development libraries; ordinary console builds retain the existing
+bundled toolchain. `serialization_runtime.h` supplies dependency-free CSV and
+strict Base64. See [Services](SERVICES.md) for contracts and platform limits.

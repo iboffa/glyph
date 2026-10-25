@@ -208,7 +208,7 @@ with a limit of 128 nested containers. It rejects lone Unicode surrogates to
 preserve Glyph's UTF-8 string invariant, and rejects a leading byte-order mark.
 Comments, trailing commas, non-JSON whitespace, leading-zero numbers, NaN,
 and Infinity are not accepted. Malformed JSON, missing keys, wrong value kinds,
-invalid indices, and excess nesting return `R011` without exiting. Error
+invalid indices, and excess nesting return `R012` without exiting. Error
 messages are descriptive, not stable machine-readable subcodes or offsets.
 
 Number lexemes are preserved without conversion to `f64`: large integers and
@@ -228,3 +228,9 @@ and internal whitespace in supplied fragments; it is not canonical JSON.
 
 See [the binary/JSON example](../examples/binary_json.gly) for a complete
 write/read/parse round-trip with recoverable failures.
+
+## Network, database and serialization services
+
+See [Services](SERVICES.md) for TCP sockets, HTTP with verified TLS, SQLite
+prepared statements, CSV and Base64. HTTP/SQLite programs require optional
+system development libraries; the other builtins keep the existing toolchain.

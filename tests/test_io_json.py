@@ -5,6 +5,7 @@ import random
 import subprocess
 import tempfile
 import unittest
+from unittest.mock import patch
 
 from glyph.checker import check
 from glyph.syntax import Diagnostic, parse
@@ -111,6 +112,37 @@ class BinaryIOTests(unittest.TestCase):
 
 
 class JSONTests(unittest.TestCase):
+    def test_collector_preserves_fragments_keys_and_open_handles(self):
+        source = r'''main>void
+  text := try_json_object([concat("dynamic", "-key")], ["[1,2,3]"]).value
+  keys := try_json_keys(text)
+  fragment := try_json_get(text, keys.value[0])
+  a := try_open(arg(0), "w")
+  b := try_open(arg(1), "w")
+  c := try_open(arg(2), "w")
+  print(try_close(b.value).ok)
+  for i:range(10)
+    noise := try_json_parse("{\"nested\":[{\"escaped\":\"\\ud83d\\ude42\"},true,null]}")
+    print(noise.ok)
+  print(keys.value[0])
+  print(fragment.value)
+  print(try_write(a.value, encode_utf8(fragment.value)).ok)
+  print(try_write(c.value, encode_utf8(keys.value[0])).ok)
+  print(try_close(a.value).ok)
+  print(try_close(c.value).ok)
+  print(try_read(b.value, 1).ok)
+'''
+        exe = native(source, 'io_json_gc_roots')
+        with tempfile.TemporaryDirectory(dir=BUILD) as directory:
+            paths = [Path(directory) / name for name in ('a', 'b', 'c')]
+            with patch.dict(os.environ, GLYPH_GC_STRESS='1'):
+                proc = execute(exe, *paths)
+            self.assertEqual(proc.returncode, 0, proc.stderr)
+            self.assertEqual(proc.stdout, 'true\n' * 11 + 'dynamic-key\n[1,2,3]\n' + 'true\n' * 4 + 'false\n')
+            self.assertEqual(paths[0].read_bytes(), b'[1,2,3]')
+            self.assertEqual(paths[1].read_bytes(), b'')
+            self.assertEqual(paths[2].read_bytes(), b'dynamic-key')
+
     def test_navigation_and_construction(self):
         proc = execute(native(r'''main>void
   input := " {\"name\":\"Caf\\u00e9 \\ud83d\\ude42\",\"items\":[null,true,9007199254740993,1e9999],\"a\":1,\"\\u0061\":2} "
@@ -150,7 +182,7 @@ class JSONTests(unittest.TestCase):
 ''', 'json_navigation'))
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(proc.stdout, 'true\nobject\n4\nCafé 🙂\n9007199254740993\n1e9999\nnull\n2\n' +
-                         'R011\n' * 6 + 'name\nitems\na\na\ntrue\ntrue\n4\ntrue\n42\n[]\n{}\n' + 'R011\n' * 4 + 'null\n')
+                         'R012\n' * 6 + 'name\nitems\na\na\ntrue\ntrue\n4\ntrue\n42\n[]\n{}\n' + 'R012\n' * 4 + 'null\n')
 
     def test_strict_grammar_and_nesting(self):
         valid = ['null', 'true', 'false', '0', '-0', '1.25', '1E+9', '1e-9999', '[]', '{}',
@@ -162,13 +194,13 @@ class JSONTests(unittest.TestCase):
                    '"\n"', '"unterminated', '"escape\\', '\ufeffnull', '\vnull', 'null\x00',
                    '[' * 129 + '0' + ']' * 129]
         sources = ', '.join(json.dumps(x, ensure_ascii=True) for x in valid + invalid)
-        proc = execute(native('main>void\n  for text:[' + sources + ']\n    r := try_json_parse(text)\n    print(r.ok)\n    if not r.ok\n      print(r.code == "R011" and r.value == "" and len(r.message) > 0)\n', 'json_grammar'))
+        proc = execute(native('main>void\n  for text:[' + sources + ']\n    r := try_json_parse(text)\n    print(r.ok)\n    if not r.ok\n      print(r.code == "R012" and r.value == "" and len(r.message) > 0)\n', 'json_grammar'))
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertEqual(proc.stdout, 'true\n' * len(valid) + 'false\ntrue\n' * len(invalid))
         deep = json.dumps('[' * 128 + '0' + ']' * 128)
         proc = execute(native('main>void\n  print(try_json_array([' + deep + ']).code)\n', 'json_build_depth'))
         self.assertEqual(proc.returncode, 0, proc.stderr)
-        self.assertEqual(proc.stdout, 'R011\n')
+        self.assertEqual(proc.stdout, 'R012\n')
 
     def test_seeded_serialization_roundtrips(self):
         rng = random.Random(8259)

@@ -1,0 +1,13 @@
+main>void
+  text := csv_row(["hello, CSV", "quotes \"", "line\nbreak", "🙂"])
+  parsed := try_csv_row(text)
+  if not parsed.ok
+    eprint(parsed.message)
+    exit(1)
+  for field:parsed.value
+    print(field)
+  encoded := try_base64_encode(encode_utf8("hello 🙂"))
+  if not encoded.ok
+    eprint(encoded.message)
+    exit(1)
+  print(encoded.value)
