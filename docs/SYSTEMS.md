@@ -46,6 +46,11 @@ UTF-8; this API is not binary file I/O. `write_file` is a direct truncating writ
 not an atomic replacement. `same_file` does not canonicalize nonexistent paths
 or protect against concurrent filesystem changes.
 
+On Windows, command-line arguments are converted from UTF-16 to UTF-8. Text
+and binary file APIs convert paths back to UTF-16 and use wide-character file
+operations, including file-existence and identity checks. They therefore support
+Unicode paths independently of the active Windows code page.
+
 `process` inherits standard streams and the environment, flushes parent output
 before launch, and returns the child's exit code (or `128 + signal` when killed
 by a signal). Launch/wait failures are runtime errors. Its initial implementation

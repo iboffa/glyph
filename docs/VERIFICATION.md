@@ -1,5 +1,52 @@
 # Verification status
 
+## Service hardening and platform execution — 2026-10-25
+
+[The complete CI matrix passed](https://github.com/iboffa/glyph/actions/runs/40192542698)
+on revision `6b48265541718af441c30079fd9118051b0487b2`, including the benchmark
+commands. Each reference suite contains 106 tests. Optional curl/SQLite tests
+are enabled on all three platforms; they are not skipped on Windows.
+
+| Host | Reference tests passed / skipped | Native corpus passed / skipped |
+| --- | --- | --- |
+| Ubuntu x86-64 | 101 / 5 | 104 / 2 |
+| Windows x86-64, MSYS2 UCRT64 | 96 / 10 | Native build driver remains POSIX-only |
+| macOS 15 arm64, Xcode 16.4 | 100 / 6 | 103 / 3 |
+
+Skips are explicit platform/opt-in cases: live GUI, macOS-only GUI builds,
+Linux `/dev/full`, POSIX `/dev/stdin` and EINTR injection, and native-driver
+checks in the reference suite. Both POSIX native bootstraps reached a stage
+2/3 fixed point without Python on their tool PATH. CI uploads reference logs,
+bootstrap provenance and native corpus reports as `glyph-results-*` artifacts.
+
+Eight additional failure-path tests cover interrupted waits/transfers, short
+socket transfers, peer resets, descriptor cleanup under a low limit,
+truncated HTTP bodies, oversized headers/body limits, SQLite lock contention,
+rollback on close, failed prepares/finalizes, and file read/write/close errors.
+TCP now keeps one monotonic deadline across interrupted waits and partial
+transfers, using nonblocking sockets internally behind its blocking API.
+
+Windows execution also exposed and fixed two portability problems: automatic
+CRLF checkout conversion broke vendored-file hashes, and narrow CRT arguments
+lost Unicode. Checkout attributes now preserve vendor bytes. Both emitters
+initialize UTF-8 arguments from the wide Windows command line; text/binary file
+access and file identity/existence use wide APIs. A regression round-trips
+Unicode and quoted arguments, Unicode filenames and hard-link identities.
+
+CI selects macOS 15/Xcode 16.4 because the pinned Zig 0.14.1 failed to link
+standard C symbols with the macOS 26 SDK selected by `macos-latest`. This is a
+toolchain compatibility limit, not evidence of macOS 26 SDK support. GCC's
+isolated bootstrap PATH now contains assembler/linker tools, while still
+excluding Python and a shell. Windows native compiler orchestration and
+Windows process spawning remain outside this implementation.
+
+The final local Mac runs also passed: reference 106 tests (six skips), native
+106 tests (three skips), 1,708 native checks and 99 native emissions. The final
+bootstrap's compiler/runtime hashes match the working sources. Local logs are
+`build/hardening-reference-final.log` and `build/hardening-native-final.log`;
+provenance and the corpus report are in `build/hardening-selfhost-final/`.
+Downloaded CI evidence is in `build/ci-results/`. All are ignored build outputs.
+
 ## Network, database and serialization services — 2026-10-24
 
 Both compilers now expose blocking TCP client/server sockets, libcurl-backed

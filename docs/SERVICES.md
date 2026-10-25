@@ -23,9 +23,12 @@ uses the existing macOS GUI compiler plus the additional libraries.
 On macOS, Apple's Command Line Tools SDK supplies curl and SQLite headers and
 libraries. On Debian/Ubuntu, install `build-essential`, `libcurl4-openssl-dev`,
 and `libsqlite3-dev`. For nonstandard installations, configure the system
-compiler's `CPATH` and `LIBRARY_PATH`. Windows HTTP/SQLite builds require a
-compatible system compiler and development libraries; their runtime behavior
-has not been verified here. The TCP adapter has Winsock support and links
+compiler's `CPATH` and `LIBRARY_PATH`. Windows HTTP/SQLite builds use MSYS2's
+UCRT64 packages `mingw-w64-ucrt-x86_64-clang`, `mingw-w64-ucrt-x86_64-curl`,
+`mingw-w64-ucrt-x86_64-sqlite3`, and `mingw-w64-ucrt-x86_64-openssl`.
+Put the installation's `ucrt64/bin` first on PATH when using Windows Python;
+it supplies the compiler, headers, import libraries and runtime DLLs.
+The TCP adapter has Winsock support and links
 `ws2_32` on Windows through the Python driver. Native compiler build
 orchestration still requires a POSIX host.
 
@@ -34,6 +37,10 @@ binding cannot execute those tests. On Windows the optional HTTP/SQLite tests
 are skipped unless `GLYPH_TEST_NATIVE_LIBS=1` is set after installing their
 dependencies. TLS tests generate a temporary certificate with `openssl` and
 never modify the system trust store.
+
+CI exercises these dependencies on Windows and Linux and uses macOS 15 with
+Xcode 16.4 for compatibility with the pinned Zig 0.14.1 compiler. See
+[verification results](VERIFICATION.md) for tested revisions and limitations.
 
 ## TCP
 
