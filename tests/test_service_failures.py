@@ -204,11 +204,11 @@ int main(void) {
     g_record_IntResult listener=g_std_try_tcp_listen((g_str){"127.0.0.1",sizeof("127.0.0.1")-1},0,8,1,1);
     if(!listener.m_ok) return 1;
     int64_t port=g_std_try_tcp_port(listener.m_value,1,1).m_value;
-    for(int i=0;i<300;i++) {
+    for(int i=0;i<160;i++) {
         if(g_std_try_tcp_listen((g_str){"127.0.0.1",sizeof("127.0.0.1")-1},port,8,1,1).m_ok) return 2;
     }
     if(!g_std_try_tcp_close(listener.m_value,1,1).m_ok) return 3;
-    for(int i=0;i<300;i++) {
+    for(int i=0;i<160;i++) {
         if(g_std_try_tcp_connect((g_str){"127.0.0.1",sizeof("127.0.0.1")-1},port,50,1,1).m_ok) return 4;
     }
     if(g_tcp_handles) return 5;

@@ -1,0 +1,3 @@
+# Preserve vendored source hashes and source text on every checkout.
+* text=auto eol=lf
+glyph/vendor/bdwgc/** -text

@@ -13,6 +13,30 @@ from test_glyph import BUILD, native, execute
 
 
 class BinaryIOTests(unittest.TestCase):
+    def test_unicode_paths_arguments_and_file_identity(self):
+        exe = native('''main>void
+  print(try_write_bytes(arg(0), [0, 255, 42]).ok)
+  print(try_read_bytes(arg(0)).value[1])
+  print(file_exists(arg(0)))
+  print(same_file(arg(0), arg(1)))
+  print(same_file(arg(0), arg(2)))
+  print(json_quote(arg(3)))
+''', 'binary_unicode_paths')
+        with tempfile.TemporaryDirectory(dir=BUILD) as directory:
+            path = Path(directory) / '文件 🙂.bin'
+            alias = Path(directory) / 'alias ü.bin'
+            other = Path(directory) / 'other.bin'
+            path.touch()
+            os.link(path, alias)
+            other.touch()
+            argument = 'café 🙂 "quoted" \\ trailing\\'
+            result = execute(exe, path, alias, other, argument)
+            self.assertEqual(result.returncode, 0, result.stderr)
+            lines = result.stdout.splitlines()
+            self.assertEqual(lines[:5], ['true', '255', 'true', 'true', 'false'])
+            self.assertEqual(json.loads(lines[5]), argument)
+            self.assertEqual(alias.read_bytes(), bytes([0, 255, 42]))
+
     def test_binary_roundtrip_and_utf8_boundary(self):
         exe = native(r'''main>void
   bytes := try_read_bytes(arg(0))

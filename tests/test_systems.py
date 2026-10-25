@@ -60,7 +60,7 @@ class SystemsTests(unittest.TestCase):
         self.assertEqual(proc.returncode, 0, proc.stderr)
         self.assertIn('hello 🙂\n', proc.stdout)
         self.assertIn('true\ntrue\nfalse\n', proc.stdout)
-        self.assertEqual(target.read_text(), 'hello 🙂\n')
+        self.assertEqual(target.read_text(encoding='utf-8'), 'hello 🙂\n')
         if 'literal' in proc.stdout:
             self.assertIn('literal $(not-a-command); spaced argument', proc.stdout)
 

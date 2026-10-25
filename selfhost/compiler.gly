@@ -1992,7 +1992,7 @@ emit_program c:Compiler, runtime:str>str
     i += 1
   c.state[5] = -1
   emit_line(c, "int main(int argc, char **argv) {")
-  emit_line(c, "g_argc=argc; g_argv=argv; g_gc_init();")
+  emit_line(c, "g_gc_init(); g_args_init(argc,argv);")
   f := function_index(c, "", "main")
   if c.funcs[f].result == "void"
     emit_line(c, "f_main(); return 0;")

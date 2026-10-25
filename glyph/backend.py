@@ -506,7 +506,7 @@ class Emitter:
         self.current = None
         main = next(f for f in functions if f.name == "main" and not f.owner)
         self.write("int main(int argc, char **argv) {")
-        self.write("    g_argc=argc; g_argv=argv; g_gc_init();")
+        self.write("    g_gc_init(); g_args_init(argc,argv);")
         if main.result == "void":
             self.write("    f_main(); return 0;")
         else:
@@ -581,6 +581,8 @@ def compile_c(source, output, optimization="2"):
         command += ["-lsqlite3"]
     if tcp and os.name == "nt":
         command += ["-lws2_32"]
+    if os.name == "nt":
+        command += ["-lshell32"]
     proc = subprocess.run(command, capture_output=True, text=True, env=env)
     if proc.returncode:
         raise Diagnostic("G202", "native backend failed: " + proc.stderr[-4000:], Token("", 1, 1, 1))
