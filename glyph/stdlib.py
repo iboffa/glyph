@@ -1,18 +1,55 @@
 """Small, typed systems library used by ordinary programs and the compiler."""
 RESULT_TYPES = {"IntResult": "i64", "FloatResult": "f64", "StringResult": "str", "BoolResult": "bool",
-                "BytesResult": "[i64]", "StringsResult": "[str]"}
+                "BytesResult": "[i64]", "StringsResult": "[str]", "HttpResult": "[i64]"}
 
 
 def result_records():
     """Fresh record metadata; layouts are supplied by std_runtime.h."""
     from .syntax import Field, Record, Token
     token = Token("", 1, 1, 1)
-    return {name: Record(name, token, [Field(n, t, token) for n, t in
+    records = {name: Record(name, token, [Field(n, t, token) for n, t in
             (("ok", "bool"), ("value", typ), ("code", "str"), ("message", "str"))])
             for name, typ in RESULT_TYPES.items()}
+    records["HttpResult"].fields += [Field("status", "i64", token), Field("headers", "[i64]", token)]
+    return records
 
 
 STD_SIGNATURES = {
+    "try_tcp_connect": (("str", "i64", "i64"), "IntResult"),
+    "try_tcp_listen": (("str", "i64", "i64"), "IntResult"),
+    "try_tcp_accept": (("i64", "i64"), "IntResult"),
+    "try_tcp_port": (("i64",), "IntResult"),
+    "try_tcp_read": (("i64", "i64"), "BytesResult"),
+    "try_tcp_write": (("i64", "[i64]"), "IntResult"),
+    "try_tcp_close": (("i64",), "BoolResult"),
+    "try_http_request": (("str", "str", "[str]", "[i64]", "i64", "i64", "str"), "HttpResult"),
+    "try_db_open": (("str",), "IntResult"),
+    "try_db_close": (("i64",), "BoolResult"),
+    "try_db_exec": (("i64", "str"), "BoolResult"),
+    "try_db_prepare": (("i64", "str"), "IntResult"),
+    "try_db_bind_int": (("i64", "i64", "i64"), "BoolResult"),
+    "try_db_bind_float": (("i64", "i64", "f64"), "BoolResult"),
+    "try_db_bind_text": (("i64", "i64", "str"), "BoolResult"),
+    "try_db_bind_bytes": (("i64", "i64", "[i64]"), "BoolResult"),
+    "try_db_bind_null": (("i64", "i64"), "BoolResult"),
+    "try_db_step": (("i64",), "BoolResult"),
+    "try_db_reset": (("i64",), "BoolResult"),
+    "try_db_finalize": (("i64",), "BoolResult"),
+    "try_db_columns": (("i64",), "IntResult"),
+    "try_db_column_name": (("i64", "i64"), "StringResult"),
+    "try_db_column_type": (("i64", "i64"), "StringResult"),
+    "try_db_column_int": (("i64", "i64"), "IntResult"),
+    "try_db_column_float": (("i64", "i64"), "FloatResult"),
+    "try_db_column_text": (("i64", "i64"), "StringResult"),
+    "try_db_column_bytes": (("i64", "i64"), "BytesResult"),
+    "try_db_changes": (("i64",), "IntResult"),
+    "try_db_last_id": (("i64",), "IntResult"),
+    "try_base64_encode": (("[i64]",), "StringResult"),
+    "try_base64_decode": (("str",), "BytesResult"),
+    "try_csv_parse": (("str",), "StringsResult"),
+    "try_csv_row": (("str",), "StringsResult"),
+    "csv_row": (("[str]",), "str"),
+    "try_csv_write": (("[str]",), "StringResult"),
     "encode_utf8": (("str",), "[i64]"),
     "try_decode_utf8": (("[i64]",), "StringResult"),
     "try_read_bytes": (("str",), "BytesResult"),

@@ -165,7 +165,7 @@ The tradeoffs are collection pauses, conservative retention and allocator overhe
 | `concat`, `slice`, `byte_at`, `chr`, `join`, `str_i64`, `str_f64`, `parse_i64`, `parse_f64`, `valid_f64` | Text operations; signatures, UTF-8 boundaries and allocation rules are specified in [SYSTEMS.md](SYSTEMS.md) |
 | `read_file`, `write_file`, `same_file`, `file_exists`, `arg`, `argc`, `getenv`, `platform`, `process`, `eprint`, `exit` | File/argument/process operations; contracts and platform limits are specified in [SYSTEMS.md](SYSTEMS.md) |
 
-No package manager, import aliases, inheritance, runtime interface objects, exceptions, concurrency, network I/O, mutable string builders, dynamic linking interface, or alternate human presentation layer are implemented.
+No package manager, import aliases, inheritance, runtime interface objects, exceptions, concurrency, mutable string builders, dynamic linking interface, or alternate human presentation layer are implemented.
 
 Recoverable systems-library failures use `IntResult`, `FloatResult`,
 `StringResult` and `BoolResult`, reserved built-in value record types with
@@ -217,6 +217,11 @@ For compatibility with existing programs, user functions named `sum` or `count` 
 | R009 | Invalid text, Unicode, parsing or C-string conversion contract |
 | R010 | File/process failure or unavailable process backend |
 | R011 | Missing map key |
+| R012 | JSON validation, lookup or construction failure (recoverable result) |
+| R013 | TCP operation, timeout or handle failure |
+| R014 | HTTP transport, TLS verification, request contract or response limit failure |
+| R015 | SQLite operation, binding, state, type or handle failure |
+| R016 | Invalid CSV or Base64 serialization |
 
 `glyph fmt` parses and prints a canonical AST representation: two-space indentation, standard operator/comma spacing, normalized numeric/string literals, minimal precedence-preserving parentheses, one blank line between functions, final newline. Single return functions become expression bodies when no intervening comment prevents that. Comments are retained in order as standalone comments; trailing comments move above the corresponding statement. Comments between block boundaries may move with the next statement. Formatting does not require type correctness. `--check` reports differences without writing.
 
@@ -245,4 +250,6 @@ collection type arguments remain unsupported. User generics and function-valued
 collection elements are described in [library abstractions](ABSTRACTIONS.md).
 The full method signatures, examples and cost model are in [Collections](COLLECTIONS.md).
 
-Binary and JSON standard-library calls are specified in [the systems API](SYSTEMS.md#binary-and-streaming-io). `BytesResult` and `StringsResult` extend the ordinary result-record convention with `[int]` and `[str]` payloads. Binary files do not require UTF-8. JSON values remain ordinary strings; invalid JSON or lookup failures return `R011`. Both compilers expose identical signatures.
+Binary and JSON standard-library calls are specified in [the systems API](SYSTEMS.md#binary-and-streaming-io). `BytesResult` and `StringsResult` extend the ordinary result-record convention with `[int]` and `[str]` payloads. Binary files do not require UTF-8. JSON values remain ordinary strings; invalid JSON or lookup failures return `R012`. Both compilers expose identical signatures.
+
+TCP, HTTP/TLS, SQLite, CSV and Base64 builtins are specified in [Services](SERVICES.md). `HttpResult` extends the result-record convention with binary `value` and `headers` arrays and an HTTP `status`. HTTP/SQLite dependencies are linked only when their APIs are referenced. All four new error categories are recoverable results; allocation failures remain fatal.

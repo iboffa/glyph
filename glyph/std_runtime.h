@@ -24,6 +24,15 @@ G_RESULT_TYPE(BoolResult, bool, false)
 G_RESULT_TYPE(BytesResult, g_array, ((g_array){NULL,0}))
 G_RESULT_TYPE(StringsResult, g_array, ((g_array){NULL,0}))
 #undef G_RESULT_TYPE
+/* HTTP transport success includes non-2xx responses; payload and headers are bytes. */
+typedef struct g_record_HttpResult {
+    bool m_ok; g_array m_value; g_str m_code, m_message;
+    int64_t m_status; g_array m_headers;
+} g_record_HttpResult;
+static g_record_HttpResult g_error_HttpResult(const char *message) {
+    return (g_record_HttpResult){false,{NULL,0},{"R014",4},
+        {message,(int64_t)strlen(message)},0,{NULL,0}};
+}
 
 /* Legacy APIs turn the same result into their established fatal diagnostic. */
 static void g_result_require(bool ok, g_str code, g_str message, int l, int c) {
@@ -58,6 +67,26 @@ static char *g_cstr(g_str s, int l, int c) {
     g_array a=g_new_atomic(g_add(s.len,1,l,c),1,l,c);
     memcpy(a.data,s.data,(size_t)s.len);
     return a.data;
+}
+#ifdef _WIN32
+static wchar_t *g_wstr(g_str s, int l, int c) {
+    char *text=g_cstr(s,l,c);
+    int n=MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,text,-1,NULL,0);
+    if(!n) g_fail("R009","text is not valid UTF-8",l,c);
+    wchar_t *wide=g_new_atomic(n,sizeof(wchar_t),l,c).data;
+    if(!MultiByteToWideChar(CP_UTF8,MB_ERR_INVALID_CHARS,text,-1,wide,n))
+        g_fail("R009","cannot convert UTF-8",l,c);
+    return wide;
+}
+#endif
+static FILE *g_fopen(g_str path, const char *mode, int l, int c) {
+#ifdef _WIN32
+    wchar_t wide_mode[4]={0};
+    for(int i=0;mode[i] && i<3;i++) wide_mode[i]=(wchar_t)mode[i];
+    return _wfopen(g_wstr(path,l,c),wide_mode);
+#else
+    return fopen(g_cstr(path,l,c),mode);
+#endif
 }
 static g_str g_std_join(g_array parts, int64_t count, g_str sep, int l, int c) {
     if (count<0 || count>parts.len) g_fail("R003","invalid join count",l,c);
@@ -147,7 +176,7 @@ static bool g_std_valid_f64(g_str s, int l, int c) {
 static g_record_StringResult g_std_try_read_file(g_str path, int l, int c) {
     if (memchr(path.data,0,(size_t)path.len))
         return g_error_StringResult("R009","embedded NUL is not allowed here");
-    FILE *f=fopen(g_cstr(path,l,c),"rb");
+    FILE *f=g_fopen(path,"rb",l,c);
     if(!f) return g_error_StringResult("R010","cannot open input file");
     if(fseek(f,0,SEEK_END)) { fclose(f); return g_error_StringResult("R010","cannot seek input file"); }
     long n=ftell(f);
@@ -170,7 +199,7 @@ static g_str g_std_read_file(g_str path, int l, int c) {
 static g_record_BoolResult g_std_try_write_file(g_str path, g_str text, int l, int c) {
     if (memchr(path.data,0,(size_t)path.len))
         return g_error_BoolResult("R009","embedded NUL is not allowed here");
-    FILE *f=fopen(g_cstr(path,l,c),"wb");
+    FILE *f=g_fopen(path,"wb",l,c);
     if(!f) return g_error_BoolResult("R010","cannot open output file");
     size_t wrote=fwrite(text.data,1,(size_t)text.len,f);
     int close_error=fclose(f);
@@ -184,13 +213,31 @@ static void g_std_write_file(g_str path, g_str text, int l, int c) {
 }
 static bool g_std_same_file(g_str a, g_str b, int l, int c) {
     if(g_eq(a,b)) return true;
+#ifdef _WIN32
+    DWORD share=FILE_SHARE_READ|FILE_SHARE_WRITE|FILE_SHARE_DELETE;
+    HANDLE x=CreateFileW(g_wstr(a,l,c),0,share,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,NULL);
+    if(x==INVALID_HANDLE_VALUE) return false;
+    HANDLE y=CreateFileW(g_wstr(b,l,c),0,share,NULL,OPEN_EXISTING,FILE_FLAG_BACKUP_SEMANTICS,NULL);
+    BY_HANDLE_FILE_INFORMATION xi,yi;
+    bool same=y!=INVALID_HANDLE_VALUE && GetFileInformationByHandle(x,&xi) && GetFileInformationByHandle(y,&yi) &&
+        xi.dwVolumeSerialNumber==yi.dwVolumeSerialNumber && xi.nFileIndexHigh==yi.nFileIndexHigh && xi.nFileIndexLow==yi.nFileIndexLow;
+    CloseHandle(x);
+    if(y!=INVALID_HANDLE_VALUE) CloseHandle(y);
+    return same;
+#else
     struct stat x,y;
     return !stat(g_cstr(a,l,c),&x) && !stat(g_cstr(b,l,c),&y) &&
         x.st_dev==y.st_dev && x.st_ino==y.st_ino;
+#endif
 }
 static bool g_std_file_exists(g_str path, int l, int c) {
+#ifdef _WIN32
+    struct _stat64 info;
+    return !_wstat64(g_wstr(path,l,c),&info) && (info.st_mode&_S_IFMT)==_S_IFREG;
+#else
     struct stat info;
     return !stat(g_cstr(path,l,c), &info) && S_ISREG(info.st_mode);
+#endif
 }
 static g_str g_std_arg(int64_t i, int l, int c) {
     if(i<0 || i>=g_argc-1) g_fail("R005","missing string argument",l,c);

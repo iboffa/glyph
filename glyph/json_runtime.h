@@ -164,12 +164,12 @@ static g_record_StringResult g_json_success(g_str value) {
 static g_record_StringResult g_std_try_json_parse(g_str source, int l, int c) {
     const char *error;
     g_json_node *root=g_json_parse(source,&error,l,c);
-    return root ? g_json_success(root->raw) : g_error_StringResult("R011",error);
+    return root ? g_json_success(root->raw) : g_error_StringResult("R012",error);
 }
 static g_record_StringResult g_std_try_json_kind(g_str source, int l, int c) {
     const char *error;
     g_json_node *root=g_json_parse(source,&error,l,c);
-    if(!root) return g_error_StringResult("R011",error);
+    if(!root) return g_error_StringResult("R012",error);
     const char *names[]={"null","bool","number","string","array","object"};
     const char *name=names[root->kind];
     return g_json_success((g_str){name,(int64_t)strlen(name)});
@@ -177,25 +177,25 @@ static g_record_StringResult g_std_try_json_kind(g_str source, int l, int c) {
 static g_record_StringResult g_std_try_json_string(g_str source, int l, int c) {
     const char *error;
     g_json_node *root=g_json_parse(source,&error,l,c);
-    if(!root) return g_error_StringResult("R011",error);
-    if(root->kind!=G_JSON_STRING) return g_error_StringResult("R011","expected JSON string");
+    if(!root) return g_error_StringResult("R012",error);
+    if(root->kind!=G_JSON_STRING) return g_error_StringResult("R012","expected JSON string");
     return g_json_success(root->text);
 }
 static g_record_StringResult g_std_try_json_get(g_str source, g_str key, int l, int c) {
     const char *error;
     g_json_node *root=g_json_parse(source,&error,l,c);
-    if(!root) return g_error_StringResult("R011",error);
-    if(root->kind!=G_JSON_OBJECT) return g_error_StringResult("R011","expected JSON object");
+    if(!root) return g_error_StringResult("R012",error);
+    if(root->kind!=G_JSON_OBJECT) return g_error_StringResult("R012","expected JSON object");
     g_json_node *found=NULL;
     for(g_json_node *n=root->child;n;n=n->next) if(g_eq(n->key,key)) found=n;
-    return found ? g_json_success(found->raw) : g_error_StringResult("R011","JSON key not found");
+    return found ? g_json_success(found->raw) : g_error_StringResult("R012","JSON key not found");
 }
 static g_record_StringResult g_std_try_json_at(g_str source, int64_t index, int l, int c) {
     const char *error;
     g_json_node *root=g_json_parse(source,&error,l,c);
-    if(!root) return g_error_StringResult("R011",error);
-    if(root->kind!=G_JSON_ARRAY) return g_error_StringResult("R011","expected JSON array");
-    if(index<0 || index>=root->count) return g_error_StringResult("R011","JSON index out of bounds");
+    if(!root) return g_error_StringResult("R012",error);
+    if(root->kind!=G_JSON_ARRAY) return g_error_StringResult("R012","expected JSON array");
+    if(index<0 || index>=root->count) return g_error_StringResult("R012","JSON index out of bounds");
     g_json_node *n=root->child;
     while(index--) n=n->next;
     return g_json_success(n->raw);
@@ -203,15 +203,15 @@ static g_record_StringResult g_std_try_json_at(g_str source, int64_t index, int 
 static g_record_IntResult g_std_try_json_len(g_str source, int l, int c) {
     const char *error;
     g_json_node *root=g_json_parse(source,&error,l,c);
-    if(!root) return g_error_IntResult("R011",error);
-    if(root->kind!=G_JSON_ARRAY && root->kind!=G_JSON_OBJECT) return g_error_IntResult("R011","expected JSON array or object");
+    if(!root) return g_error_IntResult("R012",error);
+    if(root->kind!=G_JSON_ARRAY && root->kind!=G_JSON_OBJECT) return g_error_IntResult("R012","expected JSON array or object");
     return (g_record_IntResult){true,root->count,{"",0},{"",0}};
 }
 static g_record_StringsResult g_std_try_json_keys(g_str source, int l, int c) {
     const char *error;
     g_json_node *root=g_json_parse(source,&error,l,c);
-    if(!root) return g_error_StringsResult("R011",error);
-    if(root->kind!=G_JSON_OBJECT) return g_error_StringsResult("R011","expected JSON object");
+    if(!root) return g_error_StringsResult("R012",error);
+    if(root->kind!=G_JSON_OBJECT) return g_error_StringsResult("R012","expected JSON object");
     g_array keys=g_new(root->count,sizeof(g_str),l,c);
     int64_t i=0;
     for(g_json_node *n=root->child;n;n=n->next) ((g_str*)keys.data)[i++]=n->key;
@@ -235,7 +235,7 @@ static g_str g_std_json_quote(g_str text, int l, int c) {
     return (g_str){out,n};
 }
 static g_record_StringResult g_json_build(g_array keys, g_array values, bool object, int l, int c) {
-    if(object && keys.len!=values.len) return g_error_StringResult("R011","JSON keys and values have different lengths");
+    if(object && keys.len!=values.len) return g_error_StringResult("R012","JSON keys and values have different lengths");
     g_array parts=g_new(g_add(g_mul(values.len,4,l,c),2,l,c),sizeof(g_str),l,c);
     g_str *p=parts.data;
     int64_t count=0;

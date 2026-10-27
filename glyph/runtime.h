@@ -15,7 +15,11 @@
 #include <math.h>
 #include <time.h>
 #ifdef _WIN32
+#ifndef WIN32_LEAN_AND_MEAN
+#define WIN32_LEAN_AND_MEAN
+#endif
 #include <windows.h>
+#include <shellapi.h>
 #endif
 
 typedef struct { const char *data; int64_t len; } g_str;
@@ -98,6 +102,26 @@ static g_array g_new(int64_t n, size_t size, int l, int c) {
 }
 static g_array g_new_atomic(int64_t n, size_t size, int l, int c) {
     return g_allocate(n,size,l,c,true);
+}
+static void g_args_init(int argc, char **argv) {
+    g_argc=argc; g_argv=argv;
+#ifdef _WIN32
+    /* The CRT's narrow argv uses the active Windows code page, not UTF-8. */
+    int count=0;
+    wchar_t **wide=CommandLineToArgvW(GetCommandLineW(),&count);
+    if(!wide) g_fail("R009","cannot read command line",1,1);
+    char **utf8=g_new((int64_t)count+1,sizeof(char*),1,1).data;
+    for(int i=0;i<count;i++) {
+        int n=WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,wide[i],-1,NULL,0,NULL,NULL);
+        if(!n) { LocalFree(wide); g_fail("R009","argument is not valid Unicode",1,1); }
+        utf8[i]=g_new_atomic(n,1,1,1).data;
+        if(!WideCharToMultiByte(CP_UTF8,WC_ERR_INVALID_CHARS,wide[i],-1,utf8[i],n,NULL,NULL)) {
+            LocalFree(wide); g_fail("R009","cannot encode argument",1,1);
+        }
+    }
+    LocalFree(wide);
+    g_argc=count; g_argv=utf8;
+#endif
 }
 static int64_t g_index(g_array a, int64_t i, int l, int c) {
     if (i<0 || i>=a.len) g_fail("R003","array index out of bounds",l,c);

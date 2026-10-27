@@ -44,7 +44,7 @@ static g_record_IntResult g_std_try_open(g_str path, g_str mode, int l, int c) {
     /* Allocate before acquiring a file, including before truncation. */
     g_file_entry *e=g_new(1,sizeof(*e),l,c).data;
     char m[3]={mode.data[0],'b',0};
-    FILE *f=fopen(g_cstr(path,l,c),m);
+    FILE *f=g_fopen(path,m,l,c);
     if(!f) return g_error_IntResult("R010","cannot open file");
     e->id=++g_file_serial; e->file=f; e->readable=m[0]=='r';
     e->next=g_files; g_files=e;

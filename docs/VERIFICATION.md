@@ -1,5 +1,145 @@
 # Verification status
 
+## Service hardening and platform execution — 2026-10-25
+
+[The complete CI matrix passed](https://github.com/iboffa/glyph/actions/runs/40192542698)
+on revision `6b48265541718af441c30079fd9118051b0487b2`, including the benchmark
+commands. Each reference suite contains 106 tests. Optional curl/SQLite tests
+are enabled on all three platforms; they are not skipped on Windows.
+
+| Host | Reference tests passed / skipped | Native corpus passed / skipped |
+| --- | --- | --- |
+| Ubuntu x86-64 | 101 / 5 | 104 / 2 |
+| Windows x86-64, MSYS2 UCRT64 | 96 / 10 | Native build driver remains POSIX-only |
+| macOS 15 arm64, Xcode 16.4 | 100 / 6 | 103 / 3 |
+
+Skips are explicit platform/opt-in cases: live GUI, macOS-only GUI builds,
+Linux `/dev/full`, POSIX `/dev/stdin` and EINTR injection, and native-driver
+checks in the reference suite. Both POSIX native bootstraps reached a stage
+2/3 fixed point without Python on their tool PATH. CI uploads reference logs,
+bootstrap provenance and native corpus reports as `glyph-results-*` artifacts.
+
+Eight additional failure-path tests cover interrupted waits/transfers, short
+socket transfers, peer resets, descriptor cleanup under a low limit,
+truncated HTTP bodies, oversized headers/body limits, SQLite lock contention,
+rollback on close, failed prepares/finalizes, and file read/write/close errors.
+TCP now keeps one monotonic deadline across interrupted waits and partial
+transfers, using nonblocking sockets internally behind its blocking API.
+
+Windows execution also exposed and fixed two portability problems: automatic
+CRLF checkout conversion broke vendored-file hashes, and narrow CRT arguments
+lost Unicode. Checkout attributes now preserve vendor bytes. Both emitters
+initialize UTF-8 arguments from the wide Windows command line; text/binary file
+access and file identity/existence use wide APIs. A regression round-trips
+Unicode and quoted arguments, Unicode filenames and hard-link identities.
+
+CI selects macOS 15/Xcode 16.4 because the pinned Zig 0.14.1 failed to link
+standard C symbols with the macOS 26 SDK selected by `macos-latest`. This is a
+toolchain compatibility limit, not evidence of macOS 26 SDK support. GCC's
+isolated bootstrap PATH now contains assembler/linker tools, while still
+excluding Python and a shell. Windows native compiler orchestration and
+Windows process spawning remain outside this implementation.
+
+The final local Mac runs also passed: reference 106 tests (six skips), native
+106 tests (three skips), 1,708 native checks and 99 native emissions. The final
+bootstrap's compiler/runtime hashes match the working sources. Local logs are
+`build/hardening-reference-final.log` and `build/hardening-native-final.log`;
+provenance and the corpus report are in `build/hardening-selfhost-final/`.
+Downloaded CI evidence is in `build/ci-results/`. All are ignored build outputs.
+
+## Network, database and serialization services — 2026-10-24
+
+Both compilers now expose blocking TCP client/server sockets, libcurl-backed
+HTTP with peer/hostname TLS verification, SQLite connections and prepared
+statements, CSV, and strict Base64. HTTP/SQLite are optional system link
+dependencies; ordinary programs do not include their adapters.
+
+Verified on the development Mac with the Command Line Tools SDK:
+
+* Full reference suite: 97 tests, 91 passed, six expected skips (optional live
+  GUI, three native-driver tests, two Linux `/dev/full` cases).
+* Full native corpus: 97 tests, 94 passed, three expected skips (optional live
+  GUI and two `/dev/full` cases), with 1,698 native checks and 92 emissions.
+* Focused tests exercise loopback TCP and timeouts, binary HTTP, non-2xx status
+  and redirects, response limits, trusted HTTPS and rejection of both an
+  untrusted certificate and a hostname mismatch. Tests generate temporary
+  certificates and do not modify system trust. SQLite tests cover copied
+  parameter bindings, embedded NUL, blobs, SQL NULL, explicit transactions,
+  error/reset behavior, UTF-8 rejection and resource lifetimes under forced GC.
+  CSV and Base64 results are compared with Python's standard libraries.
+* After correcting optional dependency detection for user function prefixes,
+  the final three-stage bootstrap reached a fixed point without Python on PATH
+  in native generations. A direct regression confirmed `try_db_user` does not
+  pull in SQLite in either emitter. Both build drivers also linked and ran a
+  program combining TCP, HTTP and SQLite.
+* Database and serialization examples ran through both compilers; the native
+  driver also built the HTTP example. Example formatting and diff checks passed.
+* The TCP fixture compiled to Linux x86-64 and Windows x86-64 object files.
+  This verifies compilation only, not linking or execution on those platforms.
+
+The sandbox initially denied loopback socket binding; network execution was
+then verified outside that sandbox. The service tests make no external HTTP
+requests. The build's optional library versions are host dependencies, not
+vendored or pinned versions.
+
+Local logs are `build/services-reference.log`, `build/services-native.log`,
+`build/services-focused.log`, and `build/services-final-bootstrap.log`.
+`build/services-selfhost/corpus/report.json` holds the full native-corpus
+result; `build/services-final-selfhost/verification.json` holds the final
+bootstrap source/runtime hashes. Build artifacts are ignored by Git.
+
+Reproduce in an environment permitting loopback servers:
+
+```sh
+DEVELOPER_DIR=/Library/Developer/CommandLineTools .venv/bin/python -m unittest discover -s tests -v
+DEVELOPER_DIR=/Library/Developer/CommandLineTools .venv/bin/python selfhost/bootstrap.py --verify --output-dir build/services-final-selfhost
+```
+
+See [Services](SERVICES.md) for dependency setup, blocking/timeout semantics,
+handle cleanup, and the limits of this initial API. Linux/Windows service
+execution and network performance remain unverified by this run.
+
+## Binary/streaming I/O and JSON — 2026-10-24
+
+The first library slice supplies byte-array file access, blocking chunked I/O
+with explicit close and checked handles, UTF-8 conversion, and JSON validation,
+lookup and construction. Both compilers expose the same API. JSON failures use
+`R012`, separately from the existing `R011` missing-map-key diagnostic.
+
+Verified on the development Mac using
+`DEVELOPER_DIR=/Library/Developer/CommandLineTools`:
+
+* Reference suite: 89 tests, 83 passed, six explicit skips (optional live GUI,
+  three native-driver tests, and two Linux `/dev/full` cases).
+* Three-stage bootstrap: identical stage 2/3 generated C; native generations
+  ran without Python on PATH. Native corpus: 89 tests, 86 passed, three skips
+  (optional live GUI and two `/dev/full` cases), with 1,684 native checks and
+  82 native emissions.
+* Isolated focused native-emitter run: nine binary/JSON tests, eight passed,
+  `/dev/full` skipped. Coverage includes all byte values, chunk boundaries,
+  nonseekable pipe input, stale handles, Unicode escapes, malformed JSON,
+  the 128-container nesting bound, exact numeric lexemes, 100 seeded JSON
+  round-trips, and forced collection preserving JSON storage and open handles.
+* `examples/binary_json.gly` ran through both compilers and round-tripped its
+  output against Python's JSON decoder. Formatting and diff whitespace checks
+  passed.
+
+Local generated logs/reports are in `build/io-json-final-tests.log`,
+`build/io-json-final-bootstrap.log`,
+`build/io-json-final-selfhost/verification.json`, and
+`build/io-json-native-focused.log`; these build artifacts are ignored by Git.
+Reproduce with:
+
+```sh
+DEVELOPER_DIR=/Library/Developer/CommandLineTools .venv/bin/python -m unittest discover -s tests -v
+DEVELOPER_DIR=/Library/Developer/CommandLineTools .venv/bin/python selfhost/bootstrap.py --verify --output-dir build/io-json-final-selfhost
+```
+
+Linux and Windows execution of these new APIs was not verified in this run.
+Bytes currently occupy `[int]` storage; JSON operations reparse text rather
+than retaining a dynamic tree. These are documented first-slice limitations,
+not performance claims.
+
 ## Library abstractions — 2026-10-22
 
 Both compilers implement explicit generic functions and records, generic tagged

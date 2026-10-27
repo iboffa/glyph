@@ -38,6 +38,7 @@ class Emitter:
         self.functions = set()
         self.current = None
         self.uses_gui = False
+        self.services = set()
         self.records = {}
         self.closures = []
         self.closure_ids = {}
@@ -274,6 +275,9 @@ class Emitter:
             self.uses_gui = True
             value = f"g_{name}({', '.join([*args, loc])})"
         elif name in STD_SIGNATURES:
+            for service in ("tcp", "http", "db"):
+                if name.startswith("try_" + service + "_"):
+                    self.services.add(service)
             value = f"g_std_{name}({', '.join([*args, loc])})"
         elif name == "len":
             value = f"{a}.len"
@@ -415,6 +419,7 @@ class Emitter:
         self.write(Path(__file__).with_name("std_runtime.h").read_text())
         self.write(Path(__file__).with_name("io_runtime.h").read_text())
         self.write(Path(__file__).with_name("json_runtime.h").read_text())
+        self.write(Path(__file__).with_name("serialization_runtime.h").read_text())
         self.write(Path(__file__).with_name("collections_runtime.h").read_text())
         self.write("typedef struct { void (*code)(void); void *env; } g_closure;")
         for name in records:
@@ -501,12 +506,19 @@ class Emitter:
         self.current = None
         main = next(f for f in functions if f.name == "main" and not f.owner)
         self.write("int main(int argc, char **argv) {")
-        self.write("    g_argc=argc; g_argv=argv; g_gc_init();")
+        self.write("    g_gc_init(); g_args_init(argc,argv);")
         if main.result == "void":
             self.write("    f_main(); return 0;")
         else:
             self.write("    return (int)((uint64_t)f_main() & 255);")
         self.write("}")
+        support = ""
+        for service in sorted(self.services):
+            support += f"#define GLYPH_{service.upper()} 1\n"
+            support += Path(__file__).with_name(service + "_runtime.h").read_text() + "\n"
+        if support:
+            # After the core/text/binary/JSON helpers, before generated declarations.
+            self.lines.insert(5, support)
         if self.uses_gui:
             # Keep generated C inspectable and independent of include paths.
             support = "#define GLYPH_GUI 1\n"
@@ -535,6 +547,9 @@ def compile_c(source, output, optimization="2"):
     env.update(ZIG_GLOBAL_CACHE_DIR=str(cache), ZIG_LOCAL_CACHE_DIR=str(cache), TEMP=str(cache), TMP=str(cache))
     source_text = Path(source).read_text(encoding="utf-8")
     gui = "#define GLYPH_GUI 1\n" in source_text
+    http = "#define GLYPH_HTTP 1\n" in source_text
+    db = "#define GLYPH_DB 1\n" in source_text
+    tcp = "#define GLYPH_TCP 1\n" in source_text
     if gui:
         if sys.platform != "darwin":
             raise Diagnostic("G203", "the native GUI backend currently requires macOS; console programs remain portable", Token("", 1, 1, 1))
@@ -543,6 +558,11 @@ def compile_c(source, output, optimization="2"):
         if not shutil.which("xcrun"):
             raise Diagnostic("G201", "install Apple's Command Line Tools for GUI builds", Token("", 1, 1, 1))
         cc = ["xcrun", "clang"]
+    elif http or db:
+        system_cc = shutil.which("clang") or shutil.which("cc")
+        if not system_cc:
+            raise Diagnostic("G201", "HTTP/SQLite builds require a system C compiler and libcurl/SQLite development libraries", Token("", 1, 1, 1))
+        cc = [system_cc]
     else:
         cc = compiler()
     command = cc + ["-x", "c", str(Path(source).resolve()), "-std=c11", f"-O{optimization}", "-fno-fast-math", "-ffp-contract=off", "-o", str(output)]
@@ -555,6 +575,14 @@ def compile_c(source, output, optimization="2"):
                     "-fobjc-arc", "-D_DARWIN_C_SOURCE", "-framework", "AppKit"]
     if os.name != "nt":
         command += ["-D_POSIX_C_SOURCE=200809L", "-lm"]
+    if http:
+        command += ["-lcurl"]
+    if db:
+        command += ["-lsqlite3"]
+    if tcp and os.name == "nt":
+        command += ["-lws2_32"]
+    if os.name == "nt":
+        command += ["-lshell32"]
     proc = subprocess.run(command, capture_output=True, text=True, env=env)
     if proc.returncode:
         raise Diagnostic("G202", "native backend failed: " + proc.stderr[-4000:], Token("", 1, 1, 1))
