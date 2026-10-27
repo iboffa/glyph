@@ -391,3 +391,44 @@ python -m benchmarks.report
 ```
 
 Do not set `GLYPH_SKIP_EXECUTION` or pass `--skip-native-execution` on the approved runner. Preserve its report and raw JSON separately from the initial host's partial observations. If using GitHub Actions, the included workflow performs these steps and uploads results; it has not been claimed as run.
+
+
+## Structured concurrency — 2026-10-27, macOS arm64
+
+Both frontends pass the complete final corpus: **123 tests, two skips**, with
+no failures or errors. The skips require Linux `/dev/full`. GUI integration was
+enabled. The native run performs 1,754 native checks and 115 C emissions; see the
+raw corpus report for authoritative counters. The three-stage generated-C fixed
+point and native compilation with Python absent from PATH also pass.
+
+The new tests exercise O0/O2/O3, 1/2/4 workers, numeric maps, scoped tasks and
+bounded channels; they cover transitive safety checks, imports, generic functions,
+methods, handle escapes, nested scopes, return cleanup, checked worker traps,
+GC stress, FIFO/multiple producers, close wakeups and resource failures.
+Condition-variable instrumentation proves simultaneous callback execution and
+waiter states without timing sleeps. Injected pthread failures test task failure
+and partial CPU-pool initialization/shutdown. A fatal-worker test verifies
+that process termination bypasses atexit cleanup for main-owned resources.
+Main-thread GUI/database operations
+coexist with concurrency and retain their existing worker restrictions.
+
+UBSan passes the collector and concurrency harness. ASan and TSan fail on empty
+C control programs as well as the runtime on this host, so neither supplies
+race/memory-safety evidence. The original sandbox-only service-test failures
+were local-bind permission errors; the successful suites ran with local socket
+access. No failure or skip was silently converted into a pass.
+
+Linux x86-64 glibc cross-compilation succeeds but has not been executed here.
+Windows concurrency produces G203; musl builds produce an explicit unsupported
+collector-configuration diagnostic. Ordinary sequential platform paths remain.
+A built wheel contains the concurrency runtime and threaded collector sources;
+the native compiler built/ran the channel example from its extracted runtime
+without Python on PATH.
+
+Read the [delivery and benchmark report](../benchmarks/results/macos-arm64-2026-10-27-concurrency/REPORT.md),
+[raw reference log](../benchmarks/results/macos-arm64-2026-10-27-concurrency/reference-tests.log),
+[native fixed-point evidence](../selfhost/results/concurrency-macos-arm64-2026-10-27/verification.json),
+and [native corpus](../selfhost/results/concurrency-macos-arm64-2026-10-27/corpus.json).
+The compute-heavy case speeds up 3.42× at four workers; memory, tiny and
+allocation-heavy cases expose limits. Source-token counts are authored-fixture
+observations, not total agent-cost measurements.

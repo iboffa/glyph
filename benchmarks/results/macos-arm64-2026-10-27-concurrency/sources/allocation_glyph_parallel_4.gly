@@ -1,0 +1,25 @@
+transform x:int>int = len(concat("value:", str_i64(x)))
+sequential a:[int]>[int]
+  out := fill(len(a), 0)
+  i := 0
+  while i < len(a)
+    out[i] = transform(a[i])
+    i += 1
+  ret out
+main>void
+  n := argi(0)
+  repeats := argi(1)
+  input := range(n)
+  first := clock()
+  output := par_map(input, transform)
+  first = clock() - first
+  start := clock()
+  r := 0
+  while r < repeats
+    input[0] = r
+    output = par_map(input, transform)
+    r += 1
+  elapsed := clock() - start
+  print(sum(output))
+  print(first)
+  print(elapsed)

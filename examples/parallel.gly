@@ -1,0 +1,7 @@
+square x:int>int = x * x
+
+main>void
+  a := par_map(range(4099), square)
+  print(a[4098])
+  offset := 2
+  print(par_map([1, 2], fn(x:int)>int = x + offset)[1])

@@ -85,7 +85,7 @@ fail c:Compiler, code:str, message:str, token:int>void
 
 make_compiler path:str, source:str>Compiler
   size := len(source) + 16
-  c := Compiler(path, source, fill(size, make_tok("", 1, 1, path)), fill(size * 2 + 65536, Node("", "", "", 0, [], [], [], [], -1, false, [], [])), fill(size / 4 + 1024, Fn("", 0, [], "", [], "", false, false, false, false, [])), fill(size / 4 + 1024, Rec("", 0, [], 0, [], "type", [])), fill(19, 0), fill(size * 8, ""), [], [], fill(size + 4096, Field("", "", 0, false)), fill(256, Var("", "")))
+  c := Compiler(path, source, fill(size, make_tok("", 1, 1, path)), fill(size * 2 + 65536, Node("", "", "", 0, [], [], [], [], -1, false, [], [])), fill(size / 4 + 1024, Fn("", 0, [], "", [], "", false, false, false, false, [])), fill(size / 4 + 1024, Rec("", 0, [], 0, [], "type", [])), fill(20, 0), fill(size * 8, ""), [], [], fill(size + 4096, Field("", "", 0, false)), fill(256, Var("", "")))
   names := ["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult", "HttpResult"]
   values := ["i64", "f64", "str", "bool", "[i64]", "[str]", "[i64]"]
   i := 0
@@ -113,7 +113,7 @@ ident s:str>bool
     i += 1
   ret true
 
-reserved s:str>bool = has(["if", "else", "while", "for", "ret", "unsafe", "true", "false", "and", "or", "not", "fold", "import", "from", "EOF", "NEWLINE", "INDENT", "DEDENT"], s)
+reserved s:str>bool = has(["if", "else", "while", "for", "ret", "unsafe", "scope", "true", "false", "and", "or", "not", "fold", "import", "from", "EOF", "NEWLINE", "INDENT", "DEDENT"], s)
 
 column s:str, start:int, end:int>int
   col := 1
@@ -576,6 +576,10 @@ parse_stmt c:Compiler>int
     node := new_node(c, "for", name, t, [value])
     c.nodes[node].body = parse_block(c)
     ret node
+  if accept(c, "scope")
+    node := new_node(c, "scope", "", t, [])
+    c.nodes[node].body = parse_block(c)
+    ret node
   if accept(c, "unsafe")
     node := new_node(c, "unsafe", "", t, [])
     c.nodes[node].body = parse_block(c)
@@ -878,7 +882,7 @@ fixed_signature name:str>[str]
 
 builtin_result name:str>bool = has(["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult", "HttpResult"], name)
 
-builtin name:str>bool = builtin_result(name) or len(fixed_signature(name)) > 0 or has(["list", "map", "set", "print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"], name)
+builtin name:str>bool = builtin_result(name) or len(fixed_signature(name)) > 0 or has(["par_map", "spawn", "wait", "task_status", "task", "channel", "send", "receive", "close", "list", "map", "set", "print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"], name)
 
 scalar typ:str>bool = has(["i64", "f64", "bool", "str"], typ)
 
@@ -938,6 +942,14 @@ field_index c:Compiler, owner:str, name:str>int
 
 validate_type c:Compiler, typ:str, token:int>str
   t := canon(typ)
+  if prefix(t, "channel[")
+    item := slice(t, 8, len(t) - 1)
+    validate_type(c, item, token)
+    if not share_kind(c, item, false, [])
+      fail(c, "G116", "channel payload must be recursively share-safe", token)
+    ret t
+  if prefix(t, "task[")
+    fail(c, "G117", "task handles are inferred local bindings only", token)
   fn := fn_types(t)
   if len(fn) > 0
     i := 0
@@ -1047,6 +1059,59 @@ valid_integer text:str>bool
 check_call c:Compiler, node:int, env:[Var], unsafe_mode:bool, expected:str>str
   n := c.nodes[node]
   name := n.value
+  if name == "channel"
+    if len(n.args) != 1
+      fail(c, "G107", "channel expects capacity", n.token)
+    same(c, check_expr(c, n.args[0], env, unsafe_mode, ""), "i64", n.token)
+    if not prefix(expected, "channel[")
+      fail(c, "G102", "channel requires channel[T] context", n.token)
+    ret validate_type(c, expected, n.token)
+  if has(["send", "receive", "close"], name)
+    arity := 2
+    if name == "close"
+      arity = 1
+    if len(n.args) != arity
+      fail(c, "G107", "wrong channel operation arity", n.token)
+    channel_type := check_expr(c, n.args[0], env, unsafe_mode, "")
+    if not prefix(channel_type, "channel[")
+      fail(c, "G102", "expected channel", n.token)
+    item := slice(channel_type, 8, len(channel_type) - 1)
+    if name == "send"
+      same(c, check_expr(c, n.args[1], env, unsafe_mode, item), item, c.nodes[n.args[1]].token)
+    if name == "receive"
+      same(c, check_expr(c, n.args[1], env, unsafe_mode, ""), cat(["fn(", item, ")>void"]), c.nodes[n.args[1]].token)
+    if name == "close"
+      ret "void"
+    ret "bool"
+  if name == "spawn"
+    if len(n.args) != 1
+      fail(c, "G107", "spawn expects one callback", n.token)
+    sig := fn_types(check_expr(c, n.args[0], env, unsafe_mode, ""))
+    if len(sig) != 1
+      fail(c, "G116", "spawn requires zero-argument callback", n.token)
+    if not share_safe(c, sig[0])
+      fail(c, "G116", "spawn requires share-safe non-void result", n.token)
+    ret cat(["task[", sig[0], "]"])
+  if name == "wait" or name == "task_status"
+    if len(n.args) != 1
+      fail(c, "G107", "expected one task handle", n.token)
+    typ := check_expr(c, n.args[0], env, unsafe_mode, "")
+    if not prefix(typ, "task[")
+      fail(c, "G117", "expected task handle", n.token)
+    if name == "task_status"
+      ret "IntResult"
+    ret slice(typ, 5, len(typ) - 1)
+  if name == "par_map"
+    if len(n.args) != 2
+      fail(c, "G107", "par_map expects array and callback", n.token)
+    source := check_expr(c, n.args[0], env, unsafe_mode, "")
+    callback := check_expr(c, n.args[1], env, unsafe_mode, "")
+    sig := fn_types(callback)
+    if not has(["[i64]", "[f64]"], source) or len(sig) != 2
+      fail(c, "G102", "par_map requires numeric array and callback", n.token)
+    if sig[0] != slice(source, 1, len(source) - 1) or not numeric(sig[1])
+      fail(c, "G102", "par_map callback types must match", n.token)
+    ret cat(["[", sig[1], "]"])
   if has(["list", "map", "set"], name)
     arity := 1
     if name == "map"
@@ -1407,6 +1472,8 @@ check_block c:Compiler, body:[int], outer:[Var], result:str, unsafe_mode:bool>bo
               else
                 if n.kind == "match"
                   returned = check_match(c, index, env, result, unsafe_mode)
+                if n.kind == "scope"
+                  returned = check_block(c, n.body, env, result, unsafe_mode)
                 if n.kind == "unsafe"
                   returned = check_block(c, n.body, env, result, true)
   ret returned
@@ -1494,6 +1561,10 @@ check_source c:Compiler>void
   c.state[5] = -1
 
 ctype typ:str>str
+  if prefix(typ, "channel[")
+    ret "g_channel*"
+  if prefix(typ, "task[")
+    ret "g_task*"
   if prefix(typ, "fn(")
     ret "g_closure"
   if coll_kind(typ) != ""
@@ -1596,6 +1667,28 @@ emit_call c:Compiler, node:int>str
   a := ""
   if len(args) > 0
     a = args[0]
+  if name == "channel"
+    ret temp(c, typ, cat(["g_channel_new(", a, ", sizeof(", ctype(slice(typ, 8, len(typ) - 1)), "), ", loc, ")"]))
+  if name == "send"
+    ret temp(c, typ, cat(["g_channel_send(", a, ", &", args[1], ")"]))
+  if name == "close"
+    ret temp(c, typ, cat(["g_channel_close(", a, ")"]))
+  if name == "receive"
+    channel_type := c.nodes[n.args[0]].typ
+    ct := ctype(slice(channel_type, 8, len(channel_type) - 1))
+    item := fresh(c)
+    emit_line(c, cat([ct, " ", item, " = {0};"]))
+    ok := temp(c, "bool", cat(["g_channel_receive(", a, ", &", item, ")"]))
+    emit_line(c, cat(["if (", ok, ") ((void (*)(void *, ", ct, "))", args[1], ".code)(", args[1], ".env, ", item, ");"]))
+    ret ok
+  if name == "spawn"
+    ret temp(c, typ, cat(["g_spawn(g_scope_current, g_spawn_", str_i64(node), ", ", a, ".env, sizeof(", ctype(slice(typ, 5, len(typ) - 1)), "), ", loc, ")"]))
+  if name == "wait"
+    ret temp(c, typ, cat(["*(", ctype(typ), "*)g_task_wait(", a, ", ", loc, ")"]))
+  if name == "task_status"
+    ret temp(c, typ, cat(["g_task_status(", a, ")"]))
+  if name == "par_map"
+    ret temp(c, typ, cat(["g_par_map(", a, ", sizeof(", ctype(slice(typ, 1, len(typ) - 1)), "), g_parallel_", str_i64(node), ", &", args[1], ", ", loc, ")"]))
   if has(["list", "map", "set"], name)
     items := coll_items(typ)
     key := items[0]
@@ -1852,6 +1945,10 @@ emit_block c:Compiler, body:[int]>void
           value := ""
           if len(n.args) > 0
             value = emit_expr(c, n.args[0])
+          depth := c.state[19]
+          while depth > 0
+            emit_line(c, "g_scope_leave(g_scope_current);")
+            depth -= 1
           emit_line(c, cat(["return ", value, ";"]))
         else
           if n.kind == "expr"
@@ -1891,7 +1988,14 @@ emit_block c:Compiler, body:[int]>void
                     emit_match(c, index)
                   else
                     emit_line(c, "{")
+                    if n.kind == "scope"
+                      scope_name := fresh(c)
+                      emit_line(c, cat(["g_scope ", scope_name, " = {0}; g_scope_enter(&", scope_name, ");"]))
+                      c.state[19] += 1
                     emit_block(c, n.body)
+                    if n.kind == "scope"
+                      emit_line(c, "g_scope_leave(g_scope_current);")
+                      c.state[19] -= 1
                     emit_line(c, "}")
 
 signature f:Fn>str
@@ -1937,6 +2041,8 @@ emit_record c:Compiler, index:int>void
 
 emit_program c:Compiler, runtime:str>str
   emit_line(c, concat("#define G_FILE_JSON ", cquote(jquote(c.path))))
+  if concurrency_used(c)
+    emit_line(c, "#define GLYPH_CONCURRENCY 1")
   emit_line(c, read_file(concat(runtime, "/runtime.h")))
   emit_line(c, read_file(concat(runtime, "/std_runtime.h")))
   emit_line(c, read_file(concat(runtime, "/io_runtime.h")))
@@ -1944,6 +2050,8 @@ emit_program c:Compiler, runtime:str>str
   emit_line(c, read_file(concat(runtime, "/serialization_runtime.h")))
   emit_line(c, read_file(concat(runtime, "/collections_runtime.h")))
   emit_line(c, "typedef struct { void (*code)(void); void *env; } g_closure;")
+  if concurrency_used(c)
+    emit_line(c, read_file(concat(runtime, "/concurrency_runtime.h")))
   i := 0
   while i < c.state[2]
     if c.nodes[i].kind == "call" and len(fixed_signature(c.nodes[i].value)) > 0
@@ -1982,7 +2090,11 @@ emit_program c:Compiler, runtime:str>str
   while i < c.state[3]
     emit_line(c, concat(signature(c.funcs[i]), ";"))
     i += 1
+  emit_spawns(c, true)
+  emit_parallel(c, true)
   emit_closures(c)
+  emit_parallel(c, false)
+  emit_spawns(c, false)
   i = 0
   while i < c.state[3]
     c.state[5] = i
@@ -1995,9 +2107,15 @@ emit_program c:Compiler, runtime:str>str
   emit_line(c, "g_gc_init(); g_args_init(argc,argv);")
   f := function_index(c, "", "main")
   if c.funcs[f].result == "void"
-    emit_line(c, "f_main(); return 0;")
+    emit_line(c, "f_main();")
+    if concurrency_used(c)
+      emit_line(c, "g_concurrency_shutdown();")
+    emit_line(c, "return 0;")
   else
-    emit_line(c, "return (int)((uint64_t)f_main() & 255);")
+    emit_line(c, "int result = (int)((uint64_t)f_main() & 255);")
+    if concurrency_used(c)
+      emit_line(c, "g_concurrency_shutdown();")
+    emit_line(c, "return result;")
   emit_line(c, "}")
   ret concat(join(c.output, c.state[7], "\n"), "\n")
 
@@ -2065,6 +2183,7 @@ main>int
   c := compile_modules(modules, graph)
   c = expand_program(c)
   check_source(c)
+  concurrency_check(c)
   if command == "check"
     ret 0
   cpath := concat(output, ".c")
@@ -2085,6 +2204,12 @@ main>int
     ret 0
   args := [cc, "-x", "c", cpath, "-std=c11", optimization, "-fno-fast-math", "-ffp-contract=off", "-o", output, "-lm"]
   gc_args := [concat("-I", concat(runtime, "/vendor/bdwgc/include")), "-DGC_NOT_DLL", "-DGC_BUILTIN_ATOMIC", "-DALL_INTERIOR_POINTERS", "-DNO_EXECUTE_PERMISSION", "-DGC_DISABLE_INCREMENTAL", "-fno-strict-aliasing", concat(runtime, "/vendor/bdwgc/extra/gc.c")]
+  if concurrency_used(c)
+    if platform() == "windows"
+      eprint("G203: concurrency requires macOS or Linux pthreads")
+      ret 1
+    gc_args = push(gc_args, "-DGC_THREADS")
+    gc_args = push(gc_args, "-pthread")
   if platform() == "macos"
     gc_args = push(gc_args, "-D_DARWIN_C_SOURCE")
     gc_args = push(gc_args, "-DLARGE_CONFIG")
@@ -2585,7 +2710,7 @@ expand_type c:Compiler, typ:str, bindings:[Var], token:int>str
     while i < len(args)
       args[i] = expand_type(c, args[i], bindings, token)
       i += 1
-    if has(["list", "map", "set"], head)
+    if has(["list", "map", "set", "task", "channel"], head)
       arity := 1
       if head == "map"
         arity = 2
@@ -3147,3 +3272,164 @@ lambda_ahead c:Compiler>bool
         ret false
     i += 1
   ret false
+
+# Concurrency checks run after specialization and type checking.
+concurrency_used c:Compiler>bool
+  f := 0
+  while f < c.state[3]
+    if prefix(c.funcs[f].result, "channel[")
+      ret true
+    for param:c.funcs[f].params
+      if prefix(param.typ, "channel[")
+        ret true
+    f += 1
+  r := 0
+  while r < c.state[4]
+    for field:c.records[r].fields
+      if prefix(field.typ, "channel[")
+        ret true
+    r += 1
+  i := 0
+  while i < c.state[2]
+    if c.nodes[i].kind == "scope" or c.nodes[i].kind == "call" and has(["par_map", "spawn", "channel", "send", "receive", "close"], c.nodes[i].value) and c.nodes[i].typ != ""
+      ret true
+    i += 1
+  ret false
+
+share_safe c:Compiler, typ:str>bool = share_kind(c, typ, true, [])
+
+share_kind c:Compiler, typ:str, channels:bool, seen:[str]>bool
+  if scalar(typ)
+    ret true
+  if has(seen, typ)
+    ret false
+  if prefix(typ, "channel[")
+    ret channels and share_kind(c, slice(typ, 8, len(typ) - 1), false, seen)
+  r := record_index(c, typ)
+  if r < 0
+    ret false
+  for field:c.records[r].fields
+    if not share_kind(c, field.typ, channels, push(seen, typ))
+      ret false
+  ret true
+
+worker_function c:Compiler, f:int, seen:[bool], mode:int>void
+  if seen[f * 2 + mode]
+    ret
+  seen[f * 2 + mode] = true
+  for node:c.funcs[f].body
+    worker_node(c, node, seen, mode)
+
+worker_callback c:Compiler, node:int, seen:[bool], mode:int>void
+  n := c.nodes[node]
+  if n.kind == "name" and n.target >= 0
+    worker_function(c, n.target, seen, mode)
+    ret
+  if n.kind == "lambda"
+    for field:n.captures
+      if not share_kind(c, field.typ, mode == 1, [])
+        fail(c, "G116", "unsafe concurrent capture", n.token)
+    worker_node(c, n.args[0], seen, mode)
+    ret
+  fail(c, "G116", "concurrent callback must be named function or literal lambda; unknown effects", n.token)
+
+worker_node c:Compiler, node:int, seen:[bool], mode:int>void
+  n := c.nodes[node]
+  if n.kind == "unsafe"
+    fail(c, "G116", "unsafe blocks are not permitted in workers", n.token)
+  if n.kind == "call" and n.value == "receive"
+    worker_callback(c, n.args[1], seen, mode)
+  if n.kind == "invoke"
+    worker_callback(c, n.args[0], seen, mode)
+  if n.kind == "method_call" and n.target >= 0
+    worker_function(c, n.target, seen, mode)
+  if n.kind == "call"
+    f := function_index(c, "", n.value)
+    if f >= 0
+      worker_function(c, f, seen, mode)
+    else
+      allowed := ["channel", "send", "receive", "close", "spawn", "wait", "task_status", "par_map", "len", "range", "fill", "clone", "push", "i64", "f64", "sum", "count", "clock", "list", "map", "set", "concat", "slice", "byte_at", "chr", "join", "str_i64", "str_f64", "parse_i64", "parse_f64", "valid_f64", "try_parse_i64", "try_parse_f64"]
+      if record_index(c, n.value) < 0 and not has(allowed, n.value)
+        fail(c, "G116", "operation is not permitted in workers", n.token)
+  if mode == 0 and n.kind == "call" and has(["spawn", "wait", "task_status", "channel", "send", "receive", "close"], n.value)
+    fail(c, "G116", "tasks are not permitted in parallel maps", n.token)
+  for arg_node:n.args
+    worker_node(c, arg_node, seen, mode)
+  for child:n.body
+    worker_node(c, child, seen, mode)
+  for child:n.other
+    worker_node(c, child, seen, mode)
+
+concurrency_check c:Compiler>void
+  f := 0
+  while f < c.state[3]
+    for node:c.funcs[f].body
+      lifetime_node(c, node, 0, false, false)
+    f += 1
+  i := 0
+  while i < c.state[2]
+    n := c.nodes[i]
+    if n.kind == "call" and n.value == "par_map" and n.typ != ""
+      worker_callback(c, n.args[1], fill(c.state[3] * 2, false), 0)
+    if n.kind == "call" and n.value == "spawn" and n.typ != ""
+      worker_callback(c, n.args[0], fill(c.state[3] * 2, false), 1)
+    i += 1
+
+emit_parallel c:Compiler, declarations:bool>void
+  i := 0
+  while i < c.state[2]
+    n := c.nodes[i]
+    if n.kind == "call" and n.value == "par_map" and n.typ != ""
+      header := cat(["static void g_parallel_", str_i64(i), "(void *context, g_array input, g_array output, int64_t start, int64_t end)"])
+      if declarations
+        emit_line(c, concat(header, ";"))
+      else
+        emit_line(c, concat(header, " {"))
+        cb := c.nodes[n.args[1]]
+        input_type := c.nodes[n.args[0]].typ
+        item := cat(["((", ctype(slice(input_type, 1, len(input_type) - 1)), "*)input.data)[j]"])
+        call := cat(["g_lambda_", str_i64(n.args[1]), "(((g_closure*)context)->env, ", item, ")"])
+        if cb.kind == "name"
+          call = cat([function_name(c.funcs[cb.target]), "(", item, ")"])
+        emit_line(c, cat(["for (int64_t j=start; j<end; ++j) ((", ctype(slice(n.typ, 1, len(n.typ) - 1)), "*)output.data)[j] = ", call, "; }"]))
+    i += 1
+
+lifetime_node c:Compiler, node:int, depth:int, handle:bool, spawning:bool>void
+  n := c.nodes[node]
+  if prefix(n.typ, "task[") and n.kind != "var" and not handle and not spawning
+    fail(c, "G117", "task handles cannot escape or be copied", n.token)
+  if n.kind == "call" and n.value == "spawn" and not spawning
+    fail(c, "G117", "spawn requires a local declaration inside scope", n.token)
+  if n.kind == "lambda"
+    for field:n.captures
+      if prefix(field.typ, "task[")
+        fail(c, "G117", "task handles cannot be captured", n.token)
+  for arg_node:n.args
+    use_handle := n.kind == "call" and has(["wait", "task_status"], n.value)
+    if use_handle and c.nodes[arg_node].kind != "name"
+      fail(c, "G117", "expected direct task handle binding", n.token)
+    spawn := n.kind == "var" and depth > 0 and c.nodes[arg_node].kind == "call" and c.nodes[arg_node].value == "spawn"
+    lifetime_node(c, arg_node, depth, use_handle, spawn)
+  inner := depth
+  if n.kind == "scope"
+    inner += 1
+  for child:n.body
+    lifetime_node(c, child, inner, false, false)
+  for child:n.other
+    lifetime_node(c, child, depth, false, false)
+
+emit_spawns c:Compiler, declarations:bool>void
+  i := 0
+  while i < c.state[2]
+    n := c.nodes[i]
+    if n.kind == "call" and n.value == "spawn" and n.typ != ""
+      header := cat(["static void g_spawn_", str_i64(i), "(void *env, void *result)"])
+      if declarations
+        emit_line(c, concat(header, ";"))
+      else
+        cb := c.nodes[n.args[0]]
+        call := cat(["g_lambda_", str_i64(n.args[0]), "(env)"])
+        if cb.kind == "name"
+          call = cat([function_name(c.funcs[cb.target]), "()"])
+        emit_line(c, cat([header, " { *(", ctype(slice(n.typ, 5, len(n.typ) - 1)), "*)result = ", call, "; }"]))
+    i += 1

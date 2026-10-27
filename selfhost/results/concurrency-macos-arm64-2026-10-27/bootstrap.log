@@ -1,0 +1,146 @@
+{"command": ["/Users/igino/glyph/.venv/bin/python", "-m", "glyph", "build", "/Users/igino/glyph/selfhost/compiler.gly", "-o", "/Users/igino/glyph/build/concurrency-final/stage1"], "seconds": 3.411040375009179, "returncode": 0, "python_on_path": true}
+{"command": ["/Users/igino/glyph/build/concurrency-final/stage1", "build", "/Users/igino/glyph/selfhost/compiler.gly", "-o", "/Users/igino/glyph/build/concurrency-final/stage2", "--runtime-dir", "/Users/igino/glyph/glyph", "--cc", "/usr/bin/cc"], "seconds": 3.1823889579973184, "returncode": 0, "python_on_path": false}
+{"command": ["/Users/igino/glyph/build/concurrency-final/stage2", "build", "/Users/igino/glyph/selfhost/compiler.gly", "-o", "/Users/igino/glyph/build/concurrency-final/glyphc", "--runtime-dir", "/Users/igino/glyph/glyph", "--cc", "/usr/bin/cc"], "seconds": 3.1724805829580873, "returncode": 0, "python_on_path": false}
+{"command": ["/Users/igino/glyph/build/concurrency-final/glyphc", "check", "/Users/igino/glyph/selfhost/compiler.gly"], "seconds": 0.36868829099694267, "returncode": 0, "python_on_path": false}
+{"command": ["/Users/igino/glyph/build/concurrency-final/glyphc", "run", "/Users/igino/glyph/build/concurrency-final/argument smoke.gly", "-o", "/Users/igino/glyph/build/concurrency-final/argument smoke", "--runtime-dir", "/Users/igino/glyph/glyph", "--cc", "/usr/bin/cc", "--", "no Python; spaces preserved"], "seconds": 0.9603263749741018, "returncode": 0, "python_on_path": false}
+native: no Python; spaces preserved
+{"command": ["/Users/igino/glyph/.venv/bin/python", "/Users/igino/glyph/selfhost/verify.py", "/Users/igino/glyph/build/concurrency-final/glyphc", "--output-dir", "/Users/igino/glyph/build/concurrency-final/corpus"], "seconds": 111.05140141601441, "returncode": 0, "python_on_path": true}
+{
+  "native_checks": 1754,
+  "native_emissions": 115,
+  "parser_rejections": 1479,
+  "tests": 123,
+  "skipped": 2,
+  "failures": 0,
+  "errors": 0,
+  "success": true,
+  "compiler": "/Users/igino/glyph/build/concurrency-final/glyphc"
+}
+test_cli_json_and_format_check (test_glyph.FrontendTests.test_cli_json_and_format_check) ... ok
+test_diagnostic_span (test_glyph.FrontendTests.test_diagnostic_span) ... ok
+test_formatter (test_glyph.FrontendTests.test_formatter) ... ok
+test_malformed_sources_never_crash (test_glyph.FrontendTests.test_malformed_sources_never_crash) ... ok
+test_rejections (test_glyph.FrontendTests.test_rejections) ... ok
+test_cli_run_arguments_exit_and_build (test_glyph.NativeTests.test_cli_run_arguments_exit_and_build) ... ok
+test_examples (test_glyph.NativeTests.test_examples) ... ok
+test_random_arithmetic_differential (test_glyph.NativeTests.test_random_arithmetic_differential) ... ok
+test_runtime_traps (test_glyph.NativeTests.test_runtime_traps) ... ok
+test_semantics (test_glyph.NativeTests.test_semantics) ... ok
+test_formatter_and_malformed_records (test_records.RecordFrontendTests.test_formatter_and_malformed_records) ... ok
+test_forward_types_recursion_and_contextual_type_name (test_records.RecordFrontendTests.test_forward_types_recursion_and_contextual_type_name) ... ok
+test_invalid_calls_and_mutation (test_records.RecordFrontendTests.test_invalid_calls_and_mutation) ... ok
+test_invalid_layouts_and_members (test_records.RecordFrontendTests.test_invalid_layouts_and_members) ... ok
+test_privacy (test_records.RecordFrontendTests.test_privacy) ... ok
+test_copy_composition_and_arrays (test_records.RecordNativeTests.test_copy_composition_and_arrays) ... ok
+test_private_factory_and_inferred_methods (test_records.RecordNativeTests.test_private_factory_and_inferred_methods) ... ok
+test_receiver_snapshot_reference_and_evaluation_order (test_records.RecordNativeTests.test_receiver_snapshot_reference_and_evaluation_order) ... ok
+test_runtime_traps (test_records.RecordNativeTests.test_runtime_traps) ... ok
+test_formatter_preserves_inference (test_reductions.InferenceTests.test_formatter_preserves_inference) ... ok
+test_forward_inference_and_aliases (test_reductions.InferenceTests.test_forward_inference_and_aliases) ... ok
+test_malformed_reduction_diagnostics (test_reductions.InferenceTests.test_malformed_reduction_diagnostics) ... ok
+test_rejections (test_reductions.InferenceTests.test_rejections) ... ok
+test_generator_overflow_and_sequencing (test_reductions.ReductionTests.test_generator_overflow_and_sequencing) ... ok
+test_guarded_sum_prefix_reference (test_reductions.ReductionTests.test_guarded_sum_prefix_reference) ... ok
+test_ordinary_calls_can_use_existing_sum_function (test_reductions.ReductionTests.test_ordinary_calls_can_use_existing_sum_function) ... ok
+test_reducers_and_evaluation_order (test_reductions.ReductionTests.test_reducers_and_evaluation_order) ... ok
+test_zip_length_failure_precedes_body (test_reductions.ReductionTests.test_zip_length_failure_precedes_body) ... ok
+test_appkit_controls_and_lifecycle (test_gui.GuiTests.test_appkit_controls_and_lifecycle) ... ok
+test_calculator_logic (test_gui.GuiTests.test_calculator_logic) ... ok
+test_native_builds_and_runtime_errors (test_gui.GuiTests.test_native_builds_and_runtime_errors) ... ok
+test_optional_backend_and_formatting (test_gui.GuiTests.test_optional_backend_and_formatting) ... ok
+test_signatures_and_reservations (test_gui.GuiTests.test_signatures_and_reservations) ... ok
+test_files_arguments_and_process (test_systems.SystemsTests.test_files_arguments_and_process) ... ok
+test_runtime_errors (test_systems.SystemsTests.test_runtime_errors) ... ok
+test_signatures (test_systems.SystemsTests.test_signatures) ... ok
+test_text_and_unicode (test_systems.SystemsTests.test_text_and_unicode) ... ok
+test_custom_errors_propagation_collections_and_modules (test_results.ResultTests.test_custom_errors_propagation_collections_and_modules) ... ok
+test_files_recover_and_do_not_truncate_nul_paths (test_results.ResultTests.test_files_recover_and_do_not_truncate_nul_paths) ... ok
+test_parsing_recovers_and_retains_independent_results (test_results.ResultTests.test_parsing_recovers_and_retains_independent_results) ... ok
+test_process_failures_and_child_exit (test_results.ResultTests.test_process_failures_and_child_exit) ... ok
+test_type_errors (test_results.ResultTests.test_type_errors) ... ok
+test_write_or_close_failure_recovers (test_results.ResultTests.test_write_or_close_failure_recovers) ... skipped '/dev/full is required for a deterministic write failure'
+test_binary_reader_accepts_nonseekable_input (test_io_json.BinaryIOTests.test_binary_reader_accepts_nonseekable_input) ... ok
+test_binary_roundtrip_and_utf8_boundary (test_io_json.BinaryIOTests.test_binary_roundtrip_and_utf8_boundary) ... ok
+test_chunked_io_modes_eof_and_stale_handles (test_io_json.BinaryIOTests.test_chunked_io_modes_eof_and_stale_handles) ... ok
+test_unicode_paths_arguments_and_file_identity (test_io_json.BinaryIOTests.test_unicode_paths_arguments_and_file_identity) ... ok
+test_write_flush_and_close_errors (test_io_json.BinaryIOTests.test_write_flush_and_close_errors) ... skipped 'requires /dev/full'
+test_collector_preserves_fragments_keys_and_open_handles (test_io_json.JSONTests.test_collector_preserves_fragments_keys_and_open_handles) ... ok
+test_navigation_and_construction (test_io_json.JSONTests.test_navigation_and_construction) ... ok
+test_seeded_serialization_roundtrips (test_io_json.JSONTests.test_seeded_serialization_roundtrips) ... ok
+test_signatures_and_result_records (test_io_json.JSONTests.test_signatures_and_result_records) ... ok
+test_strict_grammar_and_nesting (test_io_json.JSONTests.test_strict_grammar_and_nesting) ... ok
+test_empty_values_invalid_utf8_and_failed_statement_reset (test_services.DatabaseTests.test_empty_values_invalid_utf8_and_failed_statement_reset) ... ok
+test_prepared_values_transactions_and_lifetimes (test_services.DatabaseTests.test_prepared_values_transactions_and_lifetimes) ... ok
+test_http_binary_status_headers_limits_and_timeouts (test_services.HTTPTests.test_http_binary_status_headers_limits_and_timeouts) ... ok
+test_tls_trust_and_hostname_verification (test_services.HTTPTests.test_tls_trust_and_hostname_verification) ... ok
+test_base64_vectors_and_rejections (test_services.SerializationTests.test_base64_vectors_and_rejections) ... ok
+test_csv_multiline_unicode_and_errors (test_services.SerializationTests.test_csv_multiline_unicode_and_errors) ... ok
+test_types_and_optional_link_markers (test_services.ServiceFrontendTests.test_types_and_optional_link_markers) ... ok
+test_loopback_client_server_timeouts_and_close (test_services.TCPTests.test_loopback_client_server_timeouts_and_close) ... ok
+test_failed_prepares_finalizes_and_opens_release_resources (test_service_failures.DatabaseFailureTests.test_failed_prepares_finalizes_and_opens_release_resources) ... ok
+test_lock_contention_recovers_and_close_rolls_back (test_service_failures.DatabaseFailureTests.test_lock_contention_recovers_and_close_rolls_back) ... ok
+test_read_write_and_close_failures_release_handles (test_service_failures.FileFailureTests.test_read_write_and_close_failures_release_handles) ... ok
+test_truncated_body_headers_and_limit_failures_recover (test_service_failures.HTTPFailureTests.test_truncated_body_headers_and_limit_failures_recover) ... ok
+test_interrupted_and_short_transfers_recover (test_service_failures.TCPFailureTests.test_interrupted_and_short_transfers_recover) ... ok
+test_interrupted_wait_preserves_deadline (test_service_failures.TCPFailureTests.test_interrupted_wait_preserves_deadline) ... ok
+test_many_socket_failures_release_descriptors (test_service_failures.TCPFailureTests.test_many_socket_failures_release_descriptors) ... ok
+test_peer_reset_is_recoverable (test_service_failures.TCPFailureTests.test_peer_reset_is_recoverable) ... ok
+test_literal_edges_and_line_endings (test_selfhost.SelfhostDriverTests.test_literal_edges_and_line_endings) ... ok
+test_protects_source_and_aliases (test_selfhost.SelfhostDriverTests.test_protects_source_and_aliases) ... ok
+test_run_arguments_and_utf8_paths (test_selfhost.SelfhostDriverTests.test_run_arguments_and_utf8_paths) ... ok
+test_bad_paths_and_syntax (test_modules.ModuleTests.test_bad_paths_and_syntax) ... ok
+test_conflicts_missing_names_and_module_main (test_modules.ModuleTests.test_conflicts_missing_names_and_module_main) ... ok
+test_cycles_and_path_aliases (test_modules.ModuleTests.test_cycles_and_path_aliases) ... ok
+test_format_imports_without_resolving_files (test_modules.ModuleTests.test_format_imports_without_resolving_files) ... ok
+test_imported_diagnostics_and_privacy (test_modules.ModuleTests.test_imported_diagnostics_and_privacy) ... ok
+test_module_graph_limits (test_modules.ModuleTests.test_module_graph_limits) ... ok
+test_nested_diamond_imports_and_local_helpers (test_modules.ModuleTests.test_nested_diamond_imports_and_local_helpers) ... ok
+test_protects_all_imported_source_outputs (test_modules.ModuleTests.test_protects_all_imported_source_outputs) ... ok
+test_records_methods_arrays_and_shadowed_names (test_modules.ModuleTests.test_records_methods_arrays_and_shadowed_names) ... ok
+test_runtime_diagnostics_track_caller_after_imported_call (test_modules.ModuleTests.test_runtime_diagnostics_track_caller_after_imported_call) ... ok
+test_self_receiver_and_module_type_name (test_modules.ModuleTests.test_self_receiver_and_module_type_name) ... ok
+test_unicode_paths_and_inferred_import_results (test_modules.ModuleTests.test_unicode_paths_and_inferred_import_results) ... ok
+test_unimported_names_do_not_leak_or_reexport (test_modules.ModuleTests.test_unimported_names_do_not_leak_or_reexport) ... ok
+test_inline_records_zero_length_and_scanned_nested_records (test_gc.GcTests.test_inline_records_zero_length_and_scanned_nested_records) ... ok
+test_live_graphs_survive_collection_at_all_optimization_levels (test_gc.GcTests.test_live_graphs_survive_collection_at_all_optimization_levels) ... ok
+test_temporary_arrays_strings_and_cycles_have_bounded_heap (test_gc.GcTests.test_temporary_arrays_strings_and_cycles_have_bounded_heap) ... ok
+test_vendor_integrity (test_gc.GcTests.test_vendor_integrity) ... ok
+test_argument_evaluation_order (test_collections.CollectionTests.test_argument_evaluation_order) ... ok
+test_differential_hash_churn (test_collections.CollectionTests.test_differential_hash_churn) ... ok
+test_empty_types_format_and_inference (test_collections.CollectionTests.test_empty_types_format_and_inference) ... ok
+test_gc_records_recursive_collections_and_value_copies (test_collections.CollectionTests.test_gc_records_recursive_collections_and_value_copies) ... ok
+test_imported_record_collection_parameters (test_collections.CollectionTests.test_imported_record_collection_parameters) ... ok
+test_list_alias_copy_and_snapshots (test_collections.CollectionTests.test_list_alias_copy_and_snapshots) ... ok
+test_maps_sets_and_string_keys (test_collections.CollectionTests.test_maps_sets_and_string_keys) ... ok
+test_runtime_traps (test_collections.CollectionTests.test_runtime_traps) ... ok
+test_type_rejections (test_collections.CollectionTests.test_type_rejections) ... ok
+test_callback_containers_gc_and_multi_parameter_function_values (test_abstractions.AbstractionTests.test_callback_containers_gc_and_multi_parameter_function_values) ... ok
+test_callee_argument_order_and_contextual_fn_name (test_abstractions.AbstractionTests.test_callee_argument_order_and_contextual_fn_name) ... ok
+test_closures_escape_nested_capture_and_function_fields (test_abstractions.AbstractionTests.test_closures_escape_nested_capture_and_function_fields) ... ok
+test_generic_records_functions_recursion_and_collections (test_abstractions.AbstractionTests.test_generic_records_functions_recursion_and_collections) ... ok
+test_interface_constraints_and_mutation (test_abstractions.AbstractionTests.test_interface_constraints_and_mutation) ... ok
+test_invalid_programs (test_abstractions.AbstractionTests.test_invalid_programs) ... ok
+test_modules_share_specializations_and_preserve_private_helpers (test_abstractions.AbstractionTests.test_modules_share_specializations_and_preserve_private_helpers) ... ok
+test_tagged_unions_exhaustiveness_and_recursive_arrays (test_abstractions.AbstractionTests.test_tagged_unions_exhaustiveness_and_recursive_arrays) ... ok
+test_unsupported_build_has_explicit_diagnostic (test_concurrency.ConcurrencyPlatformTests.test_unsupported_build_has_explicit_diagnostic) ... ok
+test_channel_close_drains_and_empty_payload_not_eof (test_concurrency.ConcurrencyTests.test_channel_close_drains_and_empty_payload_not_eof) ... ok
+test_channel_rejections_and_capacity (test_concurrency.ConcurrencyTests.test_channel_rejections_and_capacity) ... ok
+test_channel_tasks_progress_with_one_cpu_worker (test_concurrency.ConcurrencyTests.test_channel_tasks_progress_with_one_cpu_worker) ... ok
+test_channels_fifo_payloads_gc_and_scope_join (test_concurrency.ConcurrencyTests.test_channels_fifo_payloads_gc_and_scope_join) ... ok
+test_imported_generic_functions_methods_and_rejections (test_concurrency.ConcurrencyTests.test_imported_generic_functions_methods_and_rejections) ... ok
+test_instrumented_close_wakeups_roots_and_creation_failure (test_concurrency.ConcurrencyTests.test_instrumented_close_wakeups_roots_and_creation_failure) ... ok
+test_instrumented_simultaneous_execution (test_concurrency.ConcurrencyTests.test_instrumented_simultaneous_execution) ... ok
+test_main_thread_services_coexist_with_concurrency (test_concurrency.ConcurrencyTests.test_main_thread_services_coexist_with_concurrency) ... ok
+test_map_sizes_nested_captures_generics (test_concurrency.ConcurrencyTests.test_map_sizes_nested_captures_generics) ... ok
+test_map_unsafe_effects_and_transitive_aliases (test_concurrency.ConcurrencyTests.test_map_unsafe_effects_and_transitive_aliases) ... ok
+test_safe_aggregate_capabilities_and_multiple_producers (test_concurrency.ConcurrencyTests.test_safe_aggregate_capabilities_and_multiple_producers) ... ok
+test_scope_exit_joins_unwaited_child_and_results_survive (test_concurrency.ConcurrencyTests.test_scope_exit_joins_unwaited_child_and_results_survive) ... ok
+test_task_handle_escape_and_unsafe_results (test_concurrency.ConcurrencyTests.test_task_handle_escape_and_unsafe_results) ... ok
+test_task_resource_exhaustion_and_reuse (test_concurrency.ConcurrencyTests.test_task_resource_exhaustion_and_reuse) ... ok
+test_tasks_results_nested_scopes_and_early_return (test_concurrency.ConcurrencyTests.test_tasks_results_nested_scopes_and_early_return) ... ok
+test_worker_checked_traps (test_concurrency.ConcurrencyTests.test_worker_checked_traps) ... ok
+
+----------------------------------------------------------------------
+Ran 123 tests in 110.905s
+
+OK (skipped=2)

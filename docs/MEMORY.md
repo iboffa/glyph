@@ -26,9 +26,10 @@ change either operation's cost or sharing semantics.
 - A live slice retains its whole backing allocation. Repeated concatenation or
   `push` can still do quadratic copying even when intermediates are reclaimed.
 - Collection can pause execution; this is not a hard real-time guarantee.
-- The runtime is single-threaded. AppKit owns copies of text supplied to it;
-  its worker threads do not access Glyph heap objects. Language threads or a
-  future foreign-function interface will require an explicit root/thread design.
+- Sequential programs use the single-threaded collector. Concurrent programs
+  use threaded BDWGC and collector-aware pthread creation/join. AppKit owns
+  copies of text supplied to it; its threads do not access Glyph heap objects.
+  See [concurrency](CONCURRENCY.md) for the checked sharing and root policy.
 - GC manages memory, not external resources. File operations close their handles
   explicitly, and the GUI backend still handles window/native-object cleanup.
 - Unsafe out-of-bounds pointers remain unsafe. Keeping an integer that happens
@@ -66,3 +67,23 @@ allocation only for pointer-free element types. Delete/clear zero removed
 references; clear retains capacity. Collection cycles are collectible. No raw
 collection-buffer pointers are exposed. Clones and iteration snapshots are
 shallow copies. See [Collections](COLLECTIONS.md).
+
+
+## Concurrent roots and publication
+
+Parallel-map inputs are numeric, outputs are fresh and disjoint, and callback
+captures cannot contain mutable references. Task closure environments, result
+storage and descriptors are scanned allocations. A lexical scope roots its
+children until joining; returned safe values retain ordinary GC lifetime.
+Channels hold scanned bounded buffers, clear consumed slots, and use registered
+worker stacks to root blocked sender payloads. Mutexes publish buffer updates;
+pthread creation and joining publish task inputs/results. GC finalizers destroy
+unreachable channel synchronization objects; close does not destroy them while
+another alias or blocked operation can still use them.
+
+GC stress configuration is initialized before threads start. Error source paths
+are thread-local. Collection remains enabled and stop-the-world; allocation-free
+workers can pause when another thread collects. Thread safety is not ownership:
+shallow clones and record/closure snapshots still share referenced storage, so
+those graphs are rejected at concurrency boundaries. The CPU pool shuts down
+and joins at normal main completion; scoped threads join at each scope exit.

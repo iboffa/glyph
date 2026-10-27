@@ -4,6 +4,7 @@ from .syntax import Diagnostic, Function, Record, Union, Import
 from .abstractions import Expansion, fn_parts, map_type
 from .gui import GUI_SIGNATURES
 from .stdlib import STD_SIGNATURES, RESULT_TYPES, result_records
+from .concurrency import NAMES, analyze, safe_type
 from .collections import KINDS, KEYS, collection_type, parts, method_signature
 
 SCALARS = {"i64", "f64", "bool", "str"}
@@ -11,7 +12,7 @@ BUILTINS = {"print", "len", "range", "fill", "clone", "push", "argi", "clock", "
 BUILTINS |= GUI_SIGNATURES.keys()
 BUILTINS |= STD_SIGNATURES.keys()
 BUILTINS |= RESULT_TYPES.keys()
-BUILTINS |= KINDS
+BUILTINS |= KINDS | NAMES
 
 def canonical_type(typ):
     return map_type(typ, lambda t: "i64" if t == "int" else t)
@@ -36,6 +37,13 @@ class Checker:
 
     def validate_type(self, typ, token):
         typ = canonical_type(typ)
+        if typ.startswith("channel["):
+            self.validate_type(typ[8:-1], token)
+            if not safe_type(typ[8:-1], self.records):
+                raise Diagnostic("G116", "channel payload must be recursively share-safe", token)
+            return typ
+        if typ.startswith("task["):
+            raise Diagnostic("G117", "task handles are inferred local bindings only", token)
         fn = fn_parts(typ)
         if fn:
             args, result = fn
@@ -170,6 +178,7 @@ class Checker:
             if f.result != "void" and not returns:
                 self.fail("G106", "not every path returns a value", f)
         self.current = None
+        analyze(self)
         return self.declarations
 
     def check_interfaces(self):
@@ -282,6 +291,8 @@ class Checker:
                 if len(seen) != len(union.variants):
                     self.fail("G115", "match must cover every variant", s)
                 returned = all_return
+            elif s.kind == "scope":
+                returned = self.block(s.body, env.copy(), result, unsafe)
             elif s.kind == "unsafe":
                 returned = self.block(s.body, env.copy(), result, True)
         return returned
@@ -472,6 +483,48 @@ class Checker:
 
     def call(self, e, env, unsafe, expected):
         name = e.value
+        if name == "channel":
+            if len(e.args) != 1:
+                self.fail("G107", "channel expects capacity", e)
+            self.same(self.expr(e.args[0], env, unsafe), "i64", e)
+            if not expected or not expected.startswith('channel['):
+                self.fail("G102", "channel constructor requires channel[T] context", e)
+            return self.validate_type(expected, e.token)
+        if name in {"send", "receive", "close"}:
+            if len(e.args) != (1 if name == 'close' else 2):
+                self.fail("G107", "wrong channel operation arity", e)
+            channel = self.expr(e.args[0], env, unsafe)
+            if not channel.startswith('channel['):
+                self.fail("G102", "expected channel", e)
+            item = channel[8:-1]
+            if name == 'send':
+                self.same(self.expr(e.args[1], env, unsafe, item), item, e.args[1])
+            if name == 'receive':
+                self.same(self.expr(e.args[1], env, unsafe), 'fn(' + item + ')>void', e.args[1])
+            return 'void' if name == 'close' else 'bool'
+        if name == "spawn":
+            if len(e.args) != 1:
+                self.fail("G107", "spawn expects one zero-argument callback", e)
+            sig = fn_parts(self.expr(e.args[0], env, unsafe))
+            if not sig or sig[0] or not safe_type(sig[1], self.records, True):
+                self.fail("G116", "spawn requires zero-argument callback with share-safe non-void result", e)
+            return 'task[' + sig[1] + ']'
+        if name in {"wait", "task_status"}:
+            if len(e.args) != 1:
+                self.fail("G107", name + " expects one task handle", e)
+            typ = self.expr(e.args[0], env, unsafe)
+            if not typ.startswith('task['):
+                self.fail("G117", "expected task handle", e)
+            return 'IntResult' if name == 'task_status' else typ[5:-1]
+        if name == "par_map":
+            if len(e.args) != 2:
+                self.fail("G107", "par_map expects an array and callback", e)
+            source = self.expr(e.args[0], env, unsafe)
+            callback = self.expr(e.args[1], env, unsafe)
+            sig = fn_parts(callback)
+            if source not in {"[i64]", "[f64]"} or not sig or sig[0] != [source[1:-1]] or sig[1] not in {"i64", "f64"}:
+                self.fail("G102", "par_map requires numeric array and matching numeric callback", e)
+            return '[' + sig[1] + ']'
         if name in KINDS:
             arity = 2 if name == 'map' else 1
             if len(e.args) != arity:

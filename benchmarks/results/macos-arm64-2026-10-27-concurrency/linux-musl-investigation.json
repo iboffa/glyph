@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+    "cc",
+    "-target",
+    "x86_64-linux-musl",
+    "/Users/igino/glyph/build/channel-native-test.c",
+    "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+    "-o",
+    "/Users/igino/glyph/build/concurrency-bench/linux-channel",
+    "-lm",
+    "-ldl",
+    "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+    "-DGC_NOT_DLL",
+    "-std=c11",
+    "-O2",
+    "-fno-strict-aliasing",
+    "-DGC_BUILTIN_ATOMIC",
+    "-DALL_INTERIOR_POINTERS",
+    "-DNO_EXECUTE_PERMISSION",
+    "-DGC_DISABLE_INCREMENTAL",
+    "-D_GNU_SOURCE",
+    "-DGC_THREADS",
+    "-pthread"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "ld.lld: error: undefined symbol: getcontext\n>>> referenced by mach_dep.c:346 (glyph/vendor/bdwgc/extra/../mach_dep.c:346)\n>>>               /Users/igino/glyph/build/.glyph-cache/o/14f73ae2dae36b22d668aea19b7d1dee/gc.o:(GC_with_callee_saves_pushed)\n",
+  "execution_verified": false
+}

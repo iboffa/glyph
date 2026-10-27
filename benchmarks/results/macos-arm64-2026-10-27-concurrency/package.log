@@ -1,0 +1,16 @@
+Processing ./.
+  Installing build dependencies: started
+  Installing build dependencies: finished with status 'done'
+  Getting requirements to build wheel: started
+  Getting requirements to build wheel: finished with status 'done'
+  Preparing metadata (pyproject.toml): started
+  Preparing metadata (pyproject.toml): finished with status 'done'
+Building wheels for collected packages: glyph-lang
+  Building wheel for glyph-lang (pyproject.toml): started
+  Building wheel for glyph-lang (pyproject.toml): finished with status 'done'
+  Created wheel for glyph-lang: filename=glyph_lang-0.1.0-py3-none-any.whl size=580179 sha256=6b7ed7f4aefaadfb0066bf5568b526e7a84c921a2cf70acd09d394dd51283103
+  Stored in directory: /private/var/folders/n0/x410x4h51x14kxbmwkjt68vc0000gn/T/pip-ephem-wheel-cache-hxz2dh_o/wheels/2b/8e/15/4885a6d5b65f8aa87da033165576df2c826b9eaf88d903cabb
+Successfully built glyph-lang
+
+[notice] A new release of pip is available: 26.2.1 -> 26.2.2
+[notice] To update, run: /Users/igino/glyph/.venv/bin/python -m pip install --upgrade pip

@@ -1,0 +1,28 @@
+ignore value:int>void
+  ret
+responder data:channel[int], ack:channel[int], n:int>int
+  i := 0
+  while receive(data, ignore)
+    send(ack, i)
+    i += 1
+  ret i
+main>void
+  n := argi(0)
+  data:channel[int] = channel(1)
+  ack:channel[int] = channel(1)
+  start := clock()
+  scope
+    t := spawn(fn()>int = responder(data, ack, n))
+    if not task_status(t).ok
+      exit(1)
+    i := 0
+    while i < n
+      send(data, i)
+      receive(ack, ignore)
+      i += 1
+    close(data)
+    if wait(t) != n
+      exit(2)
+  elapsed := clock() - start
+  print(n)
+  print(elapsed)

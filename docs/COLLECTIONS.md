@@ -135,3 +135,13 @@ records use scanned storage. Cycles are supported. Growing a collection can
 replace its internal buffer, but its shared header remains stable and no raw
 buffer pointers are exposed. Existing fixed arrays, their aliasing, their stable
 pointers and the copying `push(array, value)` operation retain their semantics.
+
+
+## Concurrency boundary
+
+See [Concurrency](CONCURRENCY.md). Thread support does not make existing shared
+mutable values or resource handles safe to use across workers. Worker calls to
+file, stream, network, database, process and GUI APIs are rejected transitively.
+Local arrays/collections inside a worker remain usable; arrays/collections or
+aggregates containing them cannot be captured or returned across task boundaries.
+Snapshot closures and shallow clones retain the existing sharing semantics.

@@ -96,7 +96,7 @@ class Import:
 
 LEX = re.compile(r'"(?:[^"\\\r\n]|\\.)*"|[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[A-Za-z_][A-Za-z_0-9]*|==|!=|<=|>=|:=|\+=|-=|\*=|/=|%=|[.+*/%<>=!,:()\[\]>\-]')
 IDENT = re.compile(r"[A-Za-z_][A-Za-z_0-9]*\Z")
-RESERVED = {"if", "else", "while", "for", "ret", "unsafe", "true", "false", "and", "or", "not", "fold", "import", "from"}
+RESERVED = {"if", "else", "while", "for", "ret", "unsafe", "scope", "true", "false", "and", "or", "not", "fold", "import", "from"}
 PREC = {"or": 1, "and": 2, "==": 3, "!=": 3, "<": 4, "<=": 4, ">": 4, ">=": 4,
         "+": 5, "-": 5, "*": 6, "/": 6, "%": 6}
 
@@ -350,6 +350,8 @@ class Parser:
             self.need(":")
             expr = self.expr()
             return Stmt("for", t, value=name, args=[expr], body=self.block())
+        if self.accept("scope"):
+            return Stmt("scope", t, body=self.block())
         if self.accept("unsafe"):
             return Stmt("unsafe", t, body=self.block())
         if self.accept("ret"):

@@ -27,7 +27,7 @@ the Python checker as a differential reference. See [self-hosting](SELF_HOSTING.
 
 C lowering trades direct LLVM control for portability, an inspectable intermediate artifact and a small frontend. It is a real ahead-of-time compiler using LLVM indirectly. Backend diagnostics are wrapped as G202; they indicate a compiler/environment issue, not a normal user type error. LLVM can inline helpers and remove redundant bounds checks. Checked addition may constrain vectorization; benchmarks compare it against ordinary C on inputs whose arithmetic cannot overflow. Both use `-O2 -fno-fast-math -ffp-contract=off`; no promise of equal machine code is made across arbitrary programs.
 
-The default allocator is the bundled BDWGC 8.2.12 nonmoving tracing collector. Numeric/boolean arrays, pointer-free record arrays and string bytes use atomic allocations; reference-bearing arrays use scanned allocations. Both emitters classify record layouts recursively. Single-threaded collection preserves shared descriptors, cycles and interior pointers without ownership syntax. `gc_support.py` caches the collector object for Python builds; the native driver compiles the vendored amalgamation directly. See [memory management](MEMORY.md) for constraints and build details. Direct LLVM IR, more standard-library operations, incremental compilation and debug information remain future work. A second human presentation layer is deliberately deferred. The AST is structural and has spans, so such a layer need not change the executable representation.
+The default allocator is the bundled BDWGC 8.2.12 nonmoving tracing collector. Numeric/boolean arrays, pointer-free record arrays and string bytes use atomic allocations; reference-bearing arrays use scanned allocations. Both emitters classify record layouts recursively. Collection preserves shared descriptors, cycles and interior pointers without ownership syntax. `gc_support.py` caches the collector object for Python builds; the native driver compiles the vendored amalgamation directly. See [memory management](MEMORY.md) for constraints and build details. Direct LLVM IR, more standard-library operations, incremental compilation and debug information remain future work. A second human presentation layer is deliberately deferred. The AST is structural and has spans, so such a layer need not change the executable representation.
 
 Design aims are fewer ambiguous choices and useful operations per token, not maximal punctuation. Explicit annotations cost tokens but avoid inference surprises and improve diagnostics. `fold` compresses a common pattern without introducing arbitrary implicit behavior. The benchmark suite counts BPE tokens rather than characters and treats full agent cost as a separate research question.
 
@@ -92,3 +92,30 @@ mark generated C for the corresponding linker libraries. HTTP/SQLite builds
 use system development libraries; ordinary console builds retain the existing
 bundled toolchain. `serialization_runtime.h` supplies dependency-free CSV and
 strict Base64. See [Services](SERVICES.md) for contracts and platform limits.
+
+
+## Concurrency
+
+`concurrency.py` checks the fully typed, specialized AST. Boundary checks reject
+mutable/reference-bearing graphs except immutable strings and explicit channel
+capabilities; call-graph traversal with recursion guards checks an explicit
+worker builtin allowlist. The native compiler implements the same traversal in
+Glyph. Both analyze imported functions, methods and concrete generic instances.
+Opaque callbacks/indirect calls are rejected. This is a conservative effect
+check, not a general ownership or alias-analysis language.
+
+Both emitters generate typed per-call adapters, with direct native calls for
+known map/task functions, around `concurrency_runtime.h`. Numeric maps allocate
+one fresh result and schedule chunks through a reusable bounded pthread pool.
+Nested maps run locally. Blocking tasks use a separate bounded pthread path;
+compiler-generated scope exit code joins outstanding children on every return.
+Channels use mutex/condition-variable bounded rings. The scheduler, task and
+channel algorithms exist once in the shared C runtime.
+
+The concurrency marker selects GC_THREADS, pthread linking and a distinct cached
+collector object. Native builds supply the same flags without Python. Worker
+stacks are registered by BDWGC's pthread wrappers. Sequential programs retain
+the single-threaded build and do not start threads. Source-location state is
+thread-local, fatal diagnostic output is serialized, and unaudited resource
+subsystems are excluded by worker effect checks. See [the contract](CONCURRENCY.md)
+and [measured results](../benchmarks/results/macos-arm64-2026-10-27-concurrency/REPORT.md).

@@ -45,3 +45,20 @@ Binary I/O: `try_read_bytes(path)` / `try_write_bytes(path, bytes)` use `[int]` 
 JSON: `try_json_parse(text)` returns validated JSON text. `try_json_get`, `try_json_at`, `try_json_kind`, `try_json_len` and `try_json_keys` navigate it. `try_json_string` decodes a quoted string; `json_quote` encodes ordinary text. Build values with `try_json_array` and `try_json_object`. Check `.ok`; JSON failures use `R012`. See [contracts and limits](SYSTEMS.md#json).
 
 Services: use `try_tcp_*` for blocking byte-stream sockets, `try_http_request` for bounded HTTP/verified HTTPS, and `try_db_*` for SQLite with prepared value bindings. Finalize statements and explicitly close handles. HTTP returns `HttpResult` (`value` body bytes, `status`, `headers` bytes); 4xx/5xx still have `ok=true`. `try_csv_parse`/`try_csv_row` and `csv_row`/`try_csv_write` handle CSV; `try_base64_encode`/`try_base64_decode` handle strict padded Base64. See [signatures, dependencies and limits](SERVICES.md).
+
+
+Concurrency: use `par_map(a, function)` for independent int/f64 transforms;
+use a named function or literal lambda, e.g. `par_map(a, fn(x:int)>int = x*x)`.
+Results are fresh arrays; no ordinary reductions change order. Captures cannot
+contain arrays, collections, pointers or function values. Use `scope` blocks,
+`t := spawn(fn()>int = work(value))`, `task_status(t).ok`, and `wait(t)` for scoped
+tasks. Handles cannot be copied/stored/returned; scopes join even on return.
+
+Use `c:channel[str] = channel(2)`, `send(c, text)`, `receive(c, consumer)` and
+`close(c)` for bounded communication. Receive returns false only when closed and
+drained; its `fn(str)>void` callback runs on the caller. Safe records/unions may
+cross task/channel boundaries; channels may be captured by tasks. Handle spawn
+failure before waiting on messages a missing child would produce. Workers reject
+unsafe code, unknown effects, printing, file/network/database/process and GUI
+APIs. Set `GLYPH_WORKERS=1..32` for reproducible maps. See [Concurrency](CONCURRENCY.md)
+for task limits, nesting, blocking and shutdown rules and runnable examples.

@@ -1,0 +1,20 @@
+{
+  "wheel": "glyph_lang-0.1.0-py3-none-any.whl",
+  "sha256": "6b7ed7f4aefaadfb0066bf5568b526e7a84c921a2cf70acd09d394dd51283103",
+  "command": [
+    "/Users/igino/glyph/build/concurrency-final/glyphc",
+    "run",
+    "/Users/igino/glyph/examples/channels.gly",
+    "-o",
+    "/Users/igino/glyph/build/concurrency-package-example",
+    "--runtime-dir",
+    "/Users/igino/glyph/build/concurrency-package/glyph",
+    "--cc",
+    "/usr/bin/clang"
+  ],
+  "python_on_path": false,
+  "final_runtime_matches_wheel": true,
+  "returncode": 0,
+  "stdout": "hello channel\nreceived\n\nreceived\n42\nfalse\n",
+  "stderr": ""
+}

@@ -15,6 +15,10 @@ from .abstractions import fn_parts
 
 
 def ctype(typ):
+    if typ.startswith("channel["):
+        return "g_channel*"
+    if typ.startswith("task["):
+        return "g_task*"
     if fn_parts(typ):
         return "g_closure"
     if collection_type(typ):
@@ -42,6 +46,12 @@ class Emitter:
         self.records = {}
         self.closures = []
         self.closure_ids = {}
+        self.parallel = []
+        self.parallel_ids = {}
+        self.spawns = []
+        self.spawn_ids = {}
+        self.scope_depth = 0
+        self.concurrent = False
 
     def pointer_free(self, typ):
         if typ in {"i64", "f64", "bool"}:
@@ -258,6 +268,28 @@ class Emitter:
         args = [self.expr(x) for x in e.args]
         name, typ, loc = e.value, e.typ, self.loc(e)
         a = args[0] if args else ""
+        if name == "channel":
+            return self.temp(typ, f"g_channel_new({a}, sizeof({ctype(typ[8:-1])}), {loc})")
+        if name == "send":
+            return self.temp(typ, f"g_channel_send({a}, &{args[1]})")
+        if name == "close":
+            return self.temp(typ, f"g_channel_close({a})")
+        if name == "receive":
+            ct = ctype(e.args[0].typ[8:-1])
+            item = self.fresh()
+            self.write(f"{ct} {item} = {{0}};")
+            ok = self.temp('bool', f"g_channel_receive({a}, &{item})")
+            self.write(f"if ({ok}) ((void (*)(void *, {ct})){args[1]}.code)({args[1]}.env, {item});")
+            return ok
+        if name == "spawn":
+            return self.temp(typ, f"g_spawn(g_scope_current, g_spawn_{self.spawn_ids[id(e)]}, {a}.env, sizeof({ctype(typ[5:-1])}), {loc})")
+        if name == "wait":
+            return self.temp(typ, f"*({ctype(typ)}*)g_task_wait({a}, {loc})")
+        if name == "task_status":
+            return self.temp(typ, f"g_task_status({a})")
+        if name == "par_map":
+            index = self.parallel_ids[id(e)]
+            return self.temp(typ, f"g_par_map({args[0]}, sizeof({ctype(typ[1:-1])}), g_parallel_{index}, &{args[1]}, {loc})")
         if name in KINDS:
             kind, items = parts(typ)
             key, value_type = items[0], items[-1]
@@ -340,6 +372,8 @@ class Emitter:
                 self.write(f"{left} = {value};")
             elif s.kind == "ret":
                 value = self.expr(s.args[0]) if s.args else ""
+                for _ in range(self.scope_depth):
+                    self.write("g_scope_leave(g_scope_current);")
                 self.write(f"return {value};")
             elif s.kind == "expr":
                 self.expr(s.args[0])
@@ -393,6 +427,13 @@ class Emitter:
                     self.write("}")
                 self.write("default: abort();")
                 self.write("}")
+            elif s.kind == "scope":
+                scope = self.fresh()
+                self.write(f"{{ g_scope {scope} = {{0}}; g_scope_enter(&{scope});")
+                self.scope_depth += 1
+                self.block(s.body)
+                self.scope_depth -= 1
+                self.write("g_scope_leave(g_scope_current); }")
             elif s.kind == "unsafe":
                 self.write("{")
                 self.level += 1
@@ -415,13 +456,41 @@ class Emitter:
         file_json = json.dumps(str(filename), ensure_ascii=True).encode("utf-8")
         file_literal = '"' + ''.join(f"\\{b:03o}" for b in file_json) + '"'
         self.write(f"#define G_FILE_JSON {file_literal}")
+        def find_parallel(node):
+            if getattr(node, 'kind', '') == 'call' and node.value in {'channel', 'send', 'receive', 'close'}:
+                self.concurrent = True
+            if getattr(node, 'kind', '') == 'scope':
+                self.concurrent = True
+            if getattr(node, 'kind', '') == 'call' and node.value == 'spawn':
+                self.spawn_ids[id(node)] = len(self.spawns)
+                self.spawns.append(node)
+                self.concurrent = True
+            if getattr(node, 'kind', '') == 'call' and node.value == 'par_map':
+                self.concurrent = True
+                self.parallel_ids[id(node)] = len(self.parallel)
+                self.parallel.append(node)
+            for attr in ('args', 'body', 'other'):
+                for child in getattr(node, attr, []):
+                    find_parallel(child)
+        for f in functions:
+            find_parallel(f)
+            if any(t.startswith("channel[") for _, t, _ in f.params) or f.result.startswith("channel["):
+                self.concurrent = True
+        if any(field.typ.startswith("channel[") for r in records.values() for field in r.fields):
+            self.concurrent = True
+        if self.concurrent:
+            self.write("#define GLYPH_CONCURRENCY 1")
         self.write(Path(__file__).with_name("runtime.h").read_text())
+        gui_support_index = len(self.lines)
         self.write(Path(__file__).with_name("std_runtime.h").read_text())
         self.write(Path(__file__).with_name("io_runtime.h").read_text())
         self.write(Path(__file__).with_name("json_runtime.h").read_text())
         self.write(Path(__file__).with_name("serialization_runtime.h").read_text())
+        service_support_index = len(self.lines)
         self.write(Path(__file__).with_name("collections_runtime.h").read_text())
         self.write("typedef struct { void (*code)(void); void *env; } g_closure;")
+        if self.concurrent:
+            self.write(Path(__file__).with_name("concurrency_runtime.h").read_text())
         for name in records:
             self.write(f"typedef struct {ctype(name)} {ctype(name)};")
         defined = set()
@@ -485,6 +554,10 @@ class Emitter:
                 self.write(f"}} g_env_{i};")
             signature = ', '.join(["void *env"] + [f"{ctype(t)} v_{n}" for n, t, _ in params])
             self.write(f"static {ctype(result)} g_lambda_{i}({signature});")
+        for i, e in enumerate(self.spawns):
+            self.write(f"static void g_spawn_{i}(void*, void*);")
+        for i, e in enumerate(self.parallel):
+            self.write(f"static void g_parallel_{i}(void*, g_array, g_array, int64_t, int64_t);")
         for i, e in enumerate(self.closures):
             params, result = e.value
             signature = ', '.join(["void *env"] + [f"{ctype(t)} v_{n}" for n, t, _ in params])
@@ -496,6 +569,18 @@ class Emitter:
             self.write("return " + value + ";" if result != "void" else "return;")
             self.level -= 1
             self.write("}")
+        for i, e in enumerate(self.parallel):
+            callback = e.args[1]
+            it, ot = ctype(e.args[0].typ[1:-1]), ctype(e.typ[1:-1])
+            value = f"(({it}*)input.data)[j]"
+            call = f"{function_name(callback.target)}({value})" if isinstance(callback.target, Function) else f"g_lambda_{self.closure_ids[id(callback)]}(((g_closure*)context)->env, {value})"
+            self.write(f"static void g_parallel_{i}(void *context, g_array input, g_array output, int64_t start, int64_t end) {{")
+            self.write(f"    for (int64_t j=start; j<end; ++j) (({ot}*)output.data)[j] = {call};")
+            self.write("}")
+        for i, e in enumerate(self.spawns):
+            callback = e.args[0]
+            call = f"{function_name(callback.target)}()" if isinstance(callback.target, Function) else f"g_lambda_{self.closure_ids[id(callback)]}(env)"
+            self.write(f"static void g_spawn_{i}(void *env, void *result) {{ *({ctype(e.typ[5:-1])}*)result = {call}; }}")
         for f in functions:
             self.current = f
             self.write(self.signature(f) + " {")
@@ -508,9 +593,9 @@ class Emitter:
         self.write("int main(int argc, char **argv) {")
         self.write("    g_gc_init(); g_args_init(argc,argv);")
         if main.result == "void":
-            self.write("    f_main(); return 0;")
+            self.write("    f_main(); " + ("g_concurrency_shutdown(); " if self.concurrent else "") + "return 0;")
         else:
-            self.write("    return (int)((uint64_t)f_main() & 255);")
+            self.write("    int result = (int)((uint64_t)f_main() & 255); " + ("g_concurrency_shutdown(); " if self.concurrent else "") + "return result;")
         self.write("}")
         support = ""
         for service in sorted(self.services):
@@ -518,13 +603,13 @@ class Emitter:
             support += Path(__file__).with_name(service + "_runtime.h").read_text() + "\n"
         if support:
             # After the core/text/binary/JSON helpers, before generated declarations.
-            self.lines.insert(5, support)
+            self.lines.insert(service_support_index, support)
         if self.uses_gui:
             # Keep generated C inspectable and independent of include paths.
             support = "#define GLYPH_GUI 1\n"
             support += Path(__file__).with_name("gui.h").read_text() + "\n"
             support += Path(__file__).with_name("gui_runtime.h").read_text() + "\n"
-            self.lines.insert(2, support)
+            self.lines.insert(gui_support_index, support)
         return "\n".join(self.lines) + "\n"
 
 
@@ -546,6 +631,9 @@ def compile_c(source, output, optimization="2"):
     env = os.environ.copy()
     env.update(ZIG_GLOBAL_CACHE_DIR=str(cache), ZIG_LOCAL_CACHE_DIR=str(cache), TEMP=str(cache), TMP=str(cache))
     source_text = Path(source).read_text(encoding="utf-8")
+    threaded = "#define GLYPH_CONCURRENCY 1\n" in source_text
+    if threaded and sys.platform not in {"darwin", "linux"}:
+        raise Diagnostic("G203", "concurrency requires macOS or Linux pthreads", Token("", 1, 1, 1))
     gui = "#define GLYPH_GUI 1\n" in source_text
     http = "#define GLYPH_HTTP 1\n" in source_text
     db = "#define GLYPH_DB 1\n" in source_text
@@ -566,8 +654,12 @@ def compile_c(source, output, optimization="2"):
     else:
         cc = compiler()
     command = cc + ["-x", "c", str(Path(source).resolve()), "-std=c11", f"-O{optimization}", "-fno-fast-math", "-ffp-contract=off", "-o", str(output)]
+    if threaded:
+        command += ["-DGC_THREADS", "-pthread"]
+        if sys.platform == "darwin":
+            command += ["-D_DARWIN_C_SOURCE"]
     if "#define GLYPH_GC 1\n" in source_text:
-        command += include_flags() + ["-x", "none", str(collector_object(cc, cache, env))]
+        command += include_flags() + ["-x", "none", str(collector_object(cc, cache, env, threaded=threaded))]
         if sys.platform.startswith("linux"):
             command += ["-ldl"]
     if gui:

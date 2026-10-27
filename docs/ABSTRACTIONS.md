@@ -162,3 +162,13 @@ ordinary static record-method dispatch after specialization. This version has
 no interface objects, virtual dispatch, interface inheritance, generic
 interfaces, associated types, or multiple constraints on one type parameter.
 Record inheritance remains deferred.
+
+
+## Concurrency boundary
+
+See [Concurrency](CONCURRENCY.md). Thread support does not make existing shared
+mutable values or resource handles safe to use across workers. Worker calls to
+file, stream, network, database, process and GUI APIs are rejected transitively.
+Local arrays/collections inside a worker remain usable; arrays/collections or
+aggregates containing them cannot be captured or returned across task boundaries.
+Snapshot closures and shallow clones retain the existing sharing semantics.

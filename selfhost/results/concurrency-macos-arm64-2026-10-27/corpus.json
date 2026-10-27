@@ -1,0 +1,11 @@
+{
+  "native_checks": 1754,
+  "native_emissions": 115,
+  "parser_rejections": 1479,
+  "tests": 123,
+  "skipped": 2,
+  "failures": 0,
+  "errors": 0,
+  "success": true,
+  "compiler": "/Users/igino/glyph/build/concurrency-final/glyphc"
+}

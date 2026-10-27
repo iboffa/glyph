@@ -27,7 +27,7 @@ typedef struct { void *data; int64_t len; } g_array;
 static bool g_gc_stress;
 static int g_argc;
 static char **g_argv;
-static const char *g_file_json = G_FILE_JSON;
+static _Thread_local const char *g_file_json = G_FILE_JSON;
 
 static void g_gc_init(void) {
     GC_set_all_interior_pointers(1);
@@ -36,11 +36,24 @@ static void g_gc_init(void) {
     g_gc_stress = stress && !strcmp(stress, "1");
 }
 static void g_fail(const char *code, const char *message, int line, int col) {
+    #ifdef GLYPH_CONCURRENCY
+    flockfile(stderr);
+    #endif
     fputs("{\"file\":", stderr);
     fputs(g_file_json, stderr);
     fputc(',', stderr);
     fprintf(stderr, "\"code\":\"%s\",\"severity\":\"error\",\"message\":\"%s\",\"span\":{\"start\":{\"line\":%d,\"column\":%d},\"end\":{\"line\":%d,\"column\":%d}}}\n", code, message, line, col, line, col + 1);
+    #ifdef GLYPH_CONCURRENCY
+    funlockfile(stderr);
+    #endif
+    #ifdef GLYPH_CONCURRENCY
+    /* Another thread may still own a service/stdio resource. Do not run
+       main-thread atexit handlers concurrently with its active operation. */
+    fflush(stderr);
+    _Exit(70);
+    #else
     exit(70);
+    #endif
 }
 static int64_t g_add(int64_t a, int64_t b, int l, int c) {
     int64_t r; if (__builtin_add_overflow(a,b,&r)) g_fail("R001","integer overflow",l,c); return r;

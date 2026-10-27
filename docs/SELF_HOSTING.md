@@ -2,7 +2,7 @@
 
 Glyph now has a compiler written in Glyph: [`selfhost/compiler.gly`](../selfhost/compiler.gly).
 It implements lexing, parsing, type checking, type inference and C generation,
-including records/methods, user generics, tagged unions, closures, interface constraints, lists/maps/sets, reductions, unsafe array pointers, the systems library,
+including records/methods, user generics, tagged unions, closures, interface constraints, lists/maps/sets, reductions, structured concurrency, unsafe array pointers, the systems library,
 file imports, and the optional GUI API. It can compile that same source into another native
 compiler. Clang/LLVM still supplies the machine-code backend and linker.
 
@@ -107,3 +107,12 @@ Source/output aliases, including existing symlinks and hard links, are rejected.
 
 See [the systems-library API](SYSTEMS.md) for the small language additions used
 by the compiler and [verification status](VERIFICATION.md) for recorded results.
+
+
+Concurrent programs emitted by the native compiler include the same
+`concurrency_runtime.h` used by the reference backend. The native driver enables
+GC_THREADS and pthreads only for marked programs; its runtime distribution must
+include this header and the bundled collector thread sources. The
+[concurrency verification report](../benchmarks/results/macos-arm64-2026-10-27-concurrency/REPORT.md)
+records native acceptance/diagnostics, C emission, three-stage fixed-point and
+packaged-runtime execution evidence without Python on PATH.

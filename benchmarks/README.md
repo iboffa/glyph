@@ -58,3 +58,15 @@ Three sequential compiles per native case measure build wall time; the final two
 This initial suite does not control power management, CPU affinity, background load, machine temperature or antivirus scanning. It does not measure allocation-heavy services, real compiler tasks, file I/O, concurrency or end-to-end agent completion. Report medians and ranges, preserve raw data, and expand workload coverage before generalizing.
 
 `python -m benchmarks.reductions --samples 15 --output path/to/reductions.json` additionally compares integer fold, builtin sum, an explicit checked Glyph loop and ordinary C on the same array workload. It repeats the comparison with alternating values near ±2^40, which force the guarded reduction to stop speculating and use its scalar suffix. All variants mutate one element between passes; an independent Python reference reproduces truncating integer remainder and verifies each output. Results include every internal kernel timing, source hashes and toolchain metadata. This focused benchmark does not sample memory. It tests both benefit and fallback cost; fast small-integer results must not be generalized to arbitrary i64 or floating-point inputs.
+
+## Structured concurrency
+
+`python -m benchmarks.concurrency --samples 5` measures numeric compute,
+bandwidth, tiny transforms, concurrent allocation, scoped task creation/join,
+channel throughput and blocking round trips. It compares sequential Glyph/C,
+1/2/4-worker Glyph/C and a CPU-parallel Python process pool. C shares the checked
+runtime/scheduler to isolate frontend costs; this is not an independent optimized
+C scheduler. First dispatch, steady execution, allocation-only work and process
+startup are reported separately, with independently checked outputs and raw
+samples. See the [2026-10-27 report](results/macos-arm64-2026-10-27-concurrency/REPORT.md)
+for hardware, token counts, sanitizer limits and pre-change sequential comparisons.

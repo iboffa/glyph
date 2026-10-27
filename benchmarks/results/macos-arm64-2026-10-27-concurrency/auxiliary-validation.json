@@ -1,0 +1,416 @@
+{
+  "baseline_revision": "1cba5385bc3af12966227d9ac5d5679596b708bd",
+  "sanitizers": {
+    "address,undefined": {
+      "command": [
+        "/usr/bin/clang",
+        "/Users/igino/glyph/tests/concurrency_runtime_harness.c",
+        "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/sanitizer-address-undefined",
+        "-g",
+        "-fno-omit-frame-pointer",
+        "-fsanitize=address,undefined",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-std=c11",
+        "-O2",
+        "-fno-strict-aliasing",
+        "-DGC_BUILTIN_ATOMIC",
+        "-DALL_INTERIOR_POINTERS",
+        "-DNO_EXECUTE_PERMISSION",
+        "-DGC_DISABLE_INCREMENTAL",
+        "-D_DARWIN_C_SOURCE",
+        "-DLARGE_CONFIG",
+        "-DGC_THREADS",
+        "-pthread"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "In file included from /Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c:64:\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1884:7: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]\n      GC_PRINTF_FILLBUF(buf, format);\n      ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1873:17: note: expanded from macro 'GC_PRINTF_FILLBUF'\n          (void)GC_VSNPRINTF(buf, sizeof(buf) - 1, format, args); \\\n                ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1851:49: note: expanded from macro 'GC_VSNPRINTF'\n# define GC_VSNPRINTF(buf, bufsz, format, args) vsprintf(buf, format, args)\n                                                ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h:199:1: note: 'vsprintf' has been explicitly marked deprecated here\n__deprecated_msg(\"This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.\")\n^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'\n        #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))\n                                                      ^\nIn file included from /Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c:64:\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1904:5: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]\n    GC_PRINTF_FILLBUF(buf, format);\n    ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1873:17: note: expanded from macro 'GC_PRINTF_FILLBUF'\n          (void)GC_VSNPRINTF(buf, sizeof(buf) - 1, format, args); \\\n                ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1851:49: note: expanded from macro 'GC_VSNPRINTF'\n# define GC_VSNPRINTF(buf, bufsz, format, args) vsprintf(buf, format, args)\n                                                ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h:199:1: note: 'vsprintf' has been explicitly marked deprecated here\n__deprecated_msg(\"This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.\")\n^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'\n        #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))\n                                                      ^\nIn file included from /Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c:64:\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1912:5: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]\n    GC_PRINTF_FILLBUF(buf, format);\n    ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1873:17: note: expanded from macro 'GC_PRINTF_FILLBUF'\n          (void)GC_VSNPRINTF(buf, sizeof(buf) - 1, format, args); \\\n                ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1851:49: note: expanded from macro 'GC_VSNPRINTF'\n# define GC_VSNPRINTF(buf, bufsz, format, args) vsprintf(buf, format, args)\n                                                ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h:199:1: note: 'vsprintf' has been explicitly marked deprecated here\n__deprecated_msg(\"This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.\")\n^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'\n        #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))\n                                                      ^\n3 warnings generated.\n",
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "AddressSanitizer: CHECK failed: sanitizer_malloc_mac.inc:189 \"((!asan_init_is_running)) != (0)\" (0x0, 0x0) (tid=77547187)\n    <empty stack>\n\n"
+    },
+    "thread": {
+      "command": [
+        "/usr/bin/clang",
+        "/Users/igino/glyph/tests/concurrency_runtime_harness.c",
+        "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/sanitizer-thread",
+        "-g",
+        "-fno-omit-frame-pointer",
+        "-fsanitize=thread",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-std=c11",
+        "-O2",
+        "-fno-strict-aliasing",
+        "-DGC_BUILTIN_ATOMIC",
+        "-DALL_INTERIOR_POINTERS",
+        "-DNO_EXECUTE_PERMISSION",
+        "-DGC_DISABLE_INCREMENTAL",
+        "-D_DARWIN_C_SOURCE",
+        "-DLARGE_CONFIG",
+        "-DGC_THREADS",
+        "-pthread"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": -11,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "sequential_regression": {
+    "warmups": 1,
+    "samples": 15,
+    "observations": {
+      "previous_startup": {
+        "command": [
+          "/Users/igino/glyph/build/concurrency-bench/baseline_startup"
+        ],
+        "binary_bytes": 98192,
+        "samples": [
+          {
+            "wall_s": 0.005239457997959107,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0035922079696319997,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0028654169873334467,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0028084590448997915,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.003018875024281442,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.003001833043526858,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0027349580195732415,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.002904499997384846,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0030735000036656857,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0031882080365903676,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0031747499597258866,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0032694159890525043,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0029830830171704292,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.002820375026203692,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0026253340183757246,
+            "stdout": "",
+            "steady_s": null
+          }
+        ],
+        "median_wall_s": 0.003001833043526858
+      },
+      "current_startup": {
+        "command": [
+          "/Users/igino/glyph/build/concurrency-bench/startup_glyph_1"
+        ],
+        "binary_bytes": 98048,
+        "samples": [
+          {
+            "wall_s": 0.005306957988068461,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0038877089973539114,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.003049040969926864,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.003070165985263884,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0026006660191342235,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.002571500022895634,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0027757500065490603,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.002765249984804541,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.002863708999939263,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.002847583033144474,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.004907875030767173,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0043304580030962825,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0026803339715115726,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.0031297089881263673,
+            "stdout": "",
+            "steady_s": null
+          },
+          {
+            "wall_s": 0.002878415980376303,
+            "stdout": "",
+            "steady_s": null
+          }
+        ],
+        "median_wall_s": 0.002878415980376303
+      },
+      "previous_memory": {
+        "command": [
+          "/Users/igino/glyph/build/concurrency-bench/baseline_memory",
+          "500000",
+          "5"
+        ],
+        "binary_bytes": 118256,
+        "samples": [
+          {
+            "wall_s": 0.008760124968830496,
+            "stdout": "125000250004\n0.00085099996067583561\n0.0024550000089220703\n",
+            "steady_s": 0.0024550000089220703
+          },
+          {
+            "wall_s": 0.006622875051107258,
+            "stdout": "125000250004\n0.00064799998654052615\n0.001854000031016767\n",
+            "steady_s": 0.001854000031016767
+          },
+          {
+            "wall_s": 0.006304125010501593,
+            "stdout": "125000250004\n0.00069199997233226895\n0.00181200000224635\n",
+            "steady_s": 0.00181200000224635
+          },
+          {
+            "wall_s": 0.005548624962102622,
+            "stdout": "125000250004\n0.00056699995184317231\n0.0016930000274442136\n",
+            "steady_s": 0.0016930000274442136
+          },
+          {
+            "wall_s": 0.005885792023036629,
+            "stdout": "125000250004\n0.00061500002630054951\n0.0016599999507889152\n",
+            "steady_s": 0.0016599999507889152
+          },
+          {
+            "wall_s": 0.005487459013238549,
+            "stdout": "125000250004\n0.00052499998128041625\n0.0018730000010691583\n",
+            "steady_s": 0.0018730000010691583
+          },
+          {
+            "wall_s": 0.005191916017793119,
+            "stdout": "125000250004\n0.00055300001986324787\n0.0015339999808929861\n",
+            "steady_s": 0.001533999980892986
+          },
+          {
+            "wall_s": 0.0052611250430345535,
+            "stdout": "125000250004\n0.00054699997417628765\n0.0015330000314861536\n",
+            "steady_s": 0.0015330000314861536
+          },
+          {
+            "wall_s": 0.005643083015456796,
+            "stdout": "125000250004\n0.00057199998991563916\n0.0015850000199861825\n",
+            "steady_s": 0.0015850000199861825
+          },
+          {
+            "wall_s": 0.007793166034389287,
+            "stdout": "125000250004\n0.000699999975040555\n0.0015959999873302877\n",
+            "steady_s": 0.0015959999873302877
+          },
+          {
+            "wall_s": 0.007416040985845029,
+            "stdout": "125000250004\n0.00073699996573850513\n0.0017140000127255917\n",
+            "steady_s": 0.0017140000127255917
+          },
+          {
+            "wall_s": 0.005940540984738618,
+            "stdout": "125000250004\n0.00060699996538460255\n0.0015460000140592456\n",
+            "steady_s": 0.0015460000140592456
+          },
+          {
+            "wall_s": 0.005285499966703355,
+            "stdout": "125000250004\n0.00053799996385350823\n0.0015080000157468021\n",
+            "steady_s": 0.001508000015746802
+          },
+          {
+            "wall_s": 0.0056535000330768526,
+            "stdout": "125000250004\n0.00053600000683218241\n0.0015640000347048044\n",
+            "steady_s": 0.0015640000347048044
+          },
+          {
+            "wall_s": 0.005662582989316434,
+            "stdout": "125000250004\n0.00064400001429021358\n0.0016039999900385737\n",
+            "steady_s": 0.0016039999900385737
+          }
+        ],
+        "median_wall_s": 0.005662582989316434,
+        "median_steady_s": 0.0016039999900385737
+      },
+      "current_memory": {
+        "command": [
+          "/Users/igino/glyph/build/concurrency-bench/memory_glyph_sequential_1",
+          "500000",
+          "5"
+        ],
+        "binary_bytes": 118152,
+        "samples": [
+          {
+            "wall_s": 0.007660042028874159,
+            "stdout": "125000250004\n0.00097400002414360642\n0.0021899999701417983\n",
+            "steady_s": 0.0021899999701417983
+          },
+          {
+            "wall_s": 0.006800333969295025,
+            "stdout": "125000250004\n0.00069600000279024243\n0.0019409999949857593\n",
+            "steady_s": 0.0019409999949857593
+          },
+          {
+            "wall_s": 0.006225874996744096,
+            "stdout": "125000250004\n0.00061900005675852299\n0.0017629999783821404\n",
+            "steady_s": 0.0017629999783821404
+          },
+          {
+            "wall_s": 0.005760458006989211,
+            "stdout": "125000250004\n0.00056199997197836637\n0.0018910000217147171\n",
+            "steady_s": 0.0018910000217147171
+          },
+          {
+            "wall_s": 0.00527374999364838,
+            "stdout": "125000250004\n0.00057600002037361264\n0.0014979999978095293\n",
+            "steady_s": 0.0014979999978095293
+          },
+          {
+            "wall_s": 0.00514612504048273,
+            "stdout": "125000250004\n0.00056299997959285975\n0.0015209999983198941\n",
+            "steady_s": 0.001520999998319894
+          },
+          {
+            "wall_s": 0.005499042046722025,
+            "stdout": "125000250004\n0.00055599998449906707\n0.0015370000037364662\n",
+            "steady_s": 0.0015370000037364662
+          },
+          {
+            "wall_s": 0.0054254159913398325,
+            "stdout": "125000250004\n0.00056700001005083323\n0.001609999977517873\n",
+            "steady_s": 0.001609999977517873
+          },
+          {
+            "wall_s": 0.005532708950340748,
+            "stdout": "125000250004\n0.00057099998230114579\n0.0015799999819137156\n",
+            "steady_s": 0.0015799999819137156
+          },
+          {
+            "wall_s": 0.0076725000399164855,
+            "stdout": "125000250004\n0.00082000001566484571\n0.0024729999713599682\n",
+            "steady_s": 0.002472999971359968
+          },
+          {
+            "wall_s": 0.005584166967310011,
+            "stdout": "125000250004\n0.00054899998940527439\n0.0015569999814033508\n",
+            "steady_s": 0.0015569999814033508
+          },
+          {
+            "wall_s": 0.005962666997220367,
+            "stdout": "125000250004\n0.00059300003340467811\n0.0016020000330172479\n",
+            "steady_s": 0.001602000033017248
+          },
+          {
+            "wall_s": 0.005406541982665658,
+            "stdout": "125000250004\n0.00059100001817569137\n0.0016540000215172768\n",
+            "steady_s": 0.0016540000215172768
+          },
+          {
+            "wall_s": 0.005726833012886345,
+            "stdout": "125000250004\n0.00057199998991563916\n0.0017430000007152557\n",
+            "steady_s": 0.0017430000007152557
+          },
+          {
+            "wall_s": 0.005611208966001868,
+            "stdout": "125000250004\n0.00058100000023841858\n0.0015199999907054007\n",
+            "steady_s": 0.0015199999907054007
+          }
+        ],
+        "median_wall_s": 0.005611208966001868,
+        "median_steady_s": 0.001609999977517873
+      }
+    },
+    "baseline_method": "git archive HEAD glyph into build/concurrency-baseline; compile with that package as cwd using the same Python and Zig toolchain."
+  },
+  "cpu_model": "Apple M2",
+  "cpu_model_source": "sysctl -n machdep.cpu.brand_string (recorded after timed runs)"
+}

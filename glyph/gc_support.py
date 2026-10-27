@@ -1,4 +1,4 @@
-"""Build the bundled, single-threaded BDWGC without a system GC dependency."""
+"""Build the bundled BDWGC without a system GC dependency."""
 import hashlib
 import json
 import os
@@ -18,7 +18,7 @@ def include_flags():
     return ["-I" + str(VENDOR / "include"), "-DGC_NOT_DLL"]
 
 
-def collector_flags(target=None):
+def collector_flags(target=None, threaded=False):
     target = target or sys.platform
     flags = include_flags() + ["-std=c11", "-O2", "-fno-strict-aliasing",
                               "-DGC_BUILTIN_ATOMIC", "-DALL_INTERIOR_POINTERS",
@@ -28,12 +28,14 @@ def collector_flags(target=None):
         flags += ["-D_DARWIN_C_SOURCE", "-DLARGE_CONFIG"]
     elif target.startswith("linux"):
         flags += ["-D_GNU_SOURCE"]
+    if threaded:
+        flags += ["-DGC_THREADS", "-pthread"]
     return flags
 
 
-def collector_object(cc, cache, env):
+def collector_object(cc, cache, env, threaded=False):
     """Cache by source, compiler, host and SDK; publish only finished objects."""
-    flags = collector_flags()
+    flags = collector_flags(threaded=threaded)
     version = subprocess.run(cc + ["--version"], capture_output=True, env=env)
     if version.returncode:
         raise Diagnostic("G202", "cannot identify native compiler for GC build", Token("", 1, 1, 1))

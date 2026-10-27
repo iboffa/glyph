@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+    "cc",
+    "-target",
+    "x86_64-linux-musl",
+    "/Users/igino/glyph/build/channel-native-test.c",
+    "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+    "-o",
+    "/Users/igino/glyph/build/concurrency-bench/linux-channel",
+    "-lm",
+    "-ldl",
+    "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+    "-DGC_NOT_DLL",
+    "-std=c11",
+    "-O2",
+    "-fno-strict-aliasing",
+    "-DGC_BUILTIN_ATOMIC",
+    "-DALL_INTERIOR_POINTERS",
+    "-DNO_EXECUTE_PERMISSION",
+    "-DGC_DISABLE_INCREMENTAL",
+    "-D_GNU_SOURCE",
+    "-DGC_THREADS",
+    "-pthread"
+  ],
+  "returncode": 1,
+  "stdout": "",
+  "stderr": "/Users/igino/glyph/build/channel-native-test.c:1188:2: error: Glyph concurrency currently requires glibc on Linux; musl is unsupported\n 1188 | #error Glyph concurrency currently requires glibc on Linux; musl is unsupported\n      |  ^\n1 error generated.\n",
+  "execution_verified": false
+}

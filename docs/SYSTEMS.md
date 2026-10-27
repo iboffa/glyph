@@ -239,3 +239,13 @@ write/read/parse round-trip with recoverable failures.
 See [Services](SERVICES.md) for TCP sockets, HTTP with verified TLS, SQLite
 prepared statements, CSV and Base64. HTTP/SQLite programs require optional
 system development libraries; the other builtins keep the existing toolchain.
+
+
+## Concurrency boundary
+
+See [Concurrency](CONCURRENCY.md). Thread support does not make existing shared
+mutable values or resource handles safe to use across workers. Worker calls to
+file, stream, network, database, process and GUI APIs are rejected transitively.
+Local arrays/collections inside a worker remain usable; arrays/collections or
+aggregates containing them cannot be captured or returned across task boundaries.
+Snapshot closures and shallow clones retain the existing sharing semantics.

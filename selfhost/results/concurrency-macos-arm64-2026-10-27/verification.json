@@ -1,0 +1,213 @@
+{
+  "source": "/Users/igino/glyph/selfhost/compiler.gly",
+  "source_sha256": "d2432364eda6cda1e9cca3d270449e1defd0935d7dd6d88751c6a5cd03ffe3d3",
+  "source_files_sha256": {
+    "selfhost/compiler.gly": "d2432364eda6cda1e9cca3d270449e1defd0935d7dd6d88751c6a5cd03ffe3d3",
+    "selfhost/text.gly": "15b5ff613ed921f1cb8a43321d779550f4392193776ba302a7ec0b19318a717f"
+  },
+  "runtime_sha256": {
+    "collections_runtime.h": "bcededaba9adb738c2c9c6bbe5be0b868c636dc76ad7cb29b0b04fe66d72a2c2",
+    "concurrency_runtime.h": "93d9f21329318678924ebae78d9aec32ea4c81ae3c28c02c292c24bc38ae06de",
+    "db_runtime.h": "f0b48df0d8ce9a86afaea5184f8a643e2a250b33ef2d4666a50bf5170a36151b",
+    "gui.h": "66ec7f391c1e0f9ad03d8165455672c488691131cd5943b557c9386230fe611f",
+    "gui_runtime.h": "a4d9c5523cfda2b6f286b944619f5d67203c398ef16d046014708307c244e831",
+    "http_runtime.h": "c06b3291c47dfee4acfd16dbbb0f9e93d131a4a75699ba84eb9ec145dedf0223",
+    "io_runtime.h": "af14a4d9cff6fcb199cd9ae04357ad361d8085ea42558730d1e1559d5fe87eb6",
+    "json_runtime.h": "f16417937c41a40dd9daa6d2180670ea45244eca6971948ba33bf1b76242eaaa",
+    "runtime.h": "757a03e69a314eb3e16431583063606bb9ef7cb28ff306298f72c051a8496ac0",
+    "serialization_runtime.h": "07e8156e8fa2f75ba724d7fcb93bcd369defb3c46771e8ebbdef5836e5dfd7ea",
+    "std_runtime.h": "9ee0685bb426645c6e6e0ae64efa5cf806b495eeac6a94f2bcd43fc73535cc04",
+    "tcp_runtime.h": "90b18fbc6aca2c2ff989262d53254a5fe85fe76e72b61cc3c8bf70a8d7057330"
+  },
+  "collector": {
+    "version": "8.2.12",
+    "url": "https://github.com/bdwgc/bdwgc/releases/download/v8.2.12/gc-8.2.12.tar.gz",
+    "archive_sha256": "42e5194ad06ab6ffb806c83eb99c03462b495d979cda782f3c72c08af833cd4e",
+    "files_sha256": {
+      "specific.c": "59ab97d894022c14a07354d11b103f1d8d57252bbd1b409834488e205514dd2b",
+      "darwin_stop_world.c": "c89913133832e652e41d3fa1338d2a9732b8e8b51e041ab90245479cccc4179e",
+      "mach_dep.c": "8f6db8afd2e5ddb33703815adcc6dc9c47a1ff643fef6902a4c89a76b3262693",
+      "allchblk.c": "d69c1ba3a1e3fb1ecfe8678f01c02e4a432dc91fd28044c05e3e3444fc0efe7b",
+      "finalize.c": "57fe9ec25c1c9e28f861d0d4abd3b9595d1b512bb007e666ae05db8842067656",
+      "win32_threads.c": "49ab183cdcf9e4a8e6ec3c6435b05978f11686963519d5b0f37c99cf48cd4c4e",
+      "mark_rts.c": "bbf88848735320d01a5498f32e9caec29507c5ee15c2f4ae706c8808c73d92ce",
+      "alloc.c": "be776d0ed9bf97a5c34f542c7687e317629af7de626691a08d3cf6e87556a319",
+      "mallocx.c": "53246b7f5744025898d316d19de5e7b635963a4138aa9ae1d17a60e267aef5c0",
+      "gcj_mlc.c": "b53a598cf88c0c22f6042821efbb37834b4daadd59986537280bac078ea0bd81",
+      "obj_map.c": "bf595a98246d9b2195a0143a4926faf8368ffbc3121af57345807ca751b30d81",
+      "README.md": "bc7fd4945f091ac542ff97b9eb80bdcf3e113822cc49a3d0524b3ef94d841c42",
+      "dyn_load.c": "fafc7ae7f2861bba1c0c5390ef5481451e66c0edf84055d9d9291d2de793773b",
+      "new_hblk.c": "91cad15d6455a86e963d938504c7a558f1fcbdbb34ca2c70ca01496d7fa4e8eb",
+      "typd_mlc.c": "c26a6aa253695f81f96d7482dbe6be914bd85c5d24ded669d42432e2cd2220d5",
+      "backgraph.c": "ed7b4e3aa88cd11ffe1062522a4b2c45d55a39d9119a1998a4d97d3d38b596ad",
+      "checksums.c": "d9c4ed4177052957b50623914ecffc527f8ddde1eab2164771843695767dc073",
+      "malloc.c": "a633e7fc3d3da03610affc96d8a302016a4363b26ec71e1d237da26e638d6019",
+      "dbg_mlc.c": "d8e3036093c72d96f7501f3b92d3f2d1707c1969483143df86f48dcabfdf17a7",
+      "thread_local_alloc.c": "5c46787ad4fa28de621d1616a0b3fd66679aa4aa7f87a98a5c15d4eef302adbd",
+      "pthread_start.c": "5fecc6de2e2817147c553170e18f802673c1bc2f729e8540481f2f0b7bcb6790",
+      "blacklst.c": "aef015c9ddb20127ed373b8719b7a1dcf77828eaefe31b92eda21df5bab9fe5f",
+      "misc.c": "f1c69bbbbe507095efab755aee4b5186b34f4b1777be4e67662c7b846bb6b5da",
+      "fnlz_mlc.c": "4984e2e2735b1ec62891fe8f80f4ca6313ad9a8a7815efcee5e053968cf3ced0",
+      "pthread_stop_world.c": "4ec3135d2d363adfcafb74a514d200f70737d68da2e73c961439965446cfdd28",
+      "headers.c": "fa088de05d6cc6d1ecd740a07772f38b5b10f5878e0434b9d9d440da95e8c51d",
+      "mark.c": "b757fb8fd8b2b4da51a0a75711566c33ebea5510e13efec12f7c801bac997e64",
+      "os_dep.c": "3b002c0807bc57a96ab8913d41cbc280808680fd7c2d4fd827554ee1fff7ad58",
+      "extra/gc.c": "8243cacab155e6895d7ae28ea294bfe20757e24e25c06136a4dcb09fb3a65d0b",
+      "ptr_chck.c": "f40a61fce9be8f547b6cc3cb9ac7551b9a3a3e1e99b1f6e263af811c917c53c1",
+      "include/gc_typed.h": "fa7910da9155fb836d48ac9723b239dfe10d64b414d90801d5b9d72a64877d0c",
+      "include/gc_gcj.h": "87c8493463ff62edc7faa256f03e3a24cdf8b9375e3a0d3298530bdf74d95005",
+      "include/gc_allocator.h": "b2a281c01c85af83007c859a62ed85413d4eb9ab892a26487b7a9aa5be97e90a",
+      "include/cord.h": "1830d4eaa868ea2f15873659f0a2838c3309b9b32b912fc6c68f9e007827c6c6",
+      "include/private/gc_pmark.h": "d79237eabe17ef221c88ce40bf1c6bf7399303b86ca909801599d892cf5b0553",
+      "include/private/pthread_stop_world.h": "6b3387e028ab37c45841a278f849555984a9e82c88e23dd3e1c425917d40c8a2",
+      "include/private/gcconfig.h": "3bf7a147b05d0b8630851de7b6d08a6fb35f52e0d01f8000a578ea2ecb600b2b",
+      "include/private/gc_hdrs.h": "c5de91e1062f80331992ed75beb12ead8db63f80cdf681519e7e7fc075278473",
+      "include/private/specific.h": "e4c0ad2599c06fdad1afd567ec314fb1d41c842cb509b8368dfaaa667d1bad86",
+      "include/private/dbg_mlc.h": "b642c60163d03ce4bc05c681b9714cfc93c908921c7c16e00c307a3e35f4407a",
+      "include/private/thread_local_alloc.h": "dfe6050fd436561cb3fe219cfd4d8c5b32d16c0e312c120ce12de72891d35cae",
+      "include/private/darwin_semaphore.h": "e3c6abf5d9189ca7d7ab18ef68e66837fff2c4678b39100d7d29d54d92a36bb0",
+      "include/private/gc_alloc_ptrs.h": "9a4d45b8f7a33a7668a6f83b3bd0ec841193f041ba2860fb301fdeec02e80d6c",
+      "include/private/gc_locks.h": "230636a2c772574310df2f69abca66d942fd61b12e4f21f2f81ff1ee68b89bc1",
+      "include/private/pthread_support.h": "ca731396d7b587ac4f1fd72b964e8fb540b664f0973d242ab3ea231b1af2ce35",
+      "include/private/gc_priv.h": "ea2bfbf7632f57c2b4446ad4ac228d247b821c3d8d6a791c2e09828d4dad9bcb",
+      "include/private/msvc_dbg.h": "f59a6dfcd78580673d57bda75be0fdce7e7efb35210b9e3e4c56d41574878037",
+      "include/private/darwin_stop_world.h": "bc90562f3e29c1ab3b23af4d05f41ed5f5283e8fefc429337eea369d760b98a1",
+      "include/private/gc_atomic_ops.h": "464eb2661b39451ea530890bb9be7dede323f2ed148f0646ae0fd764be2344f7",
+      "include/gc_version.h": "a45df41e4a6615f00e6991b7e67151d73e0f593bc1112463568a7eff45470e28",
+      "include/leak_detector.h": "7b36b85eb6cf5478758884981b4c4d92192da61fb74483f0101acf1b11866659",
+      "include/gc_config_macros.h": "1321e010e0c1c22123fe0af5fc72d2065cf098d3c09b0cf76535cb8c3ea04230",
+      "include/gc.h": "02cfecefca6aca4bf59280aaa3f967fff862857d087e5e8987f3db8bda6ed3f2",
+      "include/gc_tiny_fl.h": "c0dfbd526405ae28e108b608dd2c77e2dbe2858cbeb880d2d67749fd04a49bc5",
+      "include/javaxfc.h": "1a89edc382dbc9e2c7d3a6bcf749ec71411c9c45f2da96b63efaf3cc1d8bbaba",
+      "include/ec.h": "8bc9c2f888c3f3ef3464b851ff24f8be90672b13990e05cf88a4d906e7f516ba",
+      "include/gc_backptr.h": "6c2ecdc5fdcca5019a904179a2eb95805f8ff60482f2a429bdc5fd67957d1c95",
+      "include/gc_pthread_redirects.h": "e68ce92ca0280b42bb1a0db62357e883d3e37235d18c2bd0d3ad6bd59209b09b",
+      "include/gc_disclaim.h": "ff742436ba82f7157e3ae270f2b8d22f53f9fd2611b941d4310a41cc1ea2a5df",
+      "include/gc_cpp.h": "86534282e80e6d9bcd9e15cebfccc002ee8c8a8d52a42ad5b2378712d0743750",
+      "include/gc_inline.h": "d032a0b1e8891dd25b6c3673b58fac6ddcb059e01285696a6878ef9c022f14df",
+      "include/extra/gc.h": "dd0430e1af53d8aa1d6fb84819ba5004230916c306f2c15ecec40762972adb51",
+      "include/extra/gc_cpp.h": "de9162d77fbfef52eea3d342b3a82f4923c46ee8935b352656a2abdaaaf88e15",
+      "include/cord_pos.h": "f46fba45f62f97351eb1dd748ccaa1f55cc0a72272e07a788c351146411efc9d",
+      "include/gc_mark.h": "5cac8cf04cee93b1186a5a50e2980b780dbd0717cd42e4511a170f33156329f5",
+      "gc_dlopen.c": "70d1dcc114525a718d389f3b078f07b4e1da618a9e5ffd32c41b4ee69049cd98",
+      "pthread_support.c": "f397ba2120633dbc7cb6038e7333b2a54a49ac1b6ad3a1d4eb0d37a8a7793c79",
+      "reclaim.c": "e29eb93fae90c1b6fcb84e4bc4ac7ac31bc181bac9fdf0c8054cfbde86331833"
+    }
+  },
+  "fixed_point": true,
+  "native_generations_without_python_on_path": true,
+  "generated_c_sha256": "74008a34f657686806924ceefb87b08bf99395618ad92e2650d9474de892a867",
+  "stages": {
+    "stage1": {
+      "executable_sha256": "a1814d783ba2e1230b6298b06e65518fb8d9efd9334ce1ae660e479d7b703ae6",
+      "bytes": 427464
+    },
+    "stage2": {
+      "executable_sha256": "50efc3749344bb4554d00cf2e8d16ebd545be169cc9c8b544f20821829b66f85",
+      "bytes": 480056
+    },
+    "glyphc": {
+      "executable_sha256": "84e8cac4fcdc73745a5e3f23c570b0e3f36c4a9a660862de55c3fc39b5d64ed6",
+      "bytes": 480056
+    }
+  },
+  "commands": [
+    {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "-m",
+        "glyph",
+        "build",
+        "/Users/igino/glyph/selfhost/compiler.gly",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-final/stage1"
+      ],
+      "seconds": 3.411040375009179,
+      "returncode": 0,
+      "python_on_path": true
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-final/stage1",
+        "build",
+        "/Users/igino/glyph/selfhost/compiler.gly",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-final/stage2",
+        "--runtime-dir",
+        "/Users/igino/glyph/glyph",
+        "--cc",
+        "/usr/bin/cc"
+      ],
+      "seconds": 3.1823889579973184,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-final/stage2",
+        "build",
+        "/Users/igino/glyph/selfhost/compiler.gly",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-final/glyphc",
+        "--runtime-dir",
+        "/Users/igino/glyph/glyph",
+        "--cc",
+        "/usr/bin/cc"
+      ],
+      "seconds": 3.1724805829580873,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-final/glyphc",
+        "check",
+        "/Users/igino/glyph/selfhost/compiler.gly"
+      ],
+      "seconds": 0.36868829099694267,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-final/glyphc",
+        "run",
+        "/Users/igino/glyph/build/concurrency-final/argument smoke.gly",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-final/argument smoke",
+        "--runtime-dir",
+        "/Users/igino/glyph/glyph",
+        "--cc",
+        "/usr/bin/cc",
+        "--",
+        "no Python; spaces preserved"
+      ],
+      "seconds": 0.9603263749741018,
+      "returncode": 0,
+      "python_on_path": false
+    },
+    {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "/Users/igino/glyph/selfhost/verify.py",
+        "/Users/igino/glyph/build/concurrency-final/glyphc",
+        "--output-dir",
+        "/Users/igino/glyph/build/concurrency-final/corpus"
+      ],
+      "seconds": 111.05140141601441,
+      "returncode": 0,
+      "python_on_path": true
+    }
+  ],
+  "corpus": {
+    "native_checks": 1754,
+    "native_emissions": 115,
+    "parser_rejections": 1479,
+    "tests": 123,
+    "skipped": 2,
+    "failures": 0,
+    "errors": 0,
+    "success": true,
+    "compiler": "/Users/igino/glyph/build/concurrency-final/glyphc"
+  }
+}

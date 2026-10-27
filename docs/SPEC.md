@@ -23,6 +23,7 @@ statement := name ':' type '=' expression NEWLINE
            | 'while' expression block
            | 'for' name ':' expression block
            | 'unsafe' block
+           | 'scope' block
 type_parameters := '[' name [':' interface_name] (',' name [':' interface_name])* ']'
 type := scalar | record_name | union_name | type_parameter | 'void'
       | generic_name '[' type (',' type)* ']' | 'fn(' [type (',' type)*] ')>' type
@@ -165,7 +166,7 @@ The tradeoffs are collection pauses, conservative retention and allocator overhe
 | `concat`, `slice`, `byte_at`, `chr`, `join`, `str_i64`, `str_f64`, `parse_i64`, `parse_f64`, `valid_f64` | Text operations; signatures, UTF-8 boundaries and allocation rules are specified in [SYSTEMS.md](SYSTEMS.md) |
 | `read_file`, `write_file`, `same_file`, `file_exists`, `arg`, `argc`, `getenv`, `platform`, `process`, `eprint`, `exit` | File/argument/process operations; contracts and platform limits are specified in [SYSTEMS.md](SYSTEMS.md) |
 
-No package manager, import aliases, inheritance, runtime interface objects, exceptions, concurrency, mutable string builders, dynamic linking interface, or alternate human presentation layer are implemented.
+No package manager, import aliases, inheritance, runtime interface objects, exceptions, mutable string builders, dynamic linking interface, or alternate human presentation layer are implemented.
 
 Recoverable systems-library failures use `IntResult`, `FloatResult`,
 `StringResult` and `BoolResult`, reserved built-in value record types with
@@ -204,6 +205,8 @@ For compatibility with existing programs, user functions named `sum` or `count` 
 | G113 | Recursive inline record/union layout |
 | G114 | Unsatisfied interface constraint |
 | G115 | Unknown, duplicate, or missing match case |
+| G116 | Unsafe concurrency payload/capture or unsupported worker effect |
+| G117 | Task scope, handle use, or escape violation |
 | G200 | Filesystem/process error |
 | G201 | Backend unavailable |
 | G202 | Backend compilation failure |
@@ -222,6 +225,7 @@ For compatibility with existing programs, user functions named `sum` or `count` 
 | R014 | HTTP transport, TLS verification, request contract or response limit failure |
 | R015 | SQLite operation, binding, state, type or handle failure |
 | R016 | Invalid CSV or Base64 serialization |
+| R018 | Concurrency configuration, capacity, creation/resource, or invalid-wait failure |
 
 `glyph fmt` parses and prints a canonical AST representation: two-space indentation, standard operator/comma spacing, normalized numeric/string literals, minimal precedence-preserving parentheses, one blank line between functions, final newline. Single return functions become expression bodies when no intervening comment prevents that. Comments are retained in order as standalone comments; trailing comments move above the corresponding statement. Comments between block boundaries may move with the next statement. Formatting does not require type correctness. `--check` reports differences without writing.
 
@@ -253,3 +257,31 @@ The full method signatures, examples and cost model are in [Collections](COLLECT
 Binary and JSON standard-library calls are specified in [the systems API](SYSTEMS.md#binary-and-streaming-io). `BytesResult` and `StringsResult` extend the ordinary result-record convention with `[int]` and `[str]` payloads. Binary files do not require UTF-8. JSON values remain ordinary strings; invalid JSON or lookup failures return `R012`. Both compilers expose identical signatures.
 
 TCP, HTTP/TLS, SQLite, CSV and Base64 builtins are specified in [Services](SERVICES.md). `HttpResult` extends the result-record convention with binary `value` and `headers` arrays and an HTTP `status`. HTTP/SQLite dependencies are linked only when their APIs are referenced. All four new error categories are recoverable results; allocation failures remain fatal.
+
+
+## Structured concurrency
+
+[Concurrency](CONCURRENCY.md) defines the normative API, sharing restrictions,
+ordering, lifetime, blocking and platform contract. `par_map(array, callback)`
+returns a fresh numeric array and completes every callback before returning.
+Ordinary loops and reductions retain their existing order. `scope` blocks join
+all `spawn(callback)` children on fallthrough and return. `wait(handle)` yields
+a typed result; `task_status(handle)` reports creation failure as IntResult.
+Handles are inferred locals and cannot be copied, reassigned or escape.
+
+`channel[T]` is a shared capability with recursively safe payload T. Construct
+with an expected type: `c:channel[str] = channel(2)`. `send(c, value)` and
+`receive(c, fn(T)>void)` block and return bool; false means closed (and drained
+for receive). Receive invokes its callback on the receiving thread after dequeue.
+`close(c)` is idempotent and wakes waiters. Buffered values remain receivable.
+Tasks accept immutable strings/scalars and recursively safe records/unions,
+including channel capabilities. Mutable graphs, pointers and opaque function
+values do not cross worker boundaries. Worker effects are checked transitively.
+
+Concurrent programs link threaded BDWGC and pthreads. Programs without these
+constructs retain the sequential collector/build path. Fatal runtime traps still
+terminate the process with status 70; they do not promise scope cleanup.
+Concurrent traps flush their diagnostic and use `_Exit(70)` to bypass atexit
+handlers that could race with active main-thread resource operations. Buffered
+stdout is not guaranteed to flush in this fatal path. Sequential traps retain
+the existing exit/cleanup behavior.

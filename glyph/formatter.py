@@ -93,7 +93,7 @@ def format_source(source):
             elif s.kind == "for":
                 text = f"for {s.value}:{expression(s.args[0])}"
             else:
-                text = "unsafe"
+                text = s.kind
             out.append(prefix + text)
             if s.body:
                 block(s.body, depth + 1)

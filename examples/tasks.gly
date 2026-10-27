@@ -1,0 +1,19 @@
+type Value
+  text:str
+  number:int
+
+work>Value = Value(concat("hello", " task"), 42)
+
+nested>int
+  scope
+    t := spawn(work)
+    ret wait(t).number
+
+main>void
+  scope
+    a := spawn(work)
+    b := spawn(nested)
+    print(task_status(a).ok)
+    print(wait(a).text)
+    print(wait(a).number)
+    print(wait(b))

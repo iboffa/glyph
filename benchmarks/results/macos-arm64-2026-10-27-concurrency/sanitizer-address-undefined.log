@@ -1,0 +1,30 @@
+{
+  "command": [
+    "/usr/bin/clang",
+    "/Users/igino/glyph/tests/concurrency_runtime_harness.c",
+    "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+    "-o",
+    "/Users/igino/glyph/build/concurrency-bench/sanitizer-address-undefined",
+    "-g",
+    "-fno-omit-frame-pointer",
+    "-fsanitize=address,undefined",
+    "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+    "-DGC_NOT_DLL",
+    "-std=c11",
+    "-O2",
+    "-fno-strict-aliasing",
+    "-DGC_BUILTIN_ATOMIC",
+    "-DALL_INTERIOR_POINTERS",
+    "-DNO_EXECUTE_PERMISSION",
+    "-DGC_DISABLE_INCREMENTAL",
+    "-D_DARWIN_C_SOURCE",
+    "-DLARGE_CONFIG",
+    "-DGC_THREADS",
+    "-pthread"
+  ],
+  "build_returncode": 0,
+  "build_stderr": "In file included from /Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c:64:\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1884:7: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]\n      GC_PRINTF_FILLBUF(buf, format);\n      ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1873:17: note: expanded from macro 'GC_PRINTF_FILLBUF'\n          (void)GC_VSNPRINTF(buf, sizeof(buf) - 1, format, args); \\\n                ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1851:49: note: expanded from macro 'GC_VSNPRINTF'\n# define GC_VSNPRINTF(buf, bufsz, format, args) vsprintf(buf, format, args)\n                                                ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h:199:1: note: 'vsprintf' has been explicitly marked deprecated here\n__deprecated_msg(\"This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.\")\n^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'\n        #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))\n                                                      ^\nIn file included from /Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c:64:\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1904:5: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]\n    GC_PRINTF_FILLBUF(buf, format);\n    ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1873:17: note: expanded from macro 'GC_PRINTF_FILLBUF'\n          (void)GC_VSNPRINTF(buf, sizeof(buf) - 1, format, args); \\\n                ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1851:49: note: expanded from macro 'GC_VSNPRINTF'\n# define GC_VSNPRINTF(buf, bufsz, format, args) vsprintf(buf, format, args)\n                                                ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h:199:1: note: 'vsprintf' has been explicitly marked deprecated here\n__deprecated_msg(\"This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.\")\n^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'\n        #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))\n                                                      ^\nIn file included from /Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c:64:\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1912:5: warning: 'vsprintf' is deprecated: This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead. [-Wdeprecated-declarations]\n    GC_PRINTF_FILLBUF(buf, format);\n    ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1873:17: note: expanded from macro 'GC_PRINTF_FILLBUF'\n          (void)GC_VSNPRINTF(buf, sizeof(buf) - 1, format, args); \\\n                ^\n/Users/igino/glyph/glyph/vendor/bdwgc/extra/../misc.c:1851:49: note: expanded from macro 'GC_VSNPRINTF'\n# define GC_VSNPRINTF(buf, bufsz, format, args) vsprintf(buf, format, args)\n                                                ^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/stdio.h:199:1: note: 'vsprintf' has been explicitly marked deprecated here\n__deprecated_msg(\"This function is provided for compatibility reasons only.  Due to security concerns inherent in the design of sprintf(3), it is highly recommended that you use vsnprintf(3) instead.\")\n^\n/Library/Developer/CommandLineTools/SDKs/MacOSX.sdk/usr/include/sys/cdefs.h:218:48: note: expanded from macro '__deprecated_msg'\n        #define __deprecated_msg(_msg) __attribute__((__deprecated__(_msg)))\n                                                      ^\n3 warnings generated.\n",
+  "returncode": -6,
+  "stdout": "",
+  "stderr": "AddressSanitizer: CHECK failed: sanitizer_malloc_mac.inc:189 \"((!asan_init_is_running)) != (0)\" (0x0, 0x0) (tid=77547187)\n    <empty stack>\n\n"
+}

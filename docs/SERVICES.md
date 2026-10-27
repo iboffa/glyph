@@ -218,3 +218,13 @@ field; a final line ending does not add a row. Parsed row fragments may retain
 the source string; decoded fields are copied. CSV helpers process whole
 strings, not incremental streams. They preserve field text without spreadsheet
 formula transformations.
+
+
+## Concurrency boundary
+
+See [Concurrency](CONCURRENCY.md). Thread support does not make existing shared
+mutable values or resource handles safe to use across workers. Worker calls to
+file, stream, network, database, process and GUI APIs are rejected transitively.
+Local arrays/collections inside a worker remain usable; arrays/collections or
+aggregates containing them cannot be captured or returned across task boundaries.
+Snapshot closures and shallow clones retain the existing sharing semantics.

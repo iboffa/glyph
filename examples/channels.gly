@@ -1,0 +1,22 @@
+produce c:channel[str]>int
+  send(c, concat("hello", " channel"))
+  send(c, "")
+  close(c)
+  ret 42
+
+show s:str>void
+  print(s)
+
+main>void
+  c:channel[str] = channel(1)
+  scope
+    t := spawn(fn()>int = produce(c))
+    if not task_status(t).ok
+      close(c)
+      eprint(task_status(t).message)
+    else
+      while receive(c, show)
+        print("received")
+      print(wait(t))
+  print(send(c, "closed"))
+  close(c)

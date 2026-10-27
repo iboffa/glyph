@@ -69,11 +69,12 @@ If this sandboxed Python distribution cannot bootstrap pip into a venv because o
 * Blocking TCP client/server sockets, HTTP with verified TLS through optional system libcurl, SQLite prepared statements through optional system SQLite, and CSV/Base64 serialization. See [services and dependencies](docs/SERVICES.md).
 * Recoverable `try_` parsing, file and process operations returning typed result records with error codes and messages. See [error handling](docs/SYSTEMS.md#recoverable-failures).
 * Named file imports with isolated module names, shared dependency identity and circular-import diagnostics.
+* Structured numeric parallel maps, scoped tasks, and typed bounded channels on macOS/Linux; conservative capture and effect checks. See [concurrency](docs/CONCURRENCY.md).
 * A self-hosted compiler with a verified three-stage bootstrap and native regression checks.
 
 Start with [the little Glyph manual](docs/MANUAL.md), or read [the specification](docs/SPEC.md), [architecture and tradeoffs](docs/ARCHITECTURE.md), and [the short agent guide](docs/AGENT_GUIDE.md). Examples are in [examples](examples/).
 
-Garbage collection can pause execution and conservatively retain unused storage; live slices keep their entire backing allocation alive. `push` copies and is O(n). Inheritance, runtime interface dispatch, concurrency, scoped regions and alternate presentation layers are not implemented. These are future work. The frontend is deliberately small and has not been hardened against hostile resource-exhaustion inputs.
+Garbage collection can pause execution and conservatively retain unused storage; live slices keep their entire backing allocation alive. `push` copies and is O(n). Inheritance, runtime interface dispatch, scoped memory regions and alternate presentation layers are not implemented. These are future work. The frontend is deliberately small and has not been hardened against hostile resource-exhaustion inputs.
 
 ## Self-hosting
 

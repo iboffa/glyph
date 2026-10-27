@@ -114,7 +114,7 @@ def main():
     syntax.parse, checker.check, backend.Emitter.emit = parse, check, emit
     suite = unittest.TestSuite()
     loader = unittest.defaultTestLoader
-    for name in ('test_glyph', 'test_records', 'test_reductions', 'test_gui', 'test_systems', 'test_results', 'test_io_json', 'test_services', 'test_service_failures', 'test_selfhost', 'test_modules', 'test_gc', 'test_collections', 'test_abstractions'):
+    for name in ('test_glyph', 'test_records', 'test_reductions', 'test_gui', 'test_systems', 'test_results', 'test_io_json', 'test_services', 'test_service_failures', 'test_selfhost', 'test_modules', 'test_gc', 'test_collections', 'test_abstractions', 'test_concurrency'):
         suite.addTests(loader.loadTestsFromName(name))
     result = unittest.TextTestRunner(verbosity=2).run(suite)
     report = {**counters, 'tests': result.testsRun, 'skipped': len(result.skipped),

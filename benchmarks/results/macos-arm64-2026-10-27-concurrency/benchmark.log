@@ -1,0 +1,7 @@
+sysctl: sysctl fmt -1 1024 1: Operation not permitted
+Verified sample 1
+Verified sample 2
+Verified sample 3
+Verified sample 4
+Verified sample 5
+/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-27-concurrency/benchmarks.json

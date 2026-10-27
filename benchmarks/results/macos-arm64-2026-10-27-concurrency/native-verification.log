@@ -1,0 +1,8 @@
+Completed python: 3.41s
+Completed stage1: 3.18s
+Completed stage2: 3.17s
+Completed glyphc: 0.37s
+Completed glyphc: 0.96s
+Completed python: 111.05s
+Fixed point verified. Native compiler: /Users/igino/glyph/build/concurrency-final/glyphc
+Verification: /Users/igino/glyph/build/concurrency-final/verification.json

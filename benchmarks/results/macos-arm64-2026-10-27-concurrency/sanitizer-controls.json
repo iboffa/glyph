@@ -1,0 +1,80 @@
+{
+  "control/address,undefined": {
+    "command": [
+      "/usr/bin/clang",
+      "-fsanitize=address,undefined",
+      "-g",
+      "-fno-omit-frame-pointer",
+      "-o",
+      "/Users/igino/glyph/build/concurrency-bench/sanitize-control-address-undefined",
+      "/Users/igino/glyph/build/concurrency-bench/sanitizer-control.c"
+    ],
+    "build_returncode": 0,
+    "build_stderr": "",
+    "returncode": -6,
+    "stdout": "",
+    "stderr": "AddressSanitizer: CHECK failed: sanitizer_malloc_mac.inc:189 \"((!asan_init_is_running)) != (0)\" (0x0, 0x0) (tid=77631454)\n    <empty stack>\n\n"
+  },
+  "control/thread": {
+    "command": [
+      "/usr/bin/clang",
+      "-fsanitize=thread",
+      "-g",
+      "-fno-omit-frame-pointer",
+      "-o",
+      "/Users/igino/glyph/build/concurrency-bench/sanitize-control-thread",
+      "/Users/igino/glyph/build/concurrency-bench/sanitizer-control.c"
+    ],
+    "build_returncode": 0,
+    "build_stderr": "",
+    "returncode": -11,
+    "stdout": "",
+    "stderr": ""
+  },
+  "control/undefined": {
+    "command": [
+      "/usr/bin/clang",
+      "-fsanitize=undefined",
+      "-g",
+      "-fno-omit-frame-pointer",
+      "-o",
+      "/Users/igino/glyph/build/concurrency-bench/sanitize-control-undefined",
+      "/Users/igino/glyph/build/concurrency-bench/sanitizer-control.c"
+    ],
+    "build_returncode": 0,
+    "build_stderr": "",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  "runtime/undefined": {
+    "command": [
+      "/usr/bin/clang",
+      "-fsanitize=undefined",
+      "-g",
+      "-fno-omit-frame-pointer",
+      "-o",
+      "/Users/igino/glyph/build/concurrency-bench/sanitize-runtime-undefined",
+      "/Users/igino/glyph/tests/concurrency_runtime_harness.c",
+      "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+      "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+      "-DGC_NOT_DLL",
+      "-std=c11",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-DGC_BUILTIN_ATOMIC",
+      "-DALL_INTERIOR_POINTERS",
+      "-DNO_EXECUTE_PERMISSION",
+      "-DGC_DISABLE_INCREMENTAL",
+      "-D_DARWIN_C_SOURCE",
+      "-DLARGE_CONFIG",
+      "-DGC_THREADS",
+      "-pthread"
+    ],
+    "build_returncode": 0,
+    "build_stderr": "",
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  }
+}

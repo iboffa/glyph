@@ -139,7 +139,7 @@ class Expansion:
                 raise Diagnostic('G003', f'{name} requires explicit type arguments', token)
             return name
         def application(name, args):
-            if name in {'list', 'map', 'set'}:
+            if name in {'list', 'map', 'set', 'task', 'channel'}:
                 if len(args) != (2 if name == 'map' else 1):
                     raise Diagnostic('G003', f'invalid type arguments for {name}', token)
                 return name + '[' + ','.join(args) + ']'
