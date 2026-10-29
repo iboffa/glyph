@@ -1,0 +1,12 @@
+main>void
+  n := argi(0)
+  repeats := argi(1)
+  output:[int] = []
+  start := clock()
+  i := 0
+  while i < repeats
+    output = fill(n, 1)
+    i += 1
+  elapsed := clock() - start
+  print(sum(output))
+  print(elapsed)

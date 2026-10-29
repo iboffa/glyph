@@ -1,0 +1,140 @@
+[
+  {
+    "command": [
+      "/Users/igino/glyph/.venv/bin/python",
+      "-m",
+      "glyph",
+      "build",
+      "/Users/igino/glyph/examples/memory.gly",
+      "-o",
+      "/Users/igino/glyph/build/memory-cli/reference",
+      "--cc",
+      "/usr/bin/clang",
+      "--profile-generate",
+      "/Users/igino/glyph/build/memory-cli/reference.profraw"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/igino/glyph/build/memory-cli/reference"
+    ],
+    "returncode": 0,
+    "stdout": "20\n16\n15\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "xcrun",
+      "llvm-profdata",
+      "merge",
+      "-o",
+      "/Users/igino/glyph/build/memory-cli/reference.profdata",
+      "/Users/igino/glyph/build/memory-cli/reference.profraw"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/igino/glyph/.venv/bin/python",
+      "-m",
+      "glyph",
+      "build",
+      "/Users/igino/glyph/examples/memory.gly",
+      "-o",
+      "/Users/igino/glyph/build/memory-cli/reference",
+      "--cc",
+      "/usr/bin/clang",
+      "--profile-use",
+      "/Users/igino/glyph/build/memory-cli/reference.profdata",
+      "--lto",
+      "thin",
+      "--cpu",
+      "native"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/igino/glyph/build/memory-cli/reference"
+    ],
+    "returncode": 0,
+    "stdout": "20\n16\n15\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/igino/glyph/build/memory-selfhost/glyphc",
+      "build",
+      "/Users/igino/glyph/examples/memory.gly",
+      "-o",
+      "/Users/igino/glyph/build/memory-cli/native",
+      "--cc",
+      "/usr/bin/clang",
+      "--runtime-dir",
+      "/Users/igino/glyph/glyph",
+      "--profile-generate",
+      "/Users/igino/glyph/build/memory-cli/native.profraw"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/igino/glyph/build/memory-cli/native"
+    ],
+    "returncode": 0,
+    "stdout": "20\n16\n15\n",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "xcrun",
+      "llvm-profdata",
+      "merge",
+      "-o",
+      "/Users/igino/glyph/build/memory-cli/native.profdata",
+      "/Users/igino/glyph/build/memory-cli/native.profraw"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/igino/glyph/build/memory-selfhost/glyphc",
+      "build",
+      "/Users/igino/glyph/examples/memory.gly",
+      "-o",
+      "/Users/igino/glyph/build/memory-cli/native",
+      "--cc",
+      "/usr/bin/clang",
+      "--runtime-dir",
+      "/Users/igino/glyph/glyph",
+      "--profile-use",
+      "/Users/igino/glyph/build/memory-cli/native.profdata",
+      "--lto",
+      "thin",
+      "--cpu",
+      "native"
+    ],
+    "returncode": 0,
+    "stdout": "",
+    "stderr": ""
+  },
+  {
+    "command": [
+      "/Users/igino/glyph/build/memory-cli/native"
+    ],
+    "returncode": 0,
+    "stdout": "20\n16\n15\n",
+    "stderr": ""
+  }
+]

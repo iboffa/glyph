@@ -1,0 +1,17 @@
+main>void
+  setup := clock()
+  n := argi(0)
+  width := argi(1)
+  a := fill(width, 0)
+  setup = clock() - setup
+  start := clock()
+  i := 0
+  total := 0
+  while i < n
+    a = fill(width, i)
+    total += sum(a)
+    i += 1
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

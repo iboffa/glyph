@@ -1,0 +1,528 @@
+{
+  "source": "/Users/igino/glyph/selfhost/compiler.gly",
+  "source_sha256": "cab4c2b476dce12913a05719f9faee01cdb5d08d87de3a4f3a7fbfeed2d6d3a3",
+  "c_sha256": "73df42c3be0d305b59c8d007822a3b4c19e266c73e00f7e29737a3ba1ad6b043",
+  "frontend": "native",
+  "cc": "/usr/bin/clang",
+  "cc_version": "Apple clang version 15.0.0 (clang-1500.3.9.4)\nTarget: arm64-apple-darwin25.5.0\nThread model: posix\nInstalledDir: /Library/Developer/CommandLineTools/usr/bin\n",
+  "profdata_version": "Apple LLVM version 15.0.0\n  Optimized build.\n  Default target: arm64-apple-darwin25.5.0\n  Host CPU: apple-m1\n",
+  "training": [
+    [
+      "check",
+      "/Users/igino/glyph/examples/sum.gly"
+    ],
+    [
+      "check",
+      "/Users/igino/glyph/examples/records.gly"
+    ],
+    [
+      "check",
+      "/Users/igino/glyph/examples/calculator.gly"
+    ]
+  ],
+  "heldout": [
+    "emit-c",
+    "/Users/igino/glyph/build/memory-baseline/selfhost/compiler.gly",
+    "-o",
+    "/Users/igino/glyph/build/release-workflow/native-compiler/heldout.c",
+    "--runtime-dir",
+    "/Users/igino/glyph/glyph"
+  ],
+  "runs": {
+    "portable": {
+      "build_s": [
+        2.477486959000089,
+        2.47337754199998
+      ],
+      "bytes": 513400,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/program.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/portable",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        {
+          "wall_s": 0.30788279099942883,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3087031659997592,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30290112500006217,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30216541700065136,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30380591599987383,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30617404199983866,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3037261250001393,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        }
+      ],
+      "median_wall_s": 0.30380591599987383
+    },
+    "thin_lto": {
+      "build_s": [
+        3.179133333000209,
+        3.186877875000391
+      ],
+      "bytes": 463448,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/program.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/thin_lto",
+        "-flto=thin",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        {
+          "wall_s": 0.29857416699996975,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.2971204580007907,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3032122499998877,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.299165458999596,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.2996569589995488,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.2985366670000076,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3014111669999693,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        }
+      ],
+      "median_wall_s": 0.299165458999596
+    },
+    "full_lto": {
+      "build_s": [
+        2.9146915000001172,
+        2.91576645799978
+      ],
+      "bytes": 463544,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/program.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/full_lto",
+        "-flto=full",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        {
+          "wall_s": 0.3056831249996321,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30634391700004926,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30260454200015374,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3023296660003325,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3132190839996838,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.31126087499978894,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30398304099981033,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        }
+      ],
+      "median_wall_s": 0.3056831249996321
+    },
+    "native_cpu": {
+      "build_s": [
+        2.472499708000214,
+        2.54641462499967
+      ],
+      "bytes": 513400,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/program.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/native_cpu",
+        "-mcpu=native",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        {
+          "wall_s": 0.30391708300066966,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3135339170003135,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3032021249991885,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3014184160001605,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3095820829994409,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.30659779100005835,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3046446670005025,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        }
+      ],
+      "median_wall_s": 0.3046446670005025
+    },
+    "pgo": {
+      "build_s": [
+        2.128625416000432,
+        2.122998457999529
+      ],
+      "bytes": 488512,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/program.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/pgo",
+        "-fprofile-instr-use=/Users/igino/glyph/build/release-workflow/native-compiler/merged.profdata",
+        "-Werror=profile-instr-out-of-date",
+        "-Werror=profile-instr-unprofiled",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        {
+          "wall_s": 0.29925345900028333,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.29698924999956944,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.29654049999953713,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.29645070799961104,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3019259169996076,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.29955333299949416,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.2960837500004345,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        }
+      ],
+      "median_wall_s": 0.29698924999956944
+    },
+    "pgo_thin_lto": {
+      "build_s": [
+        2.7728604159992756,
+        2.753943457999412
+      ],
+      "bytes": 415296,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/program.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/release-workflow/native-compiler/pgo_thin_lto",
+        "-flto=thin",
+        "-fprofile-instr-use=/Users/igino/glyph/build/release-workflow/native-compiler/merged.profdata",
+        "-Werror=profile-instr-out-of-date",
+        "-Werror=profile-instr-unprofiled",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        {
+          "wall_s": 0.2867074579999098,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.2833108330005416,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.28774883300047804,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.28300770899932104,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.3362373750005645,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.28693004099932296,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        },
+        {
+          "wall_s": 0.2863442500001838,
+          "stdout": "",
+          "kernel_s": null,
+          "output_sha256": "27ce6ac62efb83d5006670571491a68e172eb588ae54503a94457a505c443cad"
+        }
+      ],
+      "median_wall_s": 0.2867074579999098
+    }
+  },
+  "training_runs": [
+    {
+      "args": [
+        "check",
+        "/Users/igino/glyph/examples/sum.gly"
+      ],
+      "wall_s": 0.30522183299945027,
+      "stdout": ""
+    },
+    {
+      "args": [
+        "check",
+        "/Users/igino/glyph/examples/records.gly"
+      ],
+      "wall_s": 0.01225574999989476,
+      "stdout": ""
+    },
+    {
+      "args": [
+        "check",
+        "/Users/igino/glyph/examples/calculator.gly"
+      ],
+      "wall_s": 0.013285416000144323,
+      "stdout": ""
+    }
+  ],
+  "instrument_command": [
+    "/usr/bin/clang",
+    "-x",
+    "c",
+    "/Users/igino/glyph/build/release-workflow/native-compiler/program.c",
+    "-std=c11",
+    "-O2",
+    "-fno-fast-math",
+    "-ffp-contract=off",
+    "-o",
+    "/Users/igino/glyph/build/release-workflow/native-compiler/instrumented",
+    "-fprofile-instr-generate=/Users/igino/glyph/build/release-workflow/native-compiler/profiles/1793221850562741000/%p.profraw",
+    "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+    "-DGC_NOT_DLL",
+    "-x",
+    "none",
+    "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+    "-D_POSIX_C_SOURCE=200809L",
+    "-lm"
+  ],
+  "instrument_build_s": 2.350363959000788,
+  "merge_command": [
+    "xcrun",
+    "llvm-profdata",
+    "merge",
+    "-o",
+    "/Users/igino/glyph/build/release-workflow/native-compiler/merged.profdata",
+    "/Users/igino/glyph/build/release-workflow/native-compiler/profiles/1793221850562741000/43915.profraw",
+    "/Users/igino/glyph/build/release-workflow/native-compiler/profiles/1793221850562741000/43916.profraw",
+    "/Users/igino/glyph/build/release-workflow/native-compiler/profiles/1793221850562741000/43917.profraw"
+  ],
+  "profile_sha256": "eafe27d1bd2699fad68bbb6a7ca075f9398edd0d1b1d57fe024c0c5d5eafe1c6",
+  "expected_stdout_first_line": ""
+}

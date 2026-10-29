@@ -1,0 +1,19 @@
+work seed:int>int
+  a := fill(4096, seed)
+  b := clone(a)
+  b[0] += 1
+  ret sum(a) + sum(b)
+main>void
+  setup := clock()
+  n := argi(0)
+  setup = clock() - setup
+  start := clock()
+  total := 0
+  i := 0
+  while i < n
+    total += work(i)
+    i += 1
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

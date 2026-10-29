@@ -70,3 +70,15 @@ C scheduler. First dispatch, steady execution, allocation-only work and process
 startup are reported separately, with independently checked outputs and raw
 samples. See the [2026-10-27 report](results/macos-arm64-2026-10-27-concurrency/REPORT.md)
 for hardware, token counts, sanitizer limits and pre-change sequential comparisons.
+
+## Allocation controls and compiler/release comparison
+
+The [2026-10-28 report](results/macos-arm64-2026-10-28-memory/REPORT.md) includes
+a frozen starting revision, allocation-heavy kernels and aliases/escapes, retained
+slices, cycles, closure allocation, parallel scaling, explicit storage domains,
+self-hosted compilation, PGO/LTO and isolated collector experiments. Run
+`python -m benchmarks.memory_suite --baseline build/memory-baseline --samples 7`
+after bootstrapping both compilers as shown in that report. Timings run sequentially
+across suites; instrumented collector/memory runs are separate. Raw observations,
+source hashes, precise inputs, and superseded preliminary data are retained.
+`python -m benchmarks.memory_report` regenerates the comparison from those results.

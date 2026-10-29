@@ -1,0 +1,379 @@
+{
+  "scope": "Same shared, nonmoving collector and registered worker stacks. THREAD_LOCAL_ALLOC changes allocation caches, not ownership or collection domains. Both programs are baseline generated C; compiler stack promotion disabled.",
+  "runs": {
+    "global/1": {
+      "samples": [
+        {
+          "work_s": 0.11627199999929871,
+          "wall_s": 0.12000862500008225
+        },
+        {
+          "work_s": 0.1184289999982866,
+          "wall_s": 0.12240149999979621
+        },
+        {
+          "work_s": 0.11580800000228919,
+          "wall_s": 0.11932112500016956
+        },
+        {
+          "work_s": 0.11694799999895622,
+          "wall_s": 0.12077887499981443
+        },
+        {
+          "work_s": 0.1170540000020992,
+          "wall_s": 0.12075200000026598
+        },
+        {
+          "work_s": 0.11650399999780348,
+          "wall_s": 0.12031162500034043
+        },
+        {
+          "work_s": 0.1183500000006461,
+          "wall_s": 0.12238891600009083
+        }
+      ],
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/comparison/sources/parallel-baseline.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/allocator-experiment/global",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "workers": 1,
+      "bytes": 140968,
+      "median_work_s": 0.11694799999895622
+    },
+    "global/2": {
+      "samples": [
+        {
+          "work_s": 0.09970899999825633,
+          "wall_s": 0.10325254200006384
+        },
+        {
+          "work_s": 0.09835799999927985,
+          "wall_s": 0.10196295800005828
+        },
+        {
+          "work_s": 0.09894499999791151,
+          "wall_s": 0.10273637499994948
+        },
+        {
+          "work_s": 0.09774100000140606,
+          "wall_s": 0.10119245799978671
+        },
+        {
+          "work_s": 0.0946540000004461,
+          "wall_s": 0.09824666699978479
+        },
+        {
+          "work_s": 0.10111800000231597,
+          "wall_s": 0.10458541699972557
+        },
+        {
+          "work_s": 0.09786399999939022,
+          "wall_s": 0.10174374999996871
+        }
+      ],
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/comparison/sources/parallel-baseline.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/allocator-experiment/global",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "workers": 2,
+      "bytes": 140968,
+      "median_work_s": 0.09835799999927985
+    },
+    "global/4": {
+      "samples": [
+        {
+          "work_s": 0.11674700000003213,
+          "wall_s": 0.12050391699995089
+        },
+        {
+          "work_s": 0.0986479999992298,
+          "wall_s": 0.10277812499998618
+        },
+        {
+          "work_s": 0.13539099999979953,
+          "wall_s": 0.13898945800019646
+        },
+        {
+          "work_s": 0.10412799999903655,
+          "wall_s": 0.10769979099995908
+        },
+        {
+          "work_s": 0.1126620000031835,
+          "wall_s": 0.11599383300017507
+        },
+        {
+          "work_s": 0.11843500000031781,
+          "wall_s": 0.1224400829996739
+        },
+        {
+          "work_s": 0.1390240000000631,
+          "wall_s": 0.14277908399981243
+        }
+      ],
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/comparison/sources/parallel-baseline.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/allocator-experiment/global",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "workers": 4,
+      "bytes": 140968,
+      "median_work_s": 0.11674700000003213
+    },
+    "thread_local/1": {
+      "samples": [
+        {
+          "work_s": 0.10067799999887939,
+          "wall_s": 0.10445254200021736
+        },
+        {
+          "work_s": 0.10309599999891361,
+          "wall_s": 0.10678749999988213
+        },
+        {
+          "work_s": 0.10321900000053574,
+          "wall_s": 0.10712562500020795
+        },
+        {
+          "work_s": 0.10398500000155764,
+          "wall_s": 0.10759341599987238
+        },
+        {
+          "work_s": 0.102232000001095,
+          "wall_s": 0.10568800000010015
+        },
+        {
+          "work_s": 0.10007899999982328,
+          "wall_s": 0.10364862500000527
+        },
+        {
+          "work_s": 0.10221399999863934,
+          "wall_s": 0.10581237499991403
+        }
+      ],
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/comparison/sources/parallel-baseline.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/allocator-experiment/thread_local",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/allocator-experiment/tla.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "workers": 1,
+      "bytes": 141776,
+      "median_work_s": 0.102232000001095
+    },
+    "thread_local/2": {
+      "samples": [
+        {
+          "work_s": 0.16483100000186823,
+          "wall_s": 0.1684324579996428
+        },
+        {
+          "work_s": 0.1647530000009283,
+          "wall_s": 0.16840133400000923
+        },
+        {
+          "work_s": 0.16650099999969825,
+          "wall_s": 0.17046075000007477
+        },
+        {
+          "work_s": 0.16244000000006054,
+          "wall_s": 0.16597916599994278
+        },
+        {
+          "work_s": 0.16484300000229268,
+          "wall_s": 0.1682757080002375
+        },
+        {
+          "work_s": 0.15709500000230037,
+          "wall_s": 0.16064966600015396
+        },
+        {
+          "work_s": 0.15962500000023283,
+          "wall_s": 0.16333912500022052
+        }
+      ],
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/comparison/sources/parallel-baseline.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/allocator-experiment/thread_local",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/allocator-experiment/tla.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "workers": 2,
+      "bytes": 141776,
+      "median_work_s": 0.1647530000009283
+    },
+    "thread_local/4": {
+      "samples": [
+        {
+          "work_s": 0.18012600000292878,
+          "wall_s": 0.1839310000000296
+        },
+        {
+          "work_s": 0.17375900000115507,
+          "wall_s": 0.17759875000001557
+        },
+        {
+          "work_s": 0.17652000000089174,
+          "wall_s": 0.17994391699994594
+        },
+        {
+          "work_s": 0.17746700000134297,
+          "wall_s": 0.1810866249998071
+        },
+        {
+          "work_s": 0.17524799999955576,
+          "wall_s": 0.17881395799986421
+        },
+        {
+          "work_s": 0.17982800000027055,
+          "wall_s": 0.18324787500023376
+        },
+        {
+          "work_s": 0.17699100000027101,
+          "wall_s": 0.1809920829996372
+        }
+      ],
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/comparison/sources/parallel-baseline.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/allocator-experiment/thread_local",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/allocator-experiment/tla.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "workers": 4,
+      "bytes": 141776,
+      "median_work_s": 0.17699100000027101
+    }
+  },
+  "collector_build": {
+    "command": [
+      "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+      "cc",
+      "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+      "-DGC_NOT_DLL",
+      "-std=c11",
+      "-O2",
+      "-fno-strict-aliasing",
+      "-DGC_BUILTIN_ATOMIC",
+      "-DALL_INTERIOR_POINTERS",
+      "-DNO_EXECUTE_PERMISSION",
+      "-DGC_DISABLE_INCREMENTAL",
+      "-D_DARWIN_C_SOURCE",
+      "-DLARGE_CONFIG",
+      "-DGC_THREADS",
+      "-pthread",
+      "-DTHREAD_LOCAL_ALLOC",
+      "-c",
+      "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+      "-o",
+      "/Users/igino/glyph/build/allocator-experiment/tla.o"
+    ],
+    "returncode": 0,
+    "stderr": ""
+  }
+}

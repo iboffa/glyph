@@ -1,0 +1,43 @@
+built startup/glyph
+built startup/c
+built startup/python
+built array/glyph
+built array/c
+built array/python
+built array_loop/glyph
+built recurrence/glyph
+built recurrence/c
+built recurrence/python
+verified trial 1
+verified trial 2
+verified trial 3
+verified trial 4
+verified trial 5
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/baseline/runtime.json
+small/fold: 2.391 ms
+small/sum: 2.349 ms
+small/loop: 6.382 ms
+small/c: 1.775 ms
+wide/fold: 6.381 ms
+wide/sum: 6.361 ms
+wide/loop: 6.333 ms
+wide/c: 1.775 ms
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/baseline/reductions.json
+verified record trial 1
+verified record trial 2
+verified record trial 3
+verified record trial 4
+verified record trial 5
+point/glyph: 5.429 ms
+point/c: 5.437 ms
+particle/glyph: 5.367 ms
+particle/c: 5.580 ms
+point {'glyph': 54, 'python': 65, 'c': 60}
+particle {'glyph': 94, 'python': 112, 'c': 114}
+saved /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/baseline/records.json
+Verified sample 1
+Verified sample 2
+Verified sample 3
+Verified sample 4
+Verified sample 5
+/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/baseline/concurrency/benchmarks.json

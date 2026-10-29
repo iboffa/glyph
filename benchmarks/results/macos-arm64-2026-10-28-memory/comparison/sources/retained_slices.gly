@@ -1,0 +1,20 @@
+type View
+  text:str
+main>void
+  setup := clock()
+  n := argi(0)
+  keep := fill(32, View(""))
+  setup = clock() - setup
+  start := clock()
+  i := 0
+  while i < n
+    text := concat("prefix-", str_i64(i))
+    keep[i % 32] = View(slice(text, 7, len(text)))
+    i += 1
+  total := 0
+  for v:keep
+    total += parse_i64(v.text)
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

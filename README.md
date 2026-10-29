@@ -48,7 +48,7 @@ glyph fmt examples/sum.gly --check
 
 Installing `.` instead of `.[bench]` omits tokenizer and process-measurement libraries. `python -m glyph` is equivalent to the installed `glyph` command. Activate the virtual environment to put `glyph` on PATH. The source checkout also supports `python -m glyph check` and `fmt` without installing any dependencies. `run` builds first and passes arguments after `--`; e.g. `glyph run benchmarks/programs/recurrence.gly -- 100 2 37`.
 
-Native builds leave generated C next to the executable. `--emit-c path.c` selects a different path. `-O0` through `-O3` are supported; all retain integer/bounds checks. The default is `-O2`, without fast-math or FP contraction. The shared backend cache defaults to `build/.glyph-cache` under the current directory; override with `GLYPH_CACHE_DIR`. The first build may take considerably longer while Zig prepares its C runtime.
+Native builds leave generated C next to the executable. `--emit-c path.c` selects a different path. `-O0` through `-O3` are supported; all preserve checked integer/indexing semantics; proven redundant checks may be removed. The default is `-O2`, without fast-math or FP contraction. The shared backend cache defaults to `build/.glyph-cache` under the current directory; override with `GLYPH_CACHE_DIR`. The first build may take considerably longer while Zig prepares its C runtime.
 
 If this sandboxed Python distribution cannot bootstrap pip into a venv because of its temp directory, create a workspace `.tmp` directory and set PowerShell `$env:TEMP` and `$env:TMP` to its absolute path before running `python -m ensurepip`. This is an environment workaround, not a Glyph dependency.
 
@@ -61,6 +61,8 @@ If this sandboxed Python distribution cannot bootstrap pip into a venv because o
 * User-defined generic functions/records, tagged unions with exhaustive matching, first-class functions and closures, and interface constraints. See [library abstractions](docs/ABSTRACTIONS.md).
 * Checked signed integer arithmetic at all optimization levels, deterministic left-to-right evaluation and short-circuit Boolean operators.
 * Inferred local and expression-result types, `int` as an i64 alias, fused `sum`/`count` expressions and equal-length zipped reductions.
+* Checked `@noalloc`, primitive scoped arenas and owned buffers with move/free and scoped borrowing. See [memory controls](docs/MEMORY_CONTROLS.md) and [the example](examples/memory.gly).
+* Conservative allocation/check optimizations, optimization reports, and optional [PGO/LTO release workflows](docs/RELEASE_OPTIMIZATION.md).
 * Automatic nonmoving garbage collection for arrays and dynamic strings; shared array references and stable typed pointers. See [memory management](docs/MEMORY.md).
 * `glyph check`, `build`, `run`, `fmt`; JSON diagnostics with stable codes and source spans; canonical formatting.
 * Optional native GUI library on macOS: windows, labels, buttons and a blocking event loop, with a calculator written in Glyph.
@@ -74,7 +76,7 @@ If this sandboxed Python distribution cannot bootstrap pip into a venv because o
 
 Start with [the little Glyph manual](docs/MANUAL.md), or read [the specification](docs/SPEC.md), [architecture and tradeoffs](docs/ARCHITECTURE.md), and [the short agent guide](docs/AGENT_GUIDE.md). Examples are in [examples](examples/).
 
-Garbage collection can pause execution and conservatively retain unused storage; live slices keep their entire backing allocation alive. `push` copies and is O(n). Inheritance, runtime interface dispatch, scoped memory regions and alternate presentation layers are not implemented. These are future work. The frontend is deliberately small and has not been hardened against hostile resource-exhaustion inputs.
+Garbage collection can pause execution and conservatively retain unused storage; live slices keep their entire backing allocation alive. `push` copies and is O(n). Inheritance, runtime interface dispatch, general cross-function ownership and alternate presentation layers are not implemented. These are future work. The frontend is deliberately small and has not been hardened against hostile resource-exhaustion inputs.
 
 ## Self-hosting
 
@@ -156,3 +158,5 @@ types from another file. Paths are relative to the importing file, and helpers
 remain scoped to their module. Both compilers support imports; the self-hosted
 compiler now uses them itself. See [module rules](docs/MODULES.md) and
 [the runnable example](examples/modules/main.gly).
+
+The [2026-10-28 memory/compiler report](benchmarks/results/macos-arm64-2026-10-28-memory/REPORT.md) compares the frozen starting revision, independent transformations, explicit allocation domains and release configurations, with raw measurements and limits.

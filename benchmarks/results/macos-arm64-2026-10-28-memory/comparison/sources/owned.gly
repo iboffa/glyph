@@ -1,0 +1,21 @@
+work x:int>int
+  b := owned_fill(64, x)
+  total := 0
+  borrow a = b
+    total = sum(a)
+  free(b)
+  ret total
+main>void
+  setup := clock()
+  n := argi(0)
+  setup = clock() - setup
+  start := clock()
+  total := 0
+  i := 0
+  while i < n
+    total += work(i)
+    i += 1
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

@@ -1,0 +1,29 @@
+accumulate state:[int], value:int>void
+  if value != state[1]
+    exit(3)
+  state[0] += value
+  state[1] += 1
+producer c:channel[int], n:int>int
+  i := 0
+  while i < n
+    send(c, i)
+    i += 1
+  close(c)
+  ret n
+main>void
+  n := argi(0)
+  c:channel[int] = channel(64)
+  state := [0, 0]
+  consume := fn(value:int)>void = accumulate(state, value)
+  start := clock()
+  scope
+    t := spawn(fn()>int = producer(c, n))
+    if not task_status(t).ok
+      exit(1)
+    while receive(c, consume)
+      count := state[1]
+    if wait(t) != n
+      exit(2)
+  elapsed := clock() - start
+  print(state[0])
+  print(elapsed)

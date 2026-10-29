@@ -1,0 +1,18 @@
+work x:int>int
+  a := fill(128, x)
+  ret sum(a)
+main>void
+  setup := clock()
+  a := range(argi(0))
+  setup = clock() - setup
+  start := clock()
+  r := 0
+  total := 0
+  while r < 5
+    b := par_map(a, work)
+    total += sum(b)
+    r += 1
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

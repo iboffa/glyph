@@ -1,0 +1,17 @@
+work x:int>int
+  a := [x, x + 1, x + 2]
+  ret a[0] + a[1] + a[2] + (100 * 25)
+main>void
+  setup := clock()
+  n := argi(0)
+  setup = clock() - setup
+  start := clock()
+  total := 0
+  i := 0
+  while i < n
+    total += work(i)
+    i += 1
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

@@ -1,5 +1,23 @@
 # Verification status
 
+## Memory controls and compiler analysis — 2026-10-28
+
+On macOS arm64, the reference suite ran 132 tests with three optional skips;
+the native corpus ran 123 tests with three skips, 1,754 native checks, 114 C
+emissions and 1,479 parser rejections. Both completed without failures.
+Nine additional memory-control test methods exercise both frontends, O0–O3,
+optimized/unoptimized behavior, GC stress and rejected lifetime/contract cases.
+The final three-stage bootstrap reached identical stage 2/3 C with Python absent
+from the native generations' PATH. UBSan and injected allocation failures passed;
+ASan/TSan failed on empty C control programs and remain unavailable on this host.
+
+The [report and raw evidence](../benchmarks/results/macos-arm64-2026-10-28-memory/REPORT.md)
+retain the frozen baseline, randomized feature ablations, memory/GC controls,
+parallel scaling, compiler workloads, release optimization experiments and
+explicit regressions. BDWGC remains the default; precise collection is an
+isolated prototype, not a language backend. No Linux/Windows execution or live
+GUI run is claimed for these changes.
+
 ## Service hardening and platform execution — 2026-10-25
 
 [The complete CI matrix passed](https://github.com/iboffa/glyph/actions/runs/40192542698)

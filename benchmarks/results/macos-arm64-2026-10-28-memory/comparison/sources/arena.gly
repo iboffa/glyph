@@ -1,0 +1,18 @@
+work x:int>int
+  arena
+    a := arena_fill(64, x)
+    ret sum(a)
+main>void
+  setup := clock()
+  n := argi(0)
+  setup = clock() - setup
+  start := clock()
+  total := 0
+  i := 0
+  while i < n
+    total += work(i)
+    i += 1
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

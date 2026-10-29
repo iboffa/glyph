@@ -1,0 +1,29 @@
+built startup/glyph
+built startup/c
+built startup/python
+built array/glyph
+built array/c
+built array/python
+built array_loop/glyph
+built recurrence/glyph
+built recurrence/c
+built recurrence/python
+Traceback (most recent call last):
+  File "<stdin>", line 6, in <module>
+  File "/private/tmp/glyph-memory-baseline/benchmarks/runtime.py", line 121, in main
+    measure(commands[key] + list(map(str, cases[task])))  # warmup process
+    ~~~~~~~^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^^
+  File "/private/tmp/glyph-memory-baseline/benchmarks/runtime.py", line 34, in measure
+    for member in [process, *process.children(recursive=True)]:
+                             ~~~~~~~~~~~~~~~~^^^^^^^^^^^^^^^^
+  File "/Users/igino/glyph/.venv/lib/python3.14/site-packages/psutil/__init__.py", line 978, in children
+    ppid_map = _ppid_map()
+  File "/Users/igino/glyph/.venv/lib/python3.14/site-packages/psutil/__init__.py", line 256, in _ppid_map
+    for pid in pids():
+               ~~~~^^
+  File "/Users/igino/glyph/.venv/lib/python3.14/site-packages/psutil/__init__.py", line 1485, in pids
+    ret = sorted(_psplatform.pids())
+                 ~~~~~~~~~~~~~~~~^^
+  File "/Users/igino/glyph/.venv/lib/python3.14/site-packages/psutil/_psosx.py", line 320, in pids
+    ls = cext.pids()
+PermissionError: [Errno 1] Operation not permitted (originated from sysctl() malloc 1/3)

@@ -1,0 +1,534 @@
+Analysis of sampling parallel-baseline (pid 26205) every 1 millisecond
+Process:         parallel-baseline [26205]
+Path:            /Users/USER/*/parallel-baseline
+Load Address:    0x100764000
+Identifier:      parallel-baseline
+Version:         0
+Code Type:       ARM64
+Platform:        macOS
+Parent Process:  Python [26203]
+Target Type:     live task
+
+Date/Time:       2026-10-28 16:20:59.444 +0200
+Launch Time:     2026-10-28 16:20:59.344 +0200
+OS Version:      macOS 26.5.2 (25F84)
+Report Version:  7
+Analysis Tool:   /usr/bin/sample
+
+Physical footprint:         111.1M
+Physical footprint (peak):  111.1M
+Idle exit:                  untracked
+----
+
+Call graph:
+    801 Thread_150795   DispatchQueue_1: com.apple.main-thread  (serial)
+    + 801 start  (in dyld) + 6992  [0x18a17fe00]
+    +   789 main  (in parallel-baseline) + 1364  [0x100770af0]  parallel-baseline.c:1561
+    +   ! 787 g_parallel_0  (in parallel-baseline) + 44  [0x100770fdc]  parallel-baseline.c:1502
+    +   ! : 551 f_work  (in parallel-baseline) + 68  [0x100771264]  parallel-baseline.c:1507
+    +   ! : | 536 g_new_atomic  (in parallel-baseline) + 80  [0x100771100]  parallel-baseline.c:179
+    +   ! : | + 403 GC_malloc_kind_global  (in parallel-baseline) + 76  [0x100766870]  malloc.c:324
+    +   ! : | + ! 191 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+    +   ! : | + ! : 191 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+    +   ! : | + ! :   191 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+    +   ! : | + ! 178 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+    +   ! : | + ! : 175 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+    +   ! : | + ! : | 175 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+    +   ! : | + ! : 2 cthread_yield  (in libsystem_pthread.dylib) + 0,36  [0x18a53ac04,0x18a53ac28]
+    +   ! : | + ! : 1 DYLD-STUB$$sched_yield  (in parallel-baseline) + 4  [0x100771bac]
+    +   ! : | + ! 9 GC_lock  (in parallel-baseline) + 100,96  [0x10076486c,0x100764868]  pthread_support.c:2517
+    +   ! : | + ! 8 GC_lock  (in parallel-baseline) + 164,216  [0x1007648ac,0x1007648e0]  pthread_support.c:2539
+    +   ! : | + ! 3 GC_lock  (in parallel-baseline) + 52  [0x10076483c]  pthread_support.c:2515
+    +   ! : | + ! 3 GC_lock  (in parallel-baseline) + 84  [0x10076485c]  pthread_support.c:2516
+    +   ! : | + ! 3 GC_lock  (in parallel-baseline) + 220  [0x1007648e4]  pthread_support.c:2549
+    +   ! : | + ! 2 GC_lock  (in parallel-baseline) + 36  [0x10076482c]  pthread_support.c:2511
+    +   ! : | + ! 2 GC_lock  (in parallel-baseline) + 116  [0x10076487c]  pthread_support.c:2519
+    +   ! : | + ! 2 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2551
+    +   ! : | + ! 2 GC_lock  (in parallel-baseline) + 236  [0x1007648f4]  pthread_support.c:2562
+    +   ! : | + 108 GC_malloc_kind_global  (in parallel-baseline) + 256  [0x100766924]  malloc.c:349
+    +   ! : | + ! 80 GC_generic_malloc  (in parallel-baseline) + 108  [0x100766280]  malloc.c:256
+    +   ! : | + ! : 78 GC_generic_malloc_inner  (in parallel-baseline) + 228  [0x100766678]  malloc.c:194
+    +   ! : | + ! : | 62 GC_allocobj  (in parallel-baseline) + 444  [0x10076e824]  alloc.c:1787
+    +   ! : | + ! : | + 31 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+    +   ! : | + ! : | + ! 10 GC_allochblk_nth  (in parallel-baseline) + 60  [0x10076ee38]  allchblk.c:753
+    +   ! : | + ! : | + ! 4 GC_allochblk_nth  (in parallel-baseline) + 68  [0x10076ee40]  allchblk.c:0
+    +   ! : | + ! : | + ! 4 GC_allochblk_nth  (in parallel-baseline) + 48,40  [0x10076ee2c,0x10076ee24]  allchblk.c:744
+    +   ! : | + ! : | + ! 3 GC_allochblk_nth  (in parallel-baseline) + 264  [0x10076ef04]  allchblk.c:764
+    +   ! : | + ! : | + ! 3 GC_allochblk_nth  (in parallel-baseline) + 2440  [0x10076f784]  allchblk.c:905
+    +   ! : | + ! : | + ! : 3 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+    +   ! : | + ! : | + ! :   3 GC_allochblk_nth  (in parallel-baseline) + 24,4  [0x10076ee14,0x10076ee00]  allchblk.c:744
+    +   ! : | + ! : | + ! 2 GC_allochblk_nth  (in parallel-baseline) + 1856,1932  [0x10076f53c,0x10076f588]  allchblk.c:893
+    +   ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 224  [0x10076eedc]  allchblk.c:761
+    +   ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 2064  [0x10076f60c]  allchblk.c:893
+    +   ! : | + ! : | + ! : 1 GC_install_header  (in parallel-baseline) + 36  [0x10076c42c]  headers.c:269
+    +   ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 2304  [0x10076f6fc]  allchblk.c:901
+    +   ! : | + ! : | + ! : 1 get_index  (in parallel-baseline) + 72  [0x10076c5d0]  headers.c:224
+    +   ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 2512  [0x10076f7cc]  allchblk.c:926
+    +   ! : | + ! : | + ! 1 setup_header  (in parallel-baseline) + 760  [0x10076fb88]  allchblk.c:298
+    +   ! : | + ! : | + 22 GC_allochblk_nth  (in parallel-baseline) + 2536,2540  [0x10076f7e4,0x10076f7e8]  allchblk.c:926
+    +   ! : | + ! : | + 8 GC_allochblk  (in parallel-baseline) + 244,252  [0x10076731c,0x100767324]  allchblk.c:726
+    +   ! : | + ! : | + 1 GC_allochblk  (in parallel-baseline) + 192  [0x1007672e8]  allchblk.c:0
+    +   ! : | + ! : | 13 GC_allocobj  (in parallel-baseline) + 660  [0x10076e8fc]  alloc.c:1798
+    +   ! : | + ! : | + 13 GC_collect_or_expand  (in parallel-baseline) + 292  [0x10076ea44]  alloc.c:1688
+    +   ! : | + ! : | +   8 GC_try_to_collect_inner  (in parallel-baseline) + 828,848,...  [0x1007690b8,0x1007690cc,...]  alloc.c:621
+    +   ! : | + ! : | +   5 GC_try_to_collect_inner  (in parallel-baseline) + 6124  [0x10076a568]  alloc.c:636
+    +   ! : | + ! : | +     4 GC_start_reclaim  (in parallel-baseline) + 764  [0x10076feb0]  reclaim.c:676
+    +   ! : | + ! : | +     : 1 GC_freehblk  (in parallel-baseline) + 68  [0x1007669ac]  allchblk.c:941
+    +   ! : | + ! : | +     : 1 GC_freehblk  (in parallel-baseline) + 564  [0x100766b9c]  allchblk.c:964
+    +   ! : | + ! : | +     : 1 GC_freehblk  (in parallel-baseline) + 1552  [0x100766f78]  allchblk.c:992
+    +   ! : | + ! : | +     : 1 GC_freehblk  (in parallel-baseline) + 1620  [0x100766fbc]  allchblk.c:993
+    +   ! : | + ! : | +     1 GC_start_reclaim  (in parallel-baseline) + 320  [0x10076fcf4]  reclaim.c:676
+    +   ! : | + ! : | 1 GC_allocobj  (in parallel-baseline) + 24  [0x10076e680]  alloc.c:1765
+    +   ! : | + ! : | 1 GC_allocobj  (in parallel-baseline) + 616  [0x10076e8d0]  alloc.c:1787
+    +   ! : | + ! : | + 1 GC_build_fl  (in parallel-baseline) + 544  [0x10076759c]  new_hblk.c:155
+    +   ! : | + ! : | 1 GC_allocobj  (in parallel-baseline) + 624  [0x10076e8d8]  alloc.c:1791
+    +   ! : | + ! : 2 GC_allocobj  (in parallel-baseline) + 92,100  [0x10076e6c4,0x10076e6cc]  alloc.c:0
+    +   ! : | + ! 25 GC_generic_malloc  (in parallel-baseline) + 96  [0x100766274]  malloc.c:255
+    +   ! : | + ! : 16 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+    +   ! : | + ! : | 16 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+    +   ! : | + ! : |   16 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+    +   ! : | + ! : 7 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+    +   ! : | + ! : | 7 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+    +   ! : | + ! : |   7 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+    +   ! : | + ! : 1 GC_lock  (in parallel-baseline) + 96  [0x100764868]  pthread_support.c:2517
+    +   ! : | + ! : 1 GC_lock  (in parallel-baseline) + 236  [0x1007648f4]  pthread_support.c:2562
+    +   ! : | + ! 2 GC_generic_malloc  (in parallel-baseline) + 84  [0x100766268]  malloc.c:255
+    +   ! : | + ! 1 GC_generic_malloc  (in parallel-baseline) + 36  [0x100766238]  malloc.c:250
+    +   ! : | + 11 GC_malloc_kind_global  (in parallel-baseline) + 68,72  [0x100766868,0x10076686c]  malloc.c:324
+    +   ! : | + 7 GC_malloc_kind_global  (in parallel-baseline) + 220  [0x100766900]  malloc.c:344
+    +   ! : | + 3 GC_malloc_kind_global  (in parallel-baseline) + 308,260  [0x100766958,0x100766928]  malloc.c:349
+    +   ! : | + 2 GC_malloc_kind_global  (in parallel-baseline) + 116  [0x100766898]  malloc.c:0
+    +   ! : | + 1 GC_generic_malloc  (in parallel-baseline) + 220  [0x1007662f0]  malloc.c:303
+    +   ! : | + 1 GC_malloc_kind_global  (in parallel-baseline) + 320  [0x100766964]  malloc.c:349
+    +   ! : | +   1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +     1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +       1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +         1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +           1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +             1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +               1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +                 1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +   ! : | +                   1 GC_clear_stack_inner  (in parallel-baseline) + 20  [0x1007684f4]  misc.c:319
+    +   ! : | 13 g_new_atomic  (in parallel-baseline) + 96  [0x100771110]  parallel-baseline.c:179
+    +   ! : | + 13 _platform_memset  (in libsystem_platform.dylib) + 140,160  [0x18a54711c,0x18a547130]
+    +   ! : | 2 g_new_atomic  (in parallel-baseline) + 96  [0x100771110]  parallel-baseline.c:179
+    +   ! : 155 f_work  (in parallel-baseline) + 252  [0x10077131c]  parallel-baseline.c:1511
+    +   ! : | 155 g_add  (in parallel-baseline) + 0,8  [0x100770ff8,0x100771000]  parallel-baseline.c:120
+    +   ! : 41 f_work  (in parallel-baseline) + 252,200,...  [0x10077131c,0x1007712e8,...]  parallel-baseline.c:1511
+    +   ! : 34 f_work  (in parallel-baseline) + 196,192,...  [0x1007712e4,0x1007712e0,...]  parallel-baseline.c:1508
+    +   ! : 3 f_work  (in parallel-baseline) + 36  [0x100771244]  parallel-baseline.c:1507
+    +   ! : | 3 _tlv_get_addr  (in libdyld.dylib) + 20  [0x18a14839c]
+    +   ! : 2 f_work  (in parallel-baseline) + 264  [0x100771328]  parallel-baseline.c:1512
+    +   ! : 1 f_work  (in parallel-baseline) + 28  [0x10077123c]  parallel-baseline.c:1507
+    +   ! 1 f_work  (in parallel-baseline) + 276  [0x100771334]  parallel-baseline.c:1512
+    +   ! 1 g_parallel_0  (in parallel-baseline) + 44  [0x100770fdc]  parallel-baseline.c:1502
+    +   11 main  (in parallel-baseline) + 1580  [0x100770bc8]  parallel-baseline.c:1561
+    +   ! 11 _pthread_cond_wait  (in libsystem_pthread.dylib) + 980  [0x18a53e128]
+    +   !   11 __psynch_cvwait  (in libsystem_kernel.dylib) + 8  [0x18a4fd50c]
+    +   1 main  (in parallel-baseline) + 1612  [0x100770be8]  parallel-baseline.c:1561
+    +     1 main  (in parallel-baseline) + 1796  [0x100770ca0]  parallel-baseline.c:1561
+    801 Thread_150799
+    + 801 thread_start  (in libsystem_pthread.dylib) + 8  [0x18a538c1c]
+    +   801 _pthread_start  (in libsystem_pthread.dylib) + 136  [0x18a53dc58]
+    +     801 GC_start_routine  (in parallel-baseline) + 212  [0x10076bedc]  pthread_support.c:2277
+    +       769 g_pool_worker  (in parallel-baseline) + 284  [0x100771534]  parallel-baseline.c:1311
+    +       ! 768 g_parallel_0  (in parallel-baseline) + 44  [0x100770fdc]  parallel-baseline.c:1502
+    +       ! : 556 f_work  (in parallel-baseline) + 68  [0x100771264]  parallel-baseline.c:1507
+    +       ! : | 548 g_new_atomic  (in parallel-baseline) + 80  [0x100771100]  parallel-baseline.c:179
+    +       ! : | + 437 GC_malloc_kind_global  (in parallel-baseline) + 76  [0x100766870]  malloc.c:324
+    +       ! : | + ! 239 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+    +       ! : | + ! : 238 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+    +       ! : | + ! : | 238 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+    +       ! : | + ! : 1 cthread_yield  (in libsystem_pthread.dylib) + 16  [0x18a53ac14]
+    +       ! : | + ! 167 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+    +       ! : | + ! : 167 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+    +       ! : | + ! :   167 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+    +       ! : | + ! 8 GC_lock  (in parallel-baseline) + 100,96  [0x10076486c,0x100764868]  pthread_support.c:2517
+    +       ! : | + ! 5 GC_lock  (in parallel-baseline) + 84  [0x10076485c]  pthread_support.c:2516
+    +       ! : | + ! 4 GC_lock  (in parallel-baseline) + 164,216  [0x1007648ac,0x1007648e0]  pthread_support.c:2539
+    +       ! : | + ! 4 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2551
+    +       ! : | + ! 3 GC_lock  (in parallel-baseline) + 52  [0x10076483c]  pthread_support.c:2515
+    +       ! : | + ! 2 GC_lock  (in parallel-baseline) + 36  [0x10076482c]  pthread_support.c:2511
+    +       ! : | + ! 2 GC_lock  (in parallel-baseline) + 116  [0x10076487c]  pthread_support.c:2519
+    +       ! : | + ! 2 GC_lock  (in parallel-baseline) + 236  [0x1007648f4]  pthread_support.c:2562
+    +       ! : | + ! 1 GC_lock  (in parallel-baseline) + 44  [0x100764834]  pthread_support.c:2514
+    +       ! : | + 95 GC_malloc_kind_global  (in parallel-baseline) + 256  [0x100766924]  malloc.c:349
+    +       ! : | + ! 66 GC_generic_malloc  (in parallel-baseline) + 108  [0x100766280]  malloc.c:256
+    +       ! : | + ! : 65 GC_generic_malloc_inner  (in parallel-baseline) + 228  [0x100766678]  malloc.c:194
+    +       ! : | + ! : | 50 GC_allocobj  (in parallel-baseline) + 444  [0x10076e824]  alloc.c:1787
+    +       ! : | + ! : | + 30 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+    +       ! : | + ! : | + ! 9 GC_allochblk_nth  (in parallel-baseline) + 60  [0x10076ee38]  allchblk.c:753
+    +       ! : | + ! : | + ! 6 GC_allochblk_nth  (in parallel-baseline) + 68,168  [0x10076ee40,0x10076eea4]  allchblk.c:0
+    +       ! : | + ! : | + ! 5 GC_allochblk_nth  (in parallel-baseline) + 2440  [0x10076f784]  allchblk.c:905
+    +       ! : | + ! : | + ! : 3 setup_header  (in parallel-baseline) + 708,684  [0x10076fb54,0x10076fb3c]  allchblk.c:294
+    +       ! : | + ! : | + ! : 1 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+    +       ! : | + ! : | + ! : | 1 GC_allochblk_nth  (in parallel-baseline) + 24  [0x10076ee14]  allchblk.c:744
+    +       ! : | + ! : | + ! : 1 setup_header  (in parallel-baseline) + 16  [0x10076f8a0]  allchblk.c:229
+    +       ! : | + ! : | + ! 4 GC_allochblk_nth  (in parallel-baseline) + 48,40  [0x10076ee2c,0x10076ee24]  allchblk.c:744
+    +       ! : | + ! : | + ! 2 GC_allochblk_nth  (in parallel-baseline) + 64  [0x10076ee3c]  allchblk.c:756
+    +       ! : | + ! : | + ! 2 GC_allochblk_nth  (in parallel-baseline) + 2064  [0x10076f60c]  allchblk.c:893
+    +       ! : | + ! : | + ! : 1 GC_install_header  (in parallel-baseline) + 28  [0x10076c424]  headers.c:268
+    +       ! : | + ! : | + ! : | 1 get_index  (in parallel-baseline) + 8  [0x10076c590]  headers.c:210
+    +       ! : | + ! : | + ! : 1 GC_install_header  (in parallel-baseline) + 268  [0x10076c514]  headers.c:271
+    +       ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 2156  [0x10076f668]  allchblk.c:893
+    +       ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 2268  [0x10076f6d8]  allchblk.c:901
+    +       ! : | + ! : | + !   1 get_index  (in parallel-baseline) + 16  [0x10076c598]  headers.c:210
+    +       ! : | + ! : | + 11 GC_allochblk_nth  (in parallel-baseline) + 2536  [0x10076f7e4]  allchblk.c:926
+    +       ! : | + ! : | + 7 GC_allochblk  (in parallel-baseline) + 244  [0x10076731c]  allchblk.c:726
+    +       ! : | + ! : | + 1 GC_allochblk  (in parallel-baseline) + 96  [0x100767288]  allchblk.c:695
+    +       ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 60  [0x10076ee38]  allchblk.c:753
+    +       ! : | + ! : | + 1 GC_allochblk  (in parallel-baseline) + 216  [0x100767300]  allchblk.c:727
+    +       ! : | + ! : | 14 GC_allocobj  (in parallel-baseline) + 660  [0x10076e8fc]  alloc.c:1798
+    +       ! : | + ! : | + 14 GC_collect_or_expand  (in parallel-baseline) + 292  [0x10076ea44]  alloc.c:1688
+    +       ! : | + ! : | +   5 GC_try_to_collect_inner  (in parallel-baseline) + 828,900,...  [0x1007690b8,0x100769100,...]  alloc.c:621
+    +       ! : | + ! : | +   5 GC_try_to_collect_inner  (in parallel-baseline) + 6124  [0x10076a568]  alloc.c:636
+    +       ! : | + ! : | +   ! 3 GC_start_reclaim  (in parallel-baseline) + 764  [0x10076feb0]  reclaim.c:676
+    +       ! : | + ! : | +   ! : 2 GC_freehblk  (in parallel-baseline) + 396,420  [0x100766af4,0x100766b0c]  allchblk.c:964
+    +       ! : | + ! : | +   ! : 1 GC_freehblk  (in parallel-baseline) + 1636  [0x100766fcc]  allchblk.c:993
+    +       ! : | + ! : | +   ! 2 GC_start_reclaim  (in parallel-baseline) + 336,344  [0x10076fd04,0x10076fd0c]  reclaim.c:676
+    +       ! : | + ! : | +   3 GC_try_to_collect_inner  (in parallel-baseline) + 1580  [0x1007693a8]  alloc.c:624
+    +       ! : | + ! : | +   ! 2 GC_mark_some  (in parallel-baseline) + 252  [0x10076d04c]  mark.c:310
+    +       ! : | + ! : | +   ! 1 GC_mark_some  (in parallel-baseline) + 1008  [0x10076d340]  mark.c:0
+    +       ! : | + ! : | +   !   1 GC_mark_from  (in parallel-baseline) + 488  [0x10076ce54]  mark.c:733
+    +       ! : | + ! : | +   1 GC_try_to_collect_inner  (in parallel-baseline) + 1676  [0x100769408]  alloc.c:624
+    +       ! : | + ! : | 1 GC_allocobj  (in parallel-baseline) + 616  [0x10076e8d0]  alloc.c:1787
+    +       ! : | + ! : |   1 GC_build_fl  (in parallel-baseline) + 544  [0x10076759c]  new_hblk.c:155
+    +       ! : | + ! : 1 GC_generic_malloc_inner  (in parallel-baseline) + 196  [0x100766658]  malloc.c:191
+    +       ! : | + ! 28 GC_generic_malloc  (in parallel-baseline) + 96  [0x100766274]  malloc.c:255
+    +       ! : | + ! : 20 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+    +       ! : | + ! : | 20 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+    +       ! : | + ! : |   20 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+    +       ! : | + ! : 7 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+    +       ! : | + ! : | 7 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+    +       ! : | + ! : |   7 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+    +       ! : | + ! : 1 GC_lock  (in parallel-baseline) + 84  [0x10076485c]  pthread_support.c:2516
+    +       ! : | + ! 1 GC_generic_malloc  (in parallel-baseline) + 88  [0x10076626c]  malloc.c:255
+    +       ! : | + 6 GC_malloc_kind_global  (in parallel-baseline) + 72,68  [0x10076686c,0x100766868]  malloc.c:324
+    +       ! : | + 4 GC_malloc_kind_global  (in parallel-baseline) + 220  [0x100766900]  malloc.c:344
+    +       ! : | + 3 GC_malloc_kind_global  (in parallel-baseline) + 76  [0x100766870]  malloc.c:325
+    +       ! : | + 2 GC_malloc_kind_global  (in parallel-baseline) + 12  [0x100766830]  malloc.c:315
+    +       ! : | + 1 GC_malloc_kind_global  (in parallel-baseline) + 320  [0x100766964]  malloc.c:349
+    +       ! : | +   1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +       ! : | +     1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +       ! : | +       1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +       ! : | +         1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +       ! : | +           1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +       ! : | +             1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+    +       ! : | +               1 GC_clear_stack_inner  (in parallel-baseline) + 20  [0x1007684f4]  misc.c:319
+    +       ! : | 7 g_new_atomic  (in parallel-baseline) + 96  [0x100771110]  parallel-baseline.c:179
+    +       ! : | + 7 _platform_memset  (in libsystem_platform.dylib) + 160,140  [0x18a547130,0x18a54711c]
+    +       ! : | 1 g_new_atomic  (in parallel-baseline) + 56  [0x1007710e8]  parallel-baseline.c:179
+    +       ! : 132 f_work  (in parallel-baseline) + 252  [0x10077131c]  parallel-baseline.c:1511
+    +       ! : | 132 g_add  (in parallel-baseline) + 0,8  [0x100770ff8,0x100771000]  parallel-baseline.c:120
+    +       ! : 41 f_work  (in parallel-baseline) + 192,196,...  [0x1007712e0,0x1007712e4,...]  parallel-baseline.c:1508
+    +       ! : 35 f_work  (in parallel-baseline) + 252,200,...  [0x10077131c,0x1007712e8,...]  parallel-baseline.c:1511
+    +       ! : 3 f_work  (in parallel-baseline) + 264  [0x100771328]  parallel-baseline.c:1512
+    +       ! : 1 g_new_atomic  (in parallel-baseline) + 112  [0x100771120]  parallel-baseline.c:179
+    +       ! 1 f_work  (in parallel-baseline) + 276  [0x100771334]  parallel-baseline.c:1512
+    +       32 g_pool_worker  (in parallel-baseline) + 144  [0x1007714a8]  parallel-baseline.c:1307
+    +         32 _pthread_cond_wait  (in libsystem_pthread.dylib) + 980  [0x18a53e128]
+    +           32 __psynch_cvwait  (in libsystem_kernel.dylib) + 8  [0x18a4fd50c]
+    801 Thread_150800
+    + 801 thread_start  (in libsystem_pthread.dylib) + 8  [0x18a538c1c]
+    +   801 _pthread_start  (in libsystem_pthread.dylib) + 136  [0x18a53dc58]
+    +     801 GC_start_routine  (in parallel-baseline) + 212  [0x10076bedc]  pthread_support.c:2277
+    +       800 g_pool_worker  (in parallel-baseline) + 284  [0x100771534]  parallel-baseline.c:1311
+    +       ! 799 g_parallel_0  (in parallel-baseline) + 44  [0x100770fdc]  parallel-baseline.c:1502
+    +       ! : 589 f_work  (in parallel-baseline) + 68  [0x100771264]  parallel-baseline.c:1507
+    +       ! : | 582 g_new_atomic  (in parallel-baseline) + 80  [0x100771100]  parallel-baseline.c:179
+    +       ! : | + 466 GC_malloc_kind_global  (in parallel-baseline) + 76  [0x100766870]  malloc.c:324
+    +       ! : | + ! 242 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+    +       ! : | + ! : 240 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+    +       ! : | + ! : | 240 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+    +       ! : | + ! : 1 nanosleep  (in libsystem_c.dylib) + 60  [0x18a3d9c20]
+    +       ! : | + ! : | 1 pthread_testcancel  (in libsystem_pthread.dylib) + 12  [0x18a53a9dc]
+    +       ! : | + ! : 1 nanosleep  (in libsystem_c.dylib) + 228  [0x18a3d9cc8]
+    +       ! : | + ! :   1 __error  (in libsystem_kernel.dylib) + 4  [0x18a4fa61c]
+    +       ! : | + ! 210 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+    +       ! : | + ! : 207 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+    +       ! : | + ! : | 207 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+    +       ! : | + ! : 3 cthread_yield  (in libsystem_pthread.dylib) + 36,4  [0x18a53ac28,0x18a53ac08]
+    +       ! : | + ! 3 GC_lock  (in parallel-baseline) + 100  [0x10076486c]  pthread_support.c:2517
+    +       ! : | + ! 3 GC_lock  (in parallel-baseline) + 236  [0x1007648f4]  pthread_support.c:2562
+    +       ! : | + ! 2 GC_lock  (in parallel-baseline) + 84  [0x10076485c]  pthread_support.c:2516
+    +       ! : | + ! 2 GC_lock  (in parallel-baseline) + 116  [0x10076487c]  pthread_support.c:2519
+    +       ! : | + ! 2 GC_lock  (in parallel-baseline) + 164  [0x1007648ac]  pthread_support.c:2539
+    +       ! : | + ! 1 GC_lock  (in parallel-baseline) + 220  [0x1007648e4]  pthread_support.c:2549
+    +       ! : | + ! 1 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2551
+    +       ! : | + 101 GC_malloc_kind_global  (in parallel-baseline) + 256  [0x100766924]  malloc.c:349
+    +       ! : | + ! 68 GC_generic_malloc  (in parallel-baseline) + 108  [0x100766280]  malloc.c:256
+    +       ! : | + ! : 66 GC_generic_malloc_inner  (in parallel-baseline) + 228  [0x100766678]  malloc.c:194
+    +       ! : | + ! : | 47 GC_allocobj  (in parallel-baseline) + 444  [0x10076e824]  alloc.c:1787
+    +       ! : | + ! : | + 27 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+    +       ! : | + ! : | + ! 9 GC_allochblk_nth  (in parallel-baseline) + 60  [0x10076ee38]  allchblk.c:753
+    +       ! : | + ! : | + ! 6 GC_allochblk_nth  (in parallel-baseline) + 2440  [0x10076f784]  allchblk.c:905
+    +       ! : | + ! : | + ! : 3 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+    +       ! : | + ! : | + ! : | 3 GC_allochblk_nth  (in parallel-baseline) + 24  [0x10076ee14]  allchblk.c:744
+    +       ! : | + ! : | + ! : 2 setup_header  (in parallel-baseline) + 732  [0x10076fb6c]  allchblk.c:296
+    +       ! : | + ! : | + ! : 1 setup_header  (in parallel-baseline) + 56  [0x10076f8c8]  allchblk.c:247
+    +       ! : | + ! : | + ! 4 GC_allochblk_nth  (in parallel-baseline) + 68  [0x10076ee40]  allchblk.c:0
+    +       ! : | + ! : | + ! 3 GC_allochblk_nth  (in parallel-baseline) + 48,40  [0x10076ee2c,0x10076ee24]  allchblk.c:744
+    +       ! : | + ! : | + ! 2 GC_allochblk_nth  (in parallel-baseline) + 1976,2196  [0x10076f5b4,0x10076f690]  allchblk.c:893
+    +       ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 64  [0x10076ee3c]  allchblk.c:756
+    +       ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 424  [0x10076efa4]  allchblk.c:770
+    +       ! : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 2064  [0x10076f60c]  allchblk.c:893
+    +       ! : | + ! : | + !   1 get_index  (in parallel-baseline) + 436  [0x10076c73c]  headers.c:259
+    +       ! : | + ! : | + 13 GC_allochblk_nth  (in parallel-baseline) + 2536  [0x10076f7e4]  allchblk.c:926
+    +       ! : | + ! : | + 5 GC_allochblk  (in parallel-baseline) + 244  [0x10076731c]  allchblk.c:726
+    +       ! : | + ! : | + 1 GC_allochblk  (in parallel-baseline) + 288  [0x100767348]  allchblk.c:715
+    +       ! : | + ! : | + 1 GC_allochblk  (in parallel-baseline) + 216  [0x100767300]  allchblk.c:727
+    +       ! : | + ! : | 17 GC_allocobj  (in parallel-baseline) + 660  [0x10076e8fc]  alloc.c:1798
+    +       ! : | + ! : | + 17 GC_collect_or_expand  (in parallel-baseline) + 292  [0x10076ea44]  alloc.c:1688
+    +       ! : | + ! : | +   8 GC_try_to_collect_inner  (in parallel-baseline) + 6124  [0x10076a568]  alloc.c:636
+    +       ! : | + ! : | +   ! 7 GC_start_reclaim  (in parallel-baseline) + 764  [0x10076feb0]  reclaim.c:676
+    +       ! : | + ! : | +   ! : 3 GC_freehblk  (in parallel-baseline) + 912,1052  [0x100766cf8,0x100766d84]  allchblk.c:969
+    +       ! : | + ! : | +   ! : 2 GC_freehblk  (in parallel-baseline) + 1620,1636  [0x100766fbc,0x100766fcc]  allchblk.c:993
+    +       ! : | + ! : | +   ! : 1 GC_freehblk  (in parallel-baseline) + 276  [0x100766a7c]  allchblk.c:955
+    +       ! : | + ! : | +   ! : 1 GC_freehblk  (in parallel-baseline) + 680  [0x100766c10]  allchblk.c:964
+    +       ! : | + ! : | +   ! 1 GC_freehblk  (in parallel-baseline) + 1740  [0x100767034]  allchblk.c:994
+    +       ! : | + ! : | +   5 GC_try_to_collect_inner  (in parallel-baseline) + 828,868,...  [0x1007690b8,0x1007690e0,...]  alloc.c:621
+    +       ! : | + ! : | +   2 GC_try_to_collect_inner  (in parallel-baseline) + 484  [0x100768f60]  alloc.c:604
+    +       ! : | + ! : | +   1 GC_try_to_collect_inner  (in parallel-baseline) + 1324  [0x1007692a8]  alloc.c:624
+    +       ! : | + ! : | +   ! 1 GC_stop_world  (in parallel-baseline) + 128  [0x10076b034]  darwin_stop_world.c:641
+    +       ! : | + ! : | +   !   1 thread_suspend  (in libsystem_kernel.dylib) + 108  [0x18a52a114]
+    +       ! : | + ! : | +   !     1 mach_msg2_internal  (in libsystem_kernel.dylib) + 76  [0x18a50c574]
+    +       ! : | + ! : | +   !       1 mach_msg2_trap  (in libsystem_kernel.dylib) + 8  [0x18a4f9c34]
+    +       ! : | + ! : | +   1 GC_try_to_collect_inner  (in parallel-baseline) + 1580  [0x1007693a8]  alloc.c:624
+    +       ! : | + ! : | +     1 GC_mark_some  (in parallel-baseline) + 1176  [0x10076d3e8]  mark.c:0
+    +       ! : | + ! : | +       1 GC_push_roots  (in parallel-baseline) + 1340  [0x10076dca8]  mark_rts.c:961
+    +       ! : | + ! : | +         1 GC_default_push_other_roots  (in parallel-baseline) + 52  [0x10076b2f4]  os_dep.c:2889
+    +       ! : | + ! : | +           1 thread_self_trap  (in libsystem_kernel.dylib) + 8  [0x18a4f9b50]
+    +       ! : | + ! : | 1 GC_allocobj  (in parallel-baseline) + 0  [0x10076e668]  alloc.c:1765
+    +       ! : | + ! : | 1 GC_allocobj  (in parallel-baseline) + 616  [0x10076e8d0]  alloc.c:1787
+    +       ! : | + ! : |   1 GC_build_fl  (in parallel-baseline) + 544  [0x10076759c]  new_hblk.c:155
+    +       ! : | + ! : 1 GC_allocobj  (in parallel-baseline) + 100  [0x10076e6cc]  alloc.c:0
+    +       ! : | + ! : 1 GC_generic_malloc_inner  (in parallel-baseline) + 196  [0x100766658]  malloc.c:191
+    +       ! : | + ! 31 GC_generic_malloc  (in parallel-baseline) + 96  [0x100766274]  malloc.c:255
+    +       ! : | + ! : 15 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+    +       ! : | + ! : | 15 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+    +       ! : | + ! : |   15 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+    +       ! : | + ! : 15 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+    +       ! : | + ! : | 15 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+    +       ! : | + ! : |   15 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+    +       ! : | + ! : 1 GC_lock  (in parallel-baseline) + 36  [0x10076482c]  pthread_support.c:2511
+    +       ! : | + ! 2 GC_generic_malloc_inner  (in parallel-baseline) + 120,128  [0x10076660c,0x100766614]  malloc.c:211
+    +       ! : | + 5 GC_malloc_kind_global  (in parallel-baseline) + 220  [0x100766900]  malloc.c:344
+    +       ! : | + 4 GC_malloc_kind_global  (in parallel-baseline) + 72,68  [0x10076686c,0x100766868]  malloc.c:324
+    +       ! : | + 3 GC_malloc_kind_global  (in parallel-baseline) + 116  [0x100766898]  malloc.c:0
+    +       ! : | + 2 GC_malloc_kind_global  (in parallel-baseline) + 0,12  [0x100766824,0x100766830]  malloc.c:315
+    +       ! : | + 1 GC_malloc_kind_global  (in parallel-baseline) + 308  [0x100766958]  malloc.c:349
+    +       ! : | 6 g_new_atomic  (in parallel-baseline) + 96  [0x100771110]  parallel-baseline.c:179
+    +       ! : | + 6 _platform_memset  (in libsystem_platform.dylib) + 140,160  [0x18a54711c,0x18a547130]
+    +       ! : | 1 g_new_atomic  (in parallel-baseline) + 96  [0x100771110]  parallel-baseline.c:179
+    +       ! : 135 f_work  (in parallel-baseline) + 252  [0x10077131c]  parallel-baseline.c:1511
+    +       ! : | 135 g_add  (in parallel-baseline) + 0,8  [0x100770ff8,0x100771000]  parallel-baseline.c:120
+    +       ! : 40 f_work  (in parallel-baseline) + 252,200,...  [0x10077131c,0x1007712e8,...]  parallel-baseline.c:1511
+    +       ! : 30 f_work  (in parallel-baseline) + 192,196,...  [0x1007712e0,0x1007712e4,...]  parallel-baseline.c:1508
+    +       ! : 5 f_work  (in parallel-baseline) + 264  [0x100771328]  parallel-baseline.c:1512
+    +       ! 1 g_parallel_0  (in parallel-baseline) + 36  [0x100770fd4]  parallel-baseline.c:1502
+    +       1 g_pool_worker  (in parallel-baseline) + 144  [0x1007714a8]  parallel-baseline.c:1307
+    +         1 _pthread_cond_wait  (in libsystem_pthread.dylib) + 980  [0x18a53e128]
+    +           1 __psynch_cvwait  (in libsystem_kernel.dylib) + 8  [0x18a4fd50c]
+    801 Thread_150801
+      801 thread_start  (in libsystem_pthread.dylib) + 8  [0x18a538c1c]
+        801 _pthread_start  (in libsystem_pthread.dylib) + 136  [0x18a53dc58]
+          801 GC_start_routine  (in parallel-baseline) + 212  [0x10076bedc]  pthread_support.c:2277
+            785 g_pool_worker  (in parallel-baseline) + 284  [0x100771534]  parallel-baseline.c:1311
+            ! 785 g_parallel_0  (in parallel-baseline) + 44  [0x100770fdc]  parallel-baseline.c:1502
+            !   515 f_work  (in parallel-baseline) + 68  [0x100771264]  parallel-baseline.c:1507
+            !   : 502 g_new_atomic  (in parallel-baseline) + 80  [0x100771100]  parallel-baseline.c:179
+            !   : | 379 GC_malloc_kind_global  (in parallel-baseline) + 76  [0x100766870]  malloc.c:324
+            !   : | + 227 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+            !   : | + ! 227 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+            !   : | + !   226 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+            !   : | + !   1 DYLD-STUB$$swtch_pri  (in libsystem_pthread.dylib) + 0  [0x18a542818]
+            !   : | + 143 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+            !   : | + ! 143 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+            !   : | + !   143 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+            !   : | + 2 GC_lock  (in parallel-baseline) + 168  [0x1007648b0]  pthread_support.c:0
+            !   : | + 2 GC_lock  (in parallel-baseline) + 220  [0x1007648e4]  pthread_support.c:2549
+            !   : | + 2 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2551
+            !   : | + 1 GC_lock  (in parallel-baseline) + 52  [0x10076483c]  pthread_support.c:2515
+            !   : | + 1 GC_lock  (in parallel-baseline) + 84  [0x10076485c]  pthread_support.c:2516
+            !   : | + 1 GC_lock  (in parallel-baseline) + 100  [0x10076486c]  pthread_support.c:2517
+            !   : | 113 GC_malloc_kind_global  (in parallel-baseline) + 256  [0x100766924]  malloc.c:349
+            !   : | + 75 GC_generic_malloc  (in parallel-baseline) + 108  [0x100766280]  malloc.c:256
+            !   : | + ! 72 GC_generic_malloc_inner  (in parallel-baseline) + 228  [0x100766678]  malloc.c:194
+            !   : | + ! : 54 GC_allocobj  (in parallel-baseline) + 444  [0x10076e824]  alloc.c:1787
+            !   : | + ! : | 24 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+            !   : | + ! : | + 9 GC_allochblk_nth  (in parallel-baseline) + 60  [0x10076ee38]  allchblk.c:753
+            !   : | + ! : | + 5 GC_allochblk_nth  (in parallel-baseline) + 68  [0x10076ee40]  allchblk.c:0
+            !   : | + ! : | + 3 GC_allochblk_nth  (in parallel-baseline) + 48,44  [0x10076ee2c,0x10076ee28]  allchblk.c:744
+            !   : | + ! : | + 2 GC_allochblk_nth  (in parallel-baseline) + 2064  [0x10076f60c]  allchblk.c:893
+            !   : | + ! : | + ! 2 GC_install_header  (in parallel-baseline) + 28  [0x10076c424]  headers.c:268
+            !   : | + ! : | + !   1 get_index  (in parallel-baseline) + 56  [0x10076c5c0]  headers.c:0
+            !   : | + ! : | + !   1 get_index  (in parallel-baseline) + 0  [0x10076c588]  headers.c:210
+            !   : | + ! : | + 2 GC_allochblk_nth  (in parallel-baseline) + 2440  [0x10076f784]  allchblk.c:905
+            !   : | + ! : | + ! 2 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+            !   : | + ! : | + !   2 GC_allochblk_nth  (in parallel-baseline) + 16,20  [0x10076ee0c,0x10076ee10]  allchblk.c:744
+            !   : | + ! : | + 1 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+            !   : | + ! : | + ! 1 GC_allochblk_nth  (in parallel-baseline) + 0  [0x10076edfc]  allchblk.c:744
+            !   : | + ! : | + 1 GC_allochblk_nth  (in parallel-baseline) + 424  [0x10076efa4]  allchblk.c:770
+            !   : | + ! : | + 1 GC_allochblk_nth  (in parallel-baseline) + 1968  [0x10076f5ac]  allchblk.c:893
+            !   : | + ! : | 20 GC_allochblk_nth  (in parallel-baseline) + 2536,2532,...  [0x10076f7e4,0x10076f7e0,...]  allchblk.c:926
+            !   : | + ! : | 4 GC_allochblk  (in parallel-baseline) + 244  [0x10076731c]  allchblk.c:726
+            !   : | + ! : | 1 GC_allochblk  (in parallel-baseline) + 96  [0x100767288]  allchblk.c:695
+            !   : | + ! : | + 1 GC_allochblk_nth  (in parallel-baseline) + 12  [0x10076ee08]  allchblk.c:744
+            !   : | + ! : | 1 GC_allochblk  (in parallel-baseline) + 156  [0x1007672c4]  allchblk.c:701
+            !   : | + ! : | + 1 GC_should_collect  (in parallel-baseline) + 284  [0x10076c03c]  alloc.c:449
+            !   : | + ! : | 1 GC_allochblk  (in parallel-baseline) + 160  [0x1007672c8]  allchblk.c:704
+            !   : | + ! : | 1 GC_allochblk  (in parallel-baseline) + 196  [0x1007672ec]  allchblk.c:721
+            !   : | + ! : | 1 GC_allochblk  (in parallel-baseline) + 216  [0x100767300]  allchblk.c:727
+            !   : | + ! : | 1 GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:728
+            !   : | + ! : 17 GC_allocobj  (in parallel-baseline) + 660  [0x10076e8fc]  alloc.c:1798
+            !   : | + ! : | 17 GC_collect_or_expand  (in parallel-baseline) + 292  [0x10076ea44]  alloc.c:1688
+            !   : | + ! : |   7 GC_try_to_collect_inner  (in parallel-baseline) + 6124  [0x10076a568]  alloc.c:636
+            !   : | + ! : |   + 3 GC_start_reclaim  (in parallel-baseline) + 764  [0x10076feb0]  reclaim.c:676
+            !   : | + ! : |   + ! 1 GC_freehblk  (in parallel-baseline) + 68  [0x1007669ac]  allchblk.c:941
+            !   : | + ! : |   + ! 1 GC_freehblk  (in parallel-baseline) + 1052  [0x100766d84]  allchblk.c:969
+            !   : | + ! : |   + ! 1 GC_freehblk  (in parallel-baseline) + 1676  [0x100766ff4]  allchblk.c:993
+            !   : | + ! : |   + 3 GC_start_reclaim  (in parallel-baseline) + 256,240  [0x10076fcb4,0x10076fca4]  reclaim.c:676
+            !   : | + ! : |   + 1 GC_freehblk  (in parallel-baseline) + 1732  [0x10076702c]  allchblk.c:994
+            !   : | + ! : |   3 GC_try_to_collect_inner  (in parallel-baseline) + 472,484,...  [0x100768f54,0x100768f60,...]  alloc.c:604
+            !   : | + ! : |   3 GC_try_to_collect_inner  (in parallel-baseline) + 900,928,...  [0x100769100,0x10076911c,...]  alloc.c:621
+            !   : | + ! : |   3 GC_try_to_collect_inner  (in parallel-baseline) + 1580  [0x1007693a8]  alloc.c:624
+            !   : | + ! : |   + 2 GC_mark_some  (in parallel-baseline) + 1008  [0x10076d340]  mark.c:0
+            !   : | + ! : |   + ! 2 GC_mark_from  (in parallel-baseline) + 472  [0x10076ce44]  mark.c:726
+            !   : | + ! : |   + 1 GC_mark_some  (in parallel-baseline) + 204  [0x10076d01c]  mark.c:310
+            !   : | + ! : |   1 GC_try_to_collect_inner  (in parallel-baseline) + 1324  [0x1007692a8]  alloc.c:624
+            !   : | + ! : |     1 GC_stop_world  (in parallel-baseline) + 128  [0x10076b034]  darwin_stop_world.c:641
+            !   : | + ! : |       1 thread_suspend  (in libsystem_kernel.dylib) + 108  [0x18a52a114]
+            !   : | + ! : |         1 mach_msg2_internal  (in libsystem_kernel.dylib) + 76  [0x18a50c574]
+            !   : | + ! : |           1 mach_msg2_trap  (in libsystem_kernel.dylib) + 8  [0x18a4f9c34]
+            !   : | + ! : 1 GC_allocobj  (in parallel-baseline) + 616  [0x10076e8d0]  alloc.c:1787
+            !   : | + ! :   1 GC_build_fl  (in parallel-baseline) + 556  [0x1007675a8]  new_hblk.c:153
+            !   : | + ! 2 GC_allocobj  (in parallel-baseline) + 92,100  [0x10076e6c4,0x10076e6cc]  alloc.c:0
+            !   : | + ! 1 GC_generic_malloc_inner  (in parallel-baseline) + 116  [0x100766608]  malloc.c:211
+            !   : | + 37 GC_generic_malloc  (in parallel-baseline) + 96  [0x100766274]  malloc.c:255
+            !   : | + ! 22 GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+            !   : | + ! : 22 nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+            !   : | + ! :   22 __semwait_signal  (in libsystem_kernel.dylib) + 8  [0x18a4fd308]
+            !   : | + ! 15 GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+            !   : | + !   15 cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+            !   : | + !     15 swtch_pri  (in libsystem_kernel.dylib) + 8  [0x18a4f9c88]
+            !   : | + 1 GC_generic_malloc  (in parallel-baseline) + 108  [0x100766280]  malloc.c:257
+            !   : | 3 GC_malloc_kind_global  (in parallel-baseline) + 72,68  [0x10076686c,0x100766868]  malloc.c:324
+            !   : | 3 GC_malloc_kind_global  (in parallel-baseline) + 320  [0x100766964]  malloc.c:349
+            !   : | + 2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + ! 2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !   2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !     2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !       2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !         2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !           2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !             2 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !               1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !               : 1 GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+            !   : | + !               :   1 GC_clear_stack_inner  (in parallel-baseline) + 52  [0x100768514]  misc.c:329
+            !   : | + !               1 GC_clear_stack_inner  (in parallel-baseline) + 56  [0x100768518]  misc.c:329
+            !   : | + 1 GC_clear_stack_inner  (in parallel-baseline) + 20  [0x1007684f4]  misc.c:319
+            !   : | 1 GC_generic_malloc  (in parallel-baseline) + 220  [0x1007662f0]  malloc.c:303
+            !   : | 1 GC_malloc_kind_global  (in parallel-baseline) + 116  [0x100766898]  malloc.c:0
+            !   : | 1 GC_malloc_kind_global  (in parallel-baseline) + 148  [0x1007668b8]  malloc.c:341
+            !   : | 1 GC_malloc_kind_global  (in parallel-baseline) + 220  [0x100766900]  malloc.c:344
+            !   : 10 g_new_atomic  (in parallel-baseline) + 96  [0x100771110]  parallel-baseline.c:179
+            !   : | 10 _platform_memset  (in libsystem_platform.dylib) + 140,160  [0x18a54711c,0x18a547130]
+            !   : 2 g_new_atomic  (in parallel-baseline) + 56,96  [0x1007710e8,0x100771110]  parallel-baseline.c:179
+            !   : 1 GC_malloc_kind_global  (in parallel-baseline) + 180  [0x1007668d8]  malloc.c:350
+            !   174 f_work  (in parallel-baseline) + 252  [0x10077131c]  parallel-baseline.c:1511
+            !   : 174 g_add  (in parallel-baseline) + 0,8  [0x100770ff8,0x100771000]  parallel-baseline.c:120
+            !   53 f_work  (in parallel-baseline) + 252,200,...  [0x10077131c,0x1007712e8,...]  parallel-baseline.c:1511
+            !   34 f_work  (in parallel-baseline) + 192,184,...  [0x1007712e0,0x1007712d8,...]  parallel-baseline.c:1508
+            !   8 f_work  (in parallel-baseline) + 264  [0x100771328]  parallel-baseline.c:1512
+            !   1 g_new_atomic  (in parallel-baseline) + 112  [0x100771120]  parallel-baseline.c:179
+            16 g_pool_worker  (in parallel-baseline) + 144  [0x1007714a8]  parallel-baseline.c:1307
+              16 _pthread_cond_wait  (in libsystem_pthread.dylib) + 980  [0x18a53e128]
+                16 __psynch_cvwait  (in libsystem_kernel.dylib) + 8  [0x18a4fd50c]
+
+Total number in stack (recursive counted multiple, when >=5):
+        24       GC_clear_stack_inner  (in parallel-baseline) + 36  [0x100768504]  misc.c:320
+        10       GC_allochblk_nth  (in parallel-baseline) + 0  [0x10076edfc]  allchblk.c:744
+        9       GC_allochblk  (in parallel-baseline) + 240  [0x100767318]  allchblk.c:727
+        8       GC_lock  (in parallel-baseline) + 208  [0x1007648d8]  pthread_support.c:2559
+        8       GC_lock  (in parallel-baseline) + 232  [0x1007648f0]  pthread_support.c:2550
+        8       __semwait_signal  (in libsystem_kernel.dylib) + 0  [0x18a4fd300]
+        8       cthread_yield  (in libsystem_pthread.dylib) + 36  [0x18a53ac28]
+        8       nanosleep  (in libsystem_c.dylib) + 220  [0x18a3d9cc0]
+        8       swtch_pri  (in libsystem_kernel.dylib) + 0  [0x18a4f9c80]
+        6       f_work  (in parallel-baseline) + 0  [0x100771220]  parallel-baseline.c:1512
+        6       g_new_atomic  (in parallel-baseline) + 0  [0x1007710b0]  parallel-baseline.c:179
+        5       GC_allochblk_nth  (in parallel-baseline) + 0  [0x10076edfc]  allchblk.c:753
+        5       GC_allochblk_nth  (in parallel-baseline) + 0  [0x10076edfc]  allchblk.c:926
+        5       GC_lock  (in parallel-baseline) + 0  [0x100764808]  pthread_support.c:2516
+        5       GC_lock  (in parallel-baseline) + 0  [0x100764808]  pthread_support.c:2517
+
+Sort by top of stack, same collapsed (when >= 5):
+        swtch_pri  (in libsystem_kernel.dylib)        912
+        __semwait_signal  (in libsystem_kernel.dylib)        792
+        g_add  (in parallel-baseline)        596
+        f_work  (in parallel-baseline)        329
+        GC_allochblk_nth  (in parallel-baseline)        164
+        GC_lock  (in parallel-baseline)        92
+        GC_malloc_kind_global  (in parallel-baseline)        60
+        __psynch_cvwait  (in libsystem_kernel.dylib)        60
+        _platform_memset  (in libsystem_platform.dylib)        36
+        GC_allochblk  (in parallel-baseline)        32
+        GC_try_to_collect_inner  (in parallel-baseline)        27
+        GC_freehblk  (in parallel-baseline)        19
+        GC_allocobj  (in parallel-baseline)        8
+        g_new_atomic  (in parallel-baseline)        8
+        setup_header  (in parallel-baseline)        8
+        GC_generic_malloc  (in parallel-baseline)        7
+        GC_start_reclaim  (in parallel-baseline)        6
+        cthread_yield  (in libsystem_pthread.dylib)        6
+        get_index  (in parallel-baseline)        6
+        GC_clear_stack_inner  (in parallel-baseline)        5
+        GC_generic_malloc_inner  (in parallel-baseline)        5
+
+Binary Images:
+       0x100764000 -        0x100775be7 +parallel-baseline (0) <F9A5D6EE-817B-35EC-97D4-2E158EC81DE1> /Users/*/parallel-baseline
+       0x18a0d8000 -        0x18a12ab4b  libobjc.A.dylib (951.7) <FF1D8AE4-ABEF-35F1-A30A-1183B9CB414F> /usr/lib/libobjc.A.dylib
+       0x18a12b000 -        0x18a15fd07  libdyld.dylib (1378) <B147D877-D0C2-388F-B38D-D3132E39905F> /usr/lib/system/libdyld.dylib
+       0x18a160000 -        0x18a206217  dyld (1.0.0 - 1378) <F924BDD3-4365-3466-9580-8B1B3FA8F857> /usr/lib/dyld
+       0x18a207000 -        0x18a20a228  libsystem_blocks.dylib (96) <CC947089-488D-316B-A9C7-46DEC0F73145> /usr/lib/system/libsystem_blocks.dylib
+       0x18a20b000 -        0x18a25f55f  libxpc.dylib (3102.120.13) <C40FCAE8-7A17-3D82-87CB-3DA4802ADEF1> /usr/lib/system/libxpc.dylib
+       0x18a260000 -        0x18a2809ff  libsystem_trace.dylib (1861.120.4) <D0FABAB3-5AE7-3F10-8C62-60CBF5D70850> /usr/lib/system/libsystem_trace.dylib
+       0x18a281000 -        0x18a32f5f7  libcorecrypto.dylib (1922.121.1) <A01A158D-6FE7-3B1C-A2C4-6BCB90D7314A> /usr/lib/system/libcorecrypto.dylib
+       0x18a330000 -        0x18a3801d7  libsystem_malloc.dylib (812.100.31) <5FAE4807-4D2B-3A95-A63A-DD96D3DA11B4> /usr/lib/system/libsystem_malloc.dylib
+       0x18a381000 -        0x18a3c823f  libdispatch.dylib (1542.100.32) <F071EFE4-299F-3089-ACC4-0025B8FFB52A> /usr/lib/system/libdispatch.dylib
+       0x18a3c9000 -        0x18a3cbffb  libsystem_featureflags.dylib (103) <71FCFFBD-85F8-3365-AFE0-BECEA4369122> /usr/lib/system/libsystem_featureflags.dylib
+       0x18a3cc000 -        0x18a44cd9f  libsystem_c.dylib (1752.120.2) <694B7881-1BF3-3D0F-8F19-B50AE4E8EF8A> /usr/lib/system/libsystem_c.dylib
+       0x18a44d000 -        0x18a4ddae7  libc++.1.dylib (2100.43) <5013C0F8-84A9-3B56-9FEB-C353816A750F> /usr/lib/libc++.1.dylib
+       0x18a4de000 -        0x18a4f875f  libc++abi.dylib (2100.43) <E482D257-E5A0-3816-BD97-7B39342958DA> /usr/lib/libc++abi.dylib
+       0x18a4f9000 -        0x18a5362af  libsystem_kernel.dylib (12377.121.10) <FCA53B98-3D6A-38B2-A0EC-DF0F7E05F171> /usr/lib/system/libsystem_kernel.dylib
+       0x18a537000 -        0x18a543b3b  libsystem_pthread.dylib (539.100.4) <4F33683C-18C8-39A1-800B-2E3BD43BCC13> /usr/lib/system/libsystem_pthread.dylib
+       0x18a544000 -        0x18a54c963  libsystem_platform.dylib (375.120.2) <160FD864-8D15-36FC-9E97-9725388CFAFE> /usr/lib/system/libsystem_platform.dylib
+       0x18a54d000 -        0x18a57c6eb  libsystem_info.dylib (600) <3D62F2D9-F516-31BF-83C7-E203D872300B> /usr/lib/system/libsystem_info.dylib
+       0x18e514000 -        0x18e51de5f  libsystem_darwin.dylib (1752.120.2) <8858F025-745A-388E-9544-080781CC9A69> /usr/lib/system/libsystem_darwin.dylib
+       0x18e97f000 -        0x18e9911b6  libsystem_notify.dylib (348.120.4) <64D76451-1E0C-369B-A631-54DA3140E083> /usr/lib/system/libsystem_notify.dylib
+       0x190c4c000 -        0x190c66f7b  libsystem_networkextension.dylib (2226.121.1) <0331EE20-A1FB-3C0D-990A-F65939CFF505> /usr/lib/system/libsystem_networkextension.dylib
+       0x190ce9000 -        0x190d00fdf  libsystem_asl.dylib (406) <F40838DF-2F15-3F62-970F-DEE25706BF1B> /usr/lib/system/libsystem_asl.dylib
+       0x1928a7000 -        0x1928af387  libsystem_symptoms.dylib (2169.120.7) <F5029F5C-1BF3-31C7-892E-BC8606AC829E> /usr/lib/system/libsystem_symptoms.dylib
+       0x196b4b000 -        0x196b83257  libsystem_containermanager.dylib (725.120.2) <518BE44D-AA31-31E6-B44B-A37AD5E47040> /usr/lib/system/libsystem_containermanager.dylib
+       0x197f5c000 -        0x197f605d7  libsystem_configuration.dylib (1405.120.5) <0F7BBC1C-3D50-3E59-A31F-E4672A80BCEB> /usr/lib/system/libsystem_configuration.dylib
+       0x197f61000 -        0x197f678cf  libsystem_sandbox.dylib (2680.120.12) <EC3A75EA-44C0-3A0B-9BF7-71C117B0A9C6> /usr/lib/system/libsystem_sandbox.dylib
+       0x1995bb000 -        0x1995be1fb  libquarantine.dylib (196.120.2) <5849009B-ACA3-3796-94C4-BBDF8D300EBA> /usr/lib/system/libquarantine.dylib
+       0x199d5a000 -        0x199d60d03  libsystem_coreservices.dylib (191.4.5) <9576143B-C303-35A3-BA63-1FD06EDA2BB1> /usr/lib/system/libsystem_coreservices.dylib
+       0x19a2e5000 -        0x19a322a77  libsystem_m.dylib (3312.100.1) <A7E0863C-101A-31A0-922B-ED9B02626151> /usr/lib/system/libsystem_m.dylib
+       0x19a324000 -        0x19a327527  libmacho.dylib (1378) <755441B4-C034-3E3A-8E3C-F424FBB28261> /usr/lib/system/libmacho.dylib
+       0x19a341000 -        0x19a34e3a7  libcommonCrypto.dylib (600035) <CE357BB1-2D49-37CC-9FFE-D093936B1475> /usr/lib/system/libcommonCrypto.dylib
+       0x19a34f000 -        0x19a358ca3  libunwind.dylib (2100.2) <FC8F0C4E-6FB0-3E27-ABEF-B0FA720CD5E4> /usr/lib/system/libunwind.dylib
+       0x19a361000 -        0x19a36b7ff  libcopyfile.dylib (240) <8ACFAC7A-88E9-3EF4-853F-A9140FF110E5> /usr/lib/system/libcopyfile.dylib
+       0x19a36c000 -        0x19a36f987  libcompiler_rt.dylib (103.3) <AA79151F-C19D-3C7C-92F8-B10F04D82C1C> /usr/lib/system/libcompiler_rt.dylib
+       0x19a370000 -        0x19a37478b  libsystem_collections.dylib (1752.120.2) <72DB5BE7-EF78-37D0-8AAD-53E37CFE4287> /usr/lib/system/libsystem_collections.dylib
+       0x19a375000 -        0x19a3784cf  libsystem_secinit.dylib (168.100.7) <E525C566-CDA4-3D99-B12B-1615FD54A1F3> /usr/lib/system/libsystem_secinit.dylib
+       0x19a379000 -        0x19a37bbf7  libremovefile.dylib (85.100.6) <635E661D-80A7-340D-A165-3F7D318FDFC9> /usr/lib/system/libremovefile.dylib
+       0x19a37c000 -        0x19a37cf27  libkeymgr.dylib (31) <8C08891A-DF1C-3DCC-AB64-4742FD6BE9BA> /usr/lib/system/libkeymgr.dylib
+       0x19a37d000 -        0x19a385e37  libsystem_dnssd.dylib (2881.120.11) <6F45DF3F-233B-3BC3-BA8C-B43E7DA884BF> /usr/lib/system/libsystem_dnssd.dylib
+       0x19a386000 -        0x19a38b09b  libcache.dylib (95) <189B576E-6176-3F82-8FA4-5914B0BEAEE7> /usr/lib/system/libcache.dylib
+       0x19a38c000 -        0x19a38dce3  libSystem.B.dylib (1356) <BA6A669A-3BB9-3BC7-85E8-8F0C1E68351E> /usr/lib/libSystem.B.dylib
+       0x28d648000 -        0x28d64f349  libRosetta.dylib (367.9) <8651ED4F-6506-3788-B56B-32EE414A85CA> /usr/lib/libRosetta.dylib
+       0x28f265000 -        0x28f268a4b  libsystem_darwindirectory.dylib (122) <CF277A2C-C818-3F16-8B3F-3C7B39FCD164> /usr/lib/system/libsystem_darwindirectory.dylib
+       0x28f269000 -        0x28f2725d3  libsystem_eligibility.dylib (319.121.1) <DDAC0531-0262-3DDC-8EC8-80EB9438847A> /usr/lib/system/libsystem_eligibility.dylib
+       0x28f273000 -        0x28f27a88b  libsystem_sanitizers.dylib (26.1) <44C4234F-8B2D-38D3-A774-B4B3C75AF3A7> /usr/lib/system/libsystem_sanitizers.dylib
+       0x28f27b000 -        0x28f27bbb7  libsystem_trial.dylib (474.2.18.2) <68C583BA-AFF5-3916-86AE-6E38BFEF98D6> /usr/lib/system/libsystem_trial.dylib

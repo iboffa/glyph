@@ -1,0 +1,14 @@
+test_alias_and_pointer_fallback (test_memory_controls.MemoryControlsTests.test_alias_and_pointer_fallback) ... ok
+test_alias_initializer_and_disjoint_bindings (test_memory_controls.MemoryControlsTests.test_alias_initializer_and_disjoint_bindings) ... ok
+test_domains_all_levels_and_gc_stress (test_memory_controls.MemoryControlsTests.test_domains_all_levels_and_gc_stress) ... ok
+test_format_contract_and_domains (test_memory_controls.MemoryControlsTests.test_format_contract_and_domains) ... ok
+test_fusion_reuse_aliases_and_error_order (test_memory_controls.MemoryControlsTests.test_fusion_reuse_aliases_and_error_order) ... ok
+test_invalid_allocation_traps (test_memory_controls.MemoryControlsTests.test_invalid_allocation_traps) ... ok
+test_ir_order_and_reports (test_memory_controls.MemoryControlsTests.test_ir_order_and_reports) ... ok
+test_negative_rules (test_memory_controls.MemoryControlsTests.test_negative_rules) ... ok
+test_transitive_contract_generic_and_method (test_memory_controls.MemoryControlsTests.test_transitive_contract_generic_and_method) ... ok
+
+----------------------------------------------------------------------
+Ran 9 tests in 24.786s
+
+OK

@@ -1,0 +1,20 @@
+{
+  "command": [
+    "/Users/igino/glyph/build/memory-comparison/parallel-baseline",
+    "4000000"
+  ],
+  "workers": "4",
+  "sample_command": [
+    "/usr/bin/sample",
+    "26205",
+    "1",
+    "-file",
+    "/Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/profile/baseline-parallel.txt"
+  ],
+  "sample_returncode": 0,
+  "sample_stdout": "",
+  "sample_stderr": "Sampling process 26205 for 1 second with 1 millisecond of run time between samples\nSampling completed, processing symbols...\nSample analysis of process 26205 written to file /Users/igino/glyph/benchmarks/results/macos-arm64-2026-10-28-memory/profile/baseline-parallel.txt\n",
+  "stdout": "5119998720000000\n0.0030929999998079438\n4.1549829999999019\n",
+  "stderr": "",
+  "note": "Profiler run is excluded from timing comparisons; samples are statistical stacks, not exact attribution."
+}

@@ -1,0 +1,17 @@
+work x:int>int
+  f := fn(y:int)>int = x + y
+  ret f(3)
+main>void
+  setup := clock()
+  n := argi(0)
+  setup = clock() - setup
+  start := clock()
+  total := 0
+  i := 0
+  while i < n
+    total += work(i)
+    i += 1
+  elapsed := clock() - start
+  print(total)
+  print(setup)
+  print(elapsed)

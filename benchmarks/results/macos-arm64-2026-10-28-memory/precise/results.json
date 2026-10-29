@@ -1,0 +1,71 @@
+{
+  "scope": "Single-thread explicit-root/layout microbenchmark; no language root lowering, concurrent publication, or moving objects. Both variants force collection after each 256 nodes. Not representative of default BDWGC scheduling.",
+  "runs": {
+    "precise": {
+      "build_s": 0.0932101660000626,
+      "bytes": 160648,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/precise-experiment/precise.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/precise-experiment/precise",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        0.00721,
+        0.005775,
+        0.005299,
+        0.005338,
+        0.005306,
+        0.005314,
+        0.005333
+      ],
+      "median_s": 0.005333
+    },
+    "bdwgc": {
+      "build_s": 0.08621912499984319,
+      "bytes": 160840,
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/precise-experiment/bdwgc.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/precise-experiment/bdwgc",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "samples": [
+        0.025779,
+        0.018386,
+        0.015668,
+        0.015666,
+        0.015315,
+        0.015422,
+        0.015922
+      ],
+      "median_s": 0.015668
+    }
+  }
+}

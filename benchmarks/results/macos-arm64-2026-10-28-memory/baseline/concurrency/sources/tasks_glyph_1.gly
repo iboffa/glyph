@@ -1,0 +1,16 @@
+work>int = 42
+main>void
+  n := argi(0)
+  checksum := 0
+  start := clock()
+  i := 0
+  while i < n
+    scope
+      t := spawn(work)
+      if not task_status(t).ok
+        exit(1)
+      checksum += wait(t)
+    i += 1
+  elapsed := clock() - start
+  print(checksum)
+  print(elapsed)

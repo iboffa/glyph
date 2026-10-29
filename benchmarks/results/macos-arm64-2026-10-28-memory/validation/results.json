@@ -1,0 +1,225 @@
+{
+  "sanitizers": {
+    "domains": {
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/memory-validation/domains.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/memory-validation/domains",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-g"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "AddressSanitizer: CHECK failed: sanitizer_malloc_mac.inc:189 \"((!asan_init_is_running)) != (0)\" (0x0, 0x0) (tid=184420)\n    <empty stack>\n\n",
+      "status": "unavailable: sanitizer runtime initialization failed"
+    },
+    "gc_roots": {
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/memory-validation/gc_roots.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/memory-validation/gc_roots",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm",
+        "-fsanitize=address,undefined",
+        "-fno-omit-frame-pointer",
+        "-g"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "AddressSanitizer: CHECK failed: sanitizer_malloc_mac.inc:189 \"((!asan_init_is_running)) != (0)\" (0x0, 0x0) (tid=184669)\n    <empty stack>\n\n",
+      "status": "unavailable: sanitizer runtime initialization failed"
+    },
+    "domains-ubsan": {
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/memory-validation/domains-ubsan.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/memory-validation/domains-ubsan",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm",
+        "-fsanitize=undefined",
+        "-fno-omit-frame-pointer",
+        "-g"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": 0,
+      "stdout": "22\n16\n15\n4\n",
+      "stderr": ""
+    },
+    "gc-roots-ubsan": {
+      "command": [
+        "/usr/bin/clang",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/memory-validation/gc-roots-ubsan.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/memory-validation/gc-roots-ubsan",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-758cfabea4eecb5d7a3ecec15945e84b8575a39bec382541816aa556b3282532.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm",
+        "-fsanitize=undefined",
+        "-fno-omit-frame-pointer",
+        "-g"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": 0,
+      "stdout": "survives\n73\n91\n123\n8\n7\n",
+      "stderr": ""
+    },
+    "thread": {
+      "command": [
+        "/usr/bin/clang",
+        "/Users/igino/glyph/tests/concurrency_runtime_harness.c",
+        "/Users/igino/glyph/glyph/vendor/bdwgc/extra/gc.c",
+        "-o",
+        "/Users/igino/glyph/build/memory-validation/tsan",
+        "-g",
+        "-fsanitize=thread",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-std=c11",
+        "-O2",
+        "-fno-strict-aliasing",
+        "-DGC_BUILTIN_ATOMIC",
+        "-DALL_INTERIOR_POINTERS",
+        "-DNO_EXECUTE_PERMISSION",
+        "-DGC_DISABLE_INCREMENTAL",
+        "-D_DARWIN_C_SOURCE",
+        "-DLARGE_CONFIG",
+        "-DGC_THREADS",
+        "-pthread"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": -11,
+      "stdout": "",
+      "stderr": ""
+    }
+  },
+  "allocation_failures": {
+    "owned": {
+      "returncode": 70,
+      "diagnostic": {
+        "file": "<source>",
+        "code": "R004",
+        "severity": "error",
+        "message": "allocation failed",
+        "span": {
+          "start": {
+            "line": 3,
+            "column": 10
+          },
+          "end": {
+            "line": 3,
+            "column": 11
+          }
+        }
+      }
+    },
+    "arena": {
+      "returncode": 70,
+      "diagnostic": {
+        "file": "<source>",
+        "code": "R004",
+        "severity": "error",
+        "message": "allocation failed",
+        "span": {
+          "start": {
+            "line": 3,
+            "column": 10
+          },
+          "end": {
+            "line": 3,
+            "column": 11
+          }
+        }
+      }
+    }
+  },
+  "limitations": [
+    "LeakSanitizer unavailable on this macOS configuration; BDWGC object is not ASan-instrumented; emitted program and runtime are.",
+    "ThreadSanitizer covered separately by existing concurrency harness."
+  ],
+  "sanitizer_probes": {
+    "address,undefined": {
+      "command": [
+        "/usr/bin/clang",
+        "/Users/igino/glyph/build/memory-validation/probe.c",
+        "-o",
+        "/Users/igino/glyph/build/memory-validation/probe-address-undefined",
+        "-fsanitize=address,undefined"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": -6,
+      "stdout": "",
+      "stderr": "AddressSanitizer: CHECK failed: sanitizer_malloc_mac.inc:189 \"((!asan_init_is_running)) != (0)\" (0x0, 0x0) (tid=185619)\n    <empty stack>\n\n"
+    },
+    "thread": {
+      "command": [
+        "/usr/bin/clang",
+        "/Users/igino/glyph/build/memory-validation/probe.c",
+        "-o",
+        "/Users/igino/glyph/build/memory-validation/probe-thread",
+        "-fsanitize=thread"
+      ],
+      "build_returncode": 0,
+      "build_stderr": "",
+      "returncode": -11,
+      "stdout": "",
+      "stderr": ""
+    }
+  }
+}

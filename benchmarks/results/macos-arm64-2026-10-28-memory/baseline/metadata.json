@@ -1,0 +1,23 @@
+{
+  "date": "2026-10-28",
+  "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+  "cpu": "arm",
+  "physical_cores": 8,
+  "logical_cores": 8,
+  "ram_bytes": 8589934592,
+  "python": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+  "ziglang": "0.14.1",
+  "clang": "clang version 19.1.7 (https://github.com/ziglang/zig-bootstrap de1b01a8c1dddf75a560123ac1c2ab182b4830da)\nTarget: aarch64-unknown-darwin25.5.0\nThread model: posix\nInstalledDir: /Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang",
+  "flags": "-std=c11 -O2 -fno-fast-math -ffp-contract=off; no LTO; default target; no stripping",
+  "memory_method": "sum of process-tree RSS/working sets sampled every 1ms, including Python launcher children; maximum observed sum is a lower bound; null if unobserved",
+  "timing_method": "internal monotonic wall clock for kernel; external perf_counter includes setup/output/cleanup and monitoring; separate empty-process startup",
+  "commit": "5595ee6b99164897fb50e28772c4be755f2a9461",
+  "initial_changes": " M .DS_Store",
+  "cpu_model": "Apple M2",
+  "environment": {
+    "DEVELOPER_DIR": "/Library/Developer/CommandLineTools",
+    "CC": null,
+    "CFLAGS": null,
+    "GLYPH_WORKERS": null
+  }
+}

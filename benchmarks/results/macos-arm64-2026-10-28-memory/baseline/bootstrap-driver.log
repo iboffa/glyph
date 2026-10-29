@@ -1,0 +1,7 @@
+Completed python: 3.79s
+Completed stage1: 3.65s
+Completed stage2: 3.37s
+Completed glyphc: 0.32s
+Completed glyphc: 0.96s
+Fixed point verified. Native compiler: /private/tmp/glyph-memory-baseline/build/selfhost/glyphc
+Verification: /private/tmp/glyph-memory-baseline/build/selfhost/verification.json

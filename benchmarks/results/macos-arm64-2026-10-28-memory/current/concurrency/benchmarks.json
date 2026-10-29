@@ -1,0 +1,3160 @@
+{
+  "metadata": {
+    "date": "2026-10-28",
+    "os": "macOS-26.5.2-arm64-arm-64bit-Mach-O",
+    "cpu": "arm",
+    "physical_cores": 8,
+    "logical_cores": 8,
+    "ram_bytes": 8589934592,
+    "python": "3.14.7 (v3.14.7:823f0323ee6, Aug  5 2026, 07:07:01) [Clang 21.0.0 (clang-2100.1.1.101)]",
+    "ziglang": "0.14.1",
+    "clang": "clang version 19.1.7 (https://github.com/ziglang/zig-bootstrap de1b01a8c1dddf75a560123ac1c2ab182b4830da)\nTarget: aarch64-unknown-darwin25.5.0\nThread model: posix\nInstalledDir: /Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang",
+    "flags": "-std=c11 -O2 -fno-fast-math -ffp-contract=off; no LTO; default target; no stripping",
+    "memory_method": "Not sampled in this benchmark.",
+    "timing_method": "Transform: first dispatch separately, then repeated steady-state calls including fresh output allocation. Auxiliary tasks/channels: internal total, including thread creation. Wall time includes process start/setup/cleanup. No memory sampling. C uses the same checked arithmetic, GC, and scheduler as Glyph; isolates frontend/lowering overhead, not an independent C scheduler. Python uses persistent ProcessPoolExecutor with chunksize=256; first includes process startup, steady includes serialization.",
+    "cpu_model": "Apple M2"
+  },
+  "samples": 5,
+  "warmups_per_case": 1,
+  "date": "2026-10-27",
+  "builds": {
+    "compute/glyph_parallel/1": {
+      "seconds": 0.10164500000018961,
+      "bytes": 141144,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "4c0e838c28ad12d97c77ccde25d39c2d8d51dca8389740e3cc888fd457b3dd54"
+    },
+    "compute/c_parallel/1": {
+      "seconds": 0.09923554199986029,
+      "bytes": 140840,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "07ba2a5adc543b447dd03a55198c1ccb6fa02d90119ee2fde0918631f016c179"
+    },
+    "compute/glyph_parallel/2": {
+      "seconds": 0.10050275000003239,
+      "bytes": 141144,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "4c0e838c28ad12d97c77ccde25d39c2d8d51dca8389740e3cc888fd457b3dd54"
+    },
+    "compute/c_parallel/2": {
+      "seconds": 0.1009675000000243,
+      "bytes": 140840,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "07ba2a5adc543b447dd03a55198c1ccb6fa02d90119ee2fde0918631f016c179"
+    },
+    "compute/glyph_parallel/4": {
+      "seconds": 0.10137558300039018,
+      "bytes": 141144,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "4c0e838c28ad12d97c77ccde25d39c2d8d51dca8389740e3cc888fd457b3dd54"
+    },
+    "compute/c_parallel/4": {
+      "seconds": 0.10170420800022839,
+      "bytes": 140840,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "07ba2a5adc543b447dd03a55198c1ccb6fa02d90119ee2fde0918631f016c179"
+    },
+    "compute/glyph_sequential/1": {
+      "seconds": 0.09953083299978971,
+      "bytes": 118168,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "8452405283f78adf465b05d7e8e8aa3349cf965acb0d99367206b39396aab3a2"
+    },
+    "compute/c_sequential/1": {
+      "seconds": 0.10002712499999689,
+      "bytes": 118152,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "7716fd8ea8be640eed64bfffbd0dd5e61de7488d7c30b7f9da189ae4d2139d11"
+    },
+    "memory/glyph_parallel/1": {
+      "seconds": 0.10511808400042355,
+      "bytes": 141048,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3dd1dd168fc48d16fca43657c2b8faa39c1701e30fdc1fb8779360c1fd11a077"
+    },
+    "memory/c_parallel/1": {
+      "seconds": 0.10207350000018778,
+      "bytes": 140832,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "9c6af560ec1fd6c7446769029d85b856415ef589dd5911348fac05cc3398c8c9"
+    },
+    "memory/glyph_parallel/2": {
+      "seconds": 0.10801308300005985,
+      "bytes": 141048,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3dd1dd168fc48d16fca43657c2b8faa39c1701e30fdc1fb8779360c1fd11a077"
+    },
+    "memory/c_parallel/2": {
+      "seconds": 0.10109533299964824,
+      "bytes": 140832,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "9c6af560ec1fd6c7446769029d85b856415ef589dd5911348fac05cc3398c8c9"
+    },
+    "memory/glyph_parallel/4": {
+      "seconds": 0.10384608300000764,
+      "bytes": 141048,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3dd1dd168fc48d16fca43657c2b8faa39c1701e30fdc1fb8779360c1fd11a077"
+    },
+    "memory/c_parallel/4": {
+      "seconds": 0.10068920899993827,
+      "bytes": 140832,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "9c6af560ec1fd6c7446769029d85b856415ef589dd5911348fac05cc3398c8c9"
+    },
+    "memory/glyph_sequential/1": {
+      "seconds": 0.10107554200021696,
+      "bytes": 118168,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3869a11d7353a2d74512c3e110ab67200df4ecbd4fcf369eb508847cf2b86cde"
+    },
+    "memory/c_sequential/1": {
+      "seconds": 0.09964370899979258,
+      "bytes": 118152,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "91df0203d6ef559f014a2fbf57911788890c77855a6cc196724c8b552e62c334"
+    },
+    "tiny/glyph_parallel/1": {
+      "seconds": 0.10020695799994428,
+      "bytes": 141048,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3dd1dd168fc48d16fca43657c2b8faa39c1701e30fdc1fb8779360c1fd11a077"
+    },
+    "tiny/c_parallel/1": {
+      "seconds": 0.10014616700027545,
+      "bytes": 140832,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "9c6af560ec1fd6c7446769029d85b856415ef589dd5911348fac05cc3398c8c9"
+    },
+    "tiny/glyph_parallel/2": {
+      "seconds": 0.10199400000010428,
+      "bytes": 141048,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3dd1dd168fc48d16fca43657c2b8faa39c1701e30fdc1fb8779360c1fd11a077"
+    },
+    "tiny/c_parallel/2": {
+      "seconds": 0.10125033300028008,
+      "bytes": 140832,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "9c6af560ec1fd6c7446769029d85b856415ef589dd5911348fac05cc3398c8c9"
+    },
+    "tiny/glyph_parallel/4": {
+      "seconds": 0.10415716699981203,
+      "bytes": 141048,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3dd1dd168fc48d16fca43657c2b8faa39c1701e30fdc1fb8779360c1fd11a077"
+    },
+    "tiny/c_parallel/4": {
+      "seconds": 0.10065004199987015,
+      "bytes": 140832,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "9c6af560ec1fd6c7446769029d85b856415ef589dd5911348fac05cc3398c8c9"
+    },
+    "tiny/glyph_sequential/1": {
+      "seconds": 0.1008020829999623,
+      "bytes": 118152,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "3869a11d7353a2d74512c3e110ab67200df4ecbd4fcf369eb508847cf2b86cde"
+    },
+    "tiny/c_sequential/1": {
+      "seconds": 0.10029141699988031,
+      "bytes": 118128,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "91df0203d6ef559f014a2fbf57911788890c77855a6cc196724c8b552e62c334"
+    },
+    "allocation/glyph_parallel/1": {
+      "seconds": 0.101110707999851,
+      "bytes": 141224,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "f8dddae56499bda25ff2cc7f647796e0c84295d32a8c70330c3cc9ac666dc437"
+    },
+    "allocation/c_parallel/1": {
+      "seconds": 0.10261483300018881,
+      "bytes": 140920,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "036cc4b01a6ad2cb13fa91d95ba9a375e4f6a1ec1b009858fa36b6add9f2ba62"
+    },
+    "allocation/glyph_parallel/2": {
+      "seconds": 0.09981033300027775,
+      "bytes": 141224,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "f8dddae56499bda25ff2cc7f647796e0c84295d32a8c70330c3cc9ac666dc437"
+    },
+    "allocation/c_parallel/2": {
+      "seconds": 0.10010058299985758,
+      "bytes": 140920,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_2.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_2",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "036cc4b01a6ad2cb13fa91d95ba9a375e4f6a1ec1b009858fa36b6add9f2ba62"
+    },
+    "allocation/glyph_parallel/4": {
+      "seconds": 0.10664295900005527,
+      "bytes": 141224,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "f8dddae56499bda25ff2cc7f647796e0c84295d32a8c70330c3cc9ac666dc437"
+    },
+    "allocation/c_parallel/4": {
+      "seconds": 0.10665845900030035,
+      "bytes": 140920,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_4.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_4",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "036cc4b01a6ad2cb13fa91d95ba9a375e4f6a1ec1b009858fa36b6add9f2ba62"
+    },
+    "allocation/glyph_sequential/1": {
+      "seconds": 0.10368912500007355,
+      "bytes": 118256,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "2817f521437d86a7dcff9a9ac11bc565fde0a9cc0c18d797c890bf3cfcebcb72"
+    },
+    "allocation/c_sequential/1": {
+      "seconds": 0.10109337499989124,
+      "bytes": 118232,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_sequential_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_sequential_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "2d1fdb94867ef7bca2fa622e95885e57764ff10e717819663cfad8b255f491f6"
+    },
+    "tasks/glyph/1": {
+      "seconds": 0.10105225000006612,
+      "bytes": 140880,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tasks_glyph_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tasks_glyph_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "248f4adff7e35824025cbe8c03456c2939d7400e297b4ab61f28c02d29b0907f"
+    },
+    "tasks/c/1": {
+      "seconds": 0.10053070899994054,
+      "bytes": 140600,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/tasks_c_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/tasks_c_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "d74f976259345c015e132aac1ea91cf6c9e484e6aaaf4facb39d0f128e26de88"
+    },
+    "channel/glyph/1": {
+      "seconds": 0.10242845799984934,
+      "bytes": 141728,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/channel_glyph_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/channel_glyph_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "474f3dea9f786f25a4c1d4c657e13dfcff5c4b16516c0e6395ba543bcc21c221"
+    },
+    "channel/c/1": {
+      "seconds": 0.09996204200024295,
+      "bytes": 141368,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/channel_c_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/channel_c_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "cfcc222b1a420adfac540efa4220113c6ce6240ad9e2ff35a5cd4368e50c9613"
+    },
+    "latency/glyph/1": {
+      "seconds": 0.10107391699966684,
+      "bytes": 141696,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/latency_glyph_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/latency_glyph_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "80825f0cfb17713f0025491a5d2578b204da83548b4cabe9815b3f72dbedfd4a"
+    },
+    "latency/c/1": {
+      "seconds": 0.09975420799992207,
+      "bytes": 141560,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/latency_c_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/latency_c_1",
+        "-DGC_THREADS",
+        "-pthread",
+        "-D_DARWIN_C_SOURCE",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-44f4a1c31b25aff1b2dc7f8fe657f9b768466e4453c4e21662c2e90d5b24a493.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "fac65fa2b1a73c166ece7507ab7a6e2a307452497905a62cd20d1cb3c71cd7cb"
+    },
+    "allocation_only/glyph/1": {
+      "seconds": 0.0993583330000547,
+      "bytes": 118056,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_only_glyph_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_only_glyph_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "2c6e8d5673079036feea69786acfade689cc44819e49b19cc118027bba235722"
+    },
+    "allocation_only/c/1": {
+      "seconds": 0.10256683299985525,
+      "bytes": 117952,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_only_c_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/allocation_only_c_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "c137f382240252a9bd7ff8fde22101dad3c3a2a8c77823cc1f62b50e6eeac92c"
+    },
+    "startup/glyph/1": {
+      "seconds": 0.10155941599987273,
+      "bytes": 98048,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/startup_glyph_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/startup_glyph_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "c7935b384423df4e089163d490c379f7cb13072e39d795ce28c196e9f3f24137"
+    },
+    "startup/c/1": {
+      "seconds": 0.09981695799979207,
+      "bytes": 51144,
+      "command": [
+        "/Users/igino/glyph/.venv/lib/python3.14/site-packages/ziglang/zig",
+        "cc",
+        "-x",
+        "c",
+        "/Users/igino/glyph/build/concurrency-bench/startup_c_1.c",
+        "-std=c11",
+        "-O2",
+        "-fno-fast-math",
+        "-ffp-contract=off",
+        "-o",
+        "/Users/igino/glyph/build/concurrency-bench/startup_c_1",
+        "-I/Users/igino/glyph/glyph/vendor/bdwgc/include",
+        "-DGC_NOT_DLL",
+        "-x",
+        "none",
+        "/Users/igino/glyph/build/.glyph-cache/bdwgc-a229bc2a67ceab639e9ba7d5cbe6868269eca417d63e6392c99551fae09851ae.o",
+        "-D_POSIX_C_SOURCE=200809L",
+        "-lm"
+      ],
+      "source_sha256": "2ad75d95660563887d8d3f1d0ae1dcf18c2379cbd83a5c72f5ab276351ee6949"
+    }
+  },
+  "runs": {
+    "compute/glyph_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_1",
+        "20000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.020313250000072003,
+          "stdout": "21468805945623\n0.0043249999980616849\n0.01284500000110711\n",
+          "first_s": 0.004324999998061685,
+          "steady_s": 0.01284500000110711
+        },
+        {
+          "wall_s": 0.021309875000042666,
+          "stdout": "21468805945623\n0.0043809999988297932\n0.013490000001183944\n",
+          "first_s": 0.004380999998829793,
+          "steady_s": 0.013490000001183944
+        },
+        {
+          "wall_s": 0.020349082999928214,
+          "stdout": "21468805945623\n0.0043540000006032642\n0.012847999998484738\n",
+          "first_s": 0.004354000000603264,
+          "steady_s": 0.012847999998484738
+        },
+        {
+          "wall_s": 0.0211318750002647,
+          "stdout": "21468805945623\n0.0044239999988349155\n0.012907000000268454\n",
+          "first_s": 0.0044239999988349155,
+          "steady_s": 0.012907000000268454
+        },
+        {
+          "wall_s": 0.021265416000005644,
+          "stdout": "21468805945623\n0.0044299999972281512\n0.013206999999965774\n",
+          "first_s": 0.004429999997228151,
+          "steady_s": 0.013206999999965774
+        }
+      ],
+      "median_wall_s": 0.0211318750002647,
+      "median_steady_s": 0.012907000000268454
+    },
+    "compute/c_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_1",
+        "20000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.02009612499978175,
+          "stdout": "21468805945623\n0.0042839999987336341\n0.012753999999404186\n",
+          "first_s": 0.004283999998733634,
+          "steady_s": 0.012753999999404186
+        },
+        {
+          "wall_s": 0.021328541999992012,
+          "stdout": "21468805945623\n0.0042819999980565626\n0.013421000003290828\n",
+          "first_s": 0.004281999998056563,
+          "steady_s": 0.013421000003290828
+        },
+        {
+          "wall_s": 0.020000374999654014,
+          "stdout": "21468805945623\n0.0041870000022754539\n0.012717999998130836\n",
+          "first_s": 0.004187000002275454,
+          "steady_s": 0.012717999998130836
+        },
+        {
+          "wall_s": 0.020841833999838855,
+          "stdout": "21468805945623\n0.0044330000018817373\n0.013040999998338521\n",
+          "first_s": 0.004433000001881737,
+          "steady_s": 0.01304099999833852
+        },
+        {
+          "wall_s": 0.02113654200002202,
+          "stdout": "21468805945623\n0.0045989999998710118\n0.01286199999958626\n",
+          "first_s": 0.004598999999871012,
+          "steady_s": 0.01286199999958626
+        }
+      ],
+      "median_wall_s": 0.020841833999838855,
+      "median_steady_s": 0.01286199999958626
+    },
+    "compute/glyph_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_2",
+        "20000",
+        "3"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.01238241700002618,
+          "stdout": "21468805945623\n0.0022920000010344665\n0.0068749999991268851\n",
+          "first_s": 0.0022920000010344665,
+          "steady_s": 0.006874999999126885
+        },
+        {
+          "wall_s": 0.01283049999983632,
+          "stdout": "21468805945623\n0.0023250000012922101\n0.0069460000013350509\n",
+          "first_s": 0.00232500000129221,
+          "steady_s": 0.006946000001335051
+        },
+        {
+          "wall_s": 0.012952792000305635,
+          "stdout": "21468805945623\n0.0022600000011152588\n0.0073100000008707866\n",
+          "first_s": 0.0022600000011152588,
+          "steady_s": 0.007310000000870787
+        },
+        {
+          "wall_s": 0.013449084000058065,
+          "stdout": "21468805945623\n0.0022779999999329448\n0.0069819999989704229\n",
+          "first_s": 0.0022779999999329448,
+          "steady_s": 0.006981999998970423
+        },
+        {
+          "wall_s": 0.012574083999879804,
+          "stdout": "21468805945623\n0.0022610000014537945\n0.0069489999987126794\n",
+          "first_s": 0.0022610000014537945,
+          "steady_s": 0.006948999998712679
+        }
+      ],
+      "median_wall_s": 0.01283049999983632,
+      "median_steady_s": 0.006948999998712679
+    },
+    "compute/c_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_2",
+        "20000",
+        "3"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.01260270800003127,
+          "stdout": "21468805945623\n0.0022439999993366655\n0.0067030000027443748\n",
+          "first_s": 0.0022439999993366655,
+          "steady_s": 0.006703000002744375
+        },
+        {
+          "wall_s": 0.012986584000373114,
+          "stdout": "21468805945623\n0.0022600000011152588\n0.0067979999985254835\n",
+          "first_s": 0.0022600000011152588,
+          "steady_s": 0.0067979999985254835
+        },
+        {
+          "wall_s": 0.012190500000087923,
+          "stdout": "21468805945623\n0.0022310000022116583\n0.0068040000005566981\n",
+          "first_s": 0.0022310000022116583,
+          "steady_s": 0.006804000000556698
+        },
+        {
+          "wall_s": 0.0131596249998438,
+          "stdout": "21468805945623\n0.0023030000011203811\n0.007109000001946697\n",
+          "first_s": 0.002303000001120381,
+          "steady_s": 0.007109000001946697
+        },
+        {
+          "wall_s": 0.012530374999641936,
+          "stdout": "21468805945623\n0.0022530000023834873\n0.0068639999990409706\n",
+          "first_s": 0.0022530000023834873,
+          "steady_s": 0.006863999999040971
+        }
+      ],
+      "median_wall_s": 0.01260270800003127,
+      "median_steady_s": 0.006804000000556698
+    },
+    "compute/glyph_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_parallel_4",
+        "20000",
+        "3"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.008011707999685314,
+          "stdout": "21468805945623\n0.0012189999979455024\n0.0036040000013599638\n",
+          "first_s": 0.0012189999979455024,
+          "steady_s": 0.003604000001359964
+        },
+        {
+          "wall_s": 0.008383417000004556,
+          "stdout": "21468805945623\n0.0012349999997240957\n0.0037989999982528389\n",
+          "first_s": 0.0012349999997240957,
+          "steady_s": 0.003798999998252839
+        },
+        {
+          "wall_s": 0.00850654099986059,
+          "stdout": "21468805945623\n0.001370000001770677\n0.0037339999980758876\n",
+          "first_s": 0.001370000001770677,
+          "steady_s": 0.0037339999980758876
+        },
+        {
+          "wall_s": 0.009052666999650683,
+          "stdout": "21468805945623\n0.0013659999967785552\n0.0037560000018856954\n",
+          "first_s": 0.0013659999967785552,
+          "steady_s": 0.0037560000018856954
+        },
+        {
+          "wall_s": 0.00863370799970653,
+          "stdout": "21468805945623\n0.0012580000002344605\n0.003625999997893814\n",
+          "first_s": 0.0012580000002344605,
+          "steady_s": 0.003625999997893814
+        }
+      ],
+      "median_wall_s": 0.00850654099986059,
+      "median_steady_s": 0.0037339999980758876
+    },
+    "compute/c_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_parallel_4",
+        "20000",
+        "3"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.008521582999946986,
+          "stdout": "21468805945623\n0.0012040000001434237\n0.0039280000019061845\n",
+          "first_s": 0.0012040000001434237,
+          "steady_s": 0.0039280000019061845
+        },
+        {
+          "wall_s": 0.00905125000008411,
+          "stdout": "21468805945623\n0.0014669999982288573\n0.003612000000430271\n",
+          "first_s": 0.0014669999982288573,
+          "steady_s": 0.003612000000430271
+        },
+        {
+          "wall_s": 0.009267834000183939,
+          "stdout": "21468805945623\n0.0012300000016693957\n0.0037000000011175871\n",
+          "first_s": 0.0012300000016693957,
+          "steady_s": 0.003700000001117587
+        },
+        {
+          "wall_s": 0.008918582999740465,
+          "stdout": "21468805945623\n0.0012209999986225739\n0.0036849999996775296\n",
+          "first_s": 0.001220999998622574,
+          "steady_s": 0.0036849999996775296
+        },
+        {
+          "wall_s": 0.00825024999994639,
+          "stdout": "21468805945623\n0.0012260000003152527\n0.0037929999998596031\n",
+          "first_s": 0.0012260000003152527,
+          "steady_s": 0.003792999999859603
+        }
+      ],
+      "median_wall_s": 0.008918582999740465,
+      "median_steady_s": 0.003700000001117587
+    },
+    "compute/glyph_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_glyph_sequential_1",
+        "20000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.03057699999999386,
+          "stdout": "21468805945623\n0.0070279999999911524\n0.01807600000029197\n",
+          "first_s": 0.0070279999999911524,
+          "steady_s": 0.01807600000029197
+        },
+        {
+          "wall_s": 0.020508457999767415,
+          "stdout": "21468805945623\n0.0044589999997697305\n0.01280600000245613\n",
+          "first_s": 0.0044589999997697305,
+          "steady_s": 0.01280600000245613
+        },
+        {
+          "wall_s": 0.02034870800025601,
+          "stdout": "21468805945623\n0.0042500000017753337\n0.012795999999070773\n",
+          "first_s": 0.004250000001775334,
+          "steady_s": 0.012795999999070773
+        },
+        {
+          "wall_s": 0.021286125000187894,
+          "stdout": "21468805945623\n0.0043699999987438787\n0.013120000003254972\n",
+          "first_s": 0.004369999998743879,
+          "steady_s": 0.013120000003254972
+        },
+        {
+          "wall_s": 0.02065412499996455,
+          "stdout": "21468805945623\n0.0043509999995876569\n0.013083999998343643\n",
+          "first_s": 0.004350999999587657,
+          "steady_s": 0.013083999998343643
+        }
+      ],
+      "median_wall_s": 0.02065412499996455,
+      "median_steady_s": 0.013083999998343643
+    },
+    "compute/c_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/compute_c_sequential_1",
+        "20000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.020005958000183455,
+          "stdout": "21468805945623\n0.0042990000001736917\n0.0127070000016829\n",
+          "first_s": 0.004299000000173692,
+          "steady_s": 0.0127070000016829
+        },
+        {
+          "wall_s": 0.01998974999969505,
+          "stdout": "21468805945623\n0.0041930000006686896\n0.012810000000172295\n",
+          "first_s": 0.00419300000066869,
+          "steady_s": 0.012810000000172295
+        },
+        {
+          "wall_s": 0.02079108299994914,
+          "stdout": "21468805945623\n0.00442500000281143\n0.013223999998444924\n",
+          "first_s": 0.00442500000281143,
+          "steady_s": 0.013223999998444924
+        },
+        {
+          "wall_s": 0.02102912500004095,
+          "stdout": "21468805945623\n0.0043449999975564424\n0.013237999999546446\n",
+          "first_s": 0.004344999997556442,
+          "steady_s": 0.013237999999546446
+        },
+        {
+          "wall_s": 0.02261537499998667,
+          "stdout": "21468805945623\n0.0044410000009520445\n0.013549999999668216\n",
+          "first_s": 0.0044410000009520445,
+          "steady_s": 0.013549999999668216
+        }
+      ],
+      "median_wall_s": 0.02079108299994914,
+      "median_steady_s": 0.013223999998444924
+    },
+    "memory/glyph_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_1",
+        "500000",
+        "5"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.008255499999904714,
+          "stdout": "125000250004\n0.00074600000152713619\n0.0028989999991608784\n",
+          "first_s": 0.0007460000015271362,
+          "steady_s": 0.0028989999991608784
+        },
+        {
+          "wall_s": 0.007911207999768521,
+          "stdout": "125000250004\n0.00074300000051152892\n0.0029660000000149012\n",
+          "first_s": 0.0007430000005115289,
+          "steady_s": 0.002966000000014901
+        },
+        {
+          "wall_s": 0.007722208000359387,
+          "stdout": "125000250004\n0.0007770000011078082\n0.0031400000007124618\n",
+          "first_s": 0.0007770000011078082,
+          "steady_s": 0.0031400000007124618
+        },
+        {
+          "wall_s": 0.007984416999988753,
+          "stdout": "125000250004\n0.00085100000069360249\n0.0029069999982311856\n",
+          "first_s": 0.0008510000006936025,
+          "steady_s": 0.0029069999982311856
+        },
+        {
+          "wall_s": 0.0074778329999389825,
+          "stdout": "125000250004\n0.00070599999889964238\n0.0031369999996968545\n",
+          "first_s": 0.0007059999988996424,
+          "steady_s": 0.0031369999996968545
+        }
+      ],
+      "median_wall_s": 0.007911207999768521,
+      "median_steady_s": 0.002966000000014901
+    },
+    "memory/c_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_1",
+        "500000",
+        "5"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.01677166700028465,
+          "stdout": "125000250004\n0.0016770000001997687\n0.0064540000021224841\n",
+          "first_s": 0.0016770000001997687,
+          "steady_s": 0.006454000002122484
+        },
+        {
+          "wall_s": 0.008023667000088608,
+          "stdout": "125000250004\n0.00073100000008707866\n0.0034209999976155814\n",
+          "first_s": 0.0007310000000870787,
+          "steady_s": 0.0034209999976155814
+        },
+        {
+          "wall_s": 0.0077598749999197025,
+          "stdout": "125000250004\n0.0007299999997485429\n0.0033739999998942949\n",
+          "first_s": 0.0007299999997485429,
+          "steady_s": 0.003373999999894295
+        },
+        {
+          "wall_s": 0.008079208999788534,
+          "stdout": "125000250004\n0.00077299999975366518\n0.0034650000015972182\n",
+          "first_s": 0.0007729999997536652,
+          "steady_s": 0.003465000001597218
+        },
+        {
+          "wall_s": 0.008656417000111105,
+          "stdout": "125000250004\n0.00077900000178487971\n0.0038480000002891757\n",
+          "first_s": 0.0007790000017848797,
+          "steady_s": 0.0038480000002891757
+        }
+      ],
+      "median_wall_s": 0.008079208999788534,
+      "median_steady_s": 0.003465000001597218
+    },
+    "memory/glyph_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_2",
+        "500000",
+        "5"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.006236207999791077,
+          "stdout": "125000250004\n0.00060500000108731911\n0.0019529999990481883\n",
+          "first_s": 0.0006050000010873191,
+          "steady_s": 0.0019529999990481883
+        },
+        {
+          "wall_s": 0.006701667000015732,
+          "stdout": "125000250004\n0.00061300000015762635\n0.0020960000001650769\n",
+          "first_s": 0.0006130000001576263,
+          "steady_s": 0.002096000000165077
+        },
+        {
+          "wall_s": 0.007084750000103668,
+          "stdout": "125000250004\n0.00061799999821232632\n0.0022470000003522728\n",
+          "first_s": 0.0006179999982123263,
+          "steady_s": 0.0022470000003522728
+        },
+        {
+          "wall_s": 0.00715516700029184,
+          "stdout": "125000250004\n0.0006719999983033631\n0.0022520000020449515\n",
+          "first_s": 0.0006719999983033631,
+          "steady_s": 0.0022520000020449515
+        },
+        {
+          "wall_s": 0.006551333000061277,
+          "stdout": "125000250004\n0.00053900000057183206\n0.0021000000015192199\n",
+          "first_s": 0.0005390000005718321,
+          "steady_s": 0.00210000000151922
+        }
+      ],
+      "median_wall_s": 0.006701667000015732,
+      "median_steady_s": 0.00210000000151922
+    },
+    "memory/c_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_2",
+        "500000",
+        "5"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.00618362499972136,
+          "stdout": "125000250004\n0.00058300000091549009\n0.0019830000019283034\n",
+          "first_s": 0.0005830000009154901,
+          "steady_s": 0.0019830000019283034
+        },
+        {
+          "wall_s": 0.00759820800021771,
+          "stdout": "125000250004\n0.00060899999880348332\n0.0024560000019846484\n",
+          "first_s": 0.0006089999988034833,
+          "steady_s": 0.0024560000019846484
+        },
+        {
+          "wall_s": 0.006392124999820226,
+          "stdout": "125000250004\n0.00058799999897019006\n0.0020359999980428256\n",
+          "first_s": 0.0005879999989701901,
+          "steady_s": 0.0020359999980428256
+        },
+        {
+          "wall_s": 0.007565249999970547,
+          "stdout": "125000250004\n0.00064900000143097714\n0.0020799999983864836\n",
+          "first_s": 0.0006490000014309771,
+          "steady_s": 0.0020799999983864836
+        },
+        {
+          "wall_s": 0.006822583000030136,
+          "stdout": "125000250004\n0.00053900000057183206\n0.0020299999996495899\n",
+          "first_s": 0.0005390000005718321,
+          "steady_s": 0.00202999999964959
+        }
+      ],
+      "median_wall_s": 0.006822583000030136,
+      "median_steady_s": 0.0020359999980428256
+    },
+    "memory/glyph_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_parallel_4",
+        "500000",
+        "5"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.005681791999904817,
+          "stdout": "125000250004\n0.00050799999735318124\n0.0015249999996740371\n",
+          "first_s": 0.0005079999973531812,
+          "steady_s": 0.001524999999674037
+        },
+        {
+          "wall_s": 0.005926958000145532,
+          "stdout": "125000250004\n0.00051000000166823156\n0.0015879999991739169\n",
+          "first_s": 0.0005100000016682316,
+          "steady_s": 0.0015879999991739169
+        },
+        {
+          "wall_s": 0.007224167000003945,
+          "stdout": "125000250004\n0.00052099999811616726\n0.0016130000003613532\n",
+          "first_s": 0.0005209999981161673,
+          "steady_s": 0.0016130000003613532
+        },
+        {
+          "wall_s": 0.006142416999864508,
+          "stdout": "125000250004\n0.00051999999777763151\n0.0016340000001946464\n",
+          "first_s": 0.0005199999977776315,
+          "steady_s": 0.0016340000001946464
+        },
+        {
+          "wall_s": 0.00616062500012049,
+          "stdout": "125000250004\n0.00063299999965238385\n0.0015489999968849588\n",
+          "first_s": 0.0006329999996523838,
+          "steady_s": 0.0015489999968849588
+        }
+      ],
+      "median_wall_s": 0.006142416999864508,
+      "median_steady_s": 0.0015879999991739169
+    },
+    "memory/c_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_parallel_4",
+        "500000",
+        "5"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.00592429100015579,
+          "stdout": "125000250004\n0.00056599999879836105\n0.0015330000023823231\n",
+          "first_s": 0.000565999998798361,
+          "steady_s": 0.0015330000023823231
+        },
+        {
+          "wall_s": 0.006410540999695513,
+          "stdout": "125000250004\n0.00057299999753013253\n0.0018780000027618371\n",
+          "first_s": 0.0005729999975301325,
+          "steady_s": 0.001878000002761837
+        },
+        {
+          "wall_s": 0.0062274169999909645,
+          "stdout": "125000250004\n0.00057800000286079012\n0.0018270000000484288\n",
+          "first_s": 0.0005780000028607901,
+          "steady_s": 0.0018270000000484288
+        },
+        {
+          "wall_s": 0.007025249999969674,
+          "stdout": "125000250004\n0.00053499999921768904\n0.0015410000014526304\n",
+          "first_s": 0.000534999999217689,
+          "steady_s": 0.0015410000014526304
+        },
+        {
+          "wall_s": 0.006294750000051863,
+          "stdout": "125000250004\n0.00054399999862653203\n0.0018090000012307428\n",
+          "first_s": 0.000543999998626532,
+          "steady_s": 0.0018090000012307428
+        }
+      ],
+      "median_wall_s": 0.006294750000051863,
+      "median_steady_s": 0.0018090000012307428
+    },
+    "memory/glyph_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_glyph_sequential_1",
+        "500000",
+        "5"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.005293166000228666,
+          "stdout": "125000250004\n0.00051499999972293153\n0.001339000002190005\n",
+          "first_s": 0.0005149999997229315,
+          "steady_s": 0.001339000002190005
+        },
+        {
+          "wall_s": 0.006076125000163302,
+          "stdout": "125000250004\n0.00051399999938439578\n0.0013819999985571485\n",
+          "first_s": 0.0005139999993843958,
+          "steady_s": 0.0013819999985571485
+        },
+        {
+          "wall_s": 0.005801917000098911,
+          "stdout": "125000250004\n0.00050000000192085281\n0.0014129999981378205\n",
+          "first_s": 0.0005000000019208528,
+          "steady_s": 0.0014129999981378205
+        },
+        {
+          "wall_s": 0.005990250000195374,
+          "stdout": "125000250004\n0.00051799999710055999\n0.0014370000026246998\n",
+          "first_s": 0.00051799999710056,
+          "steady_s": 0.0014370000026246998
+        },
+        {
+          "wall_s": 0.006053250000150001,
+          "stdout": "125000250004\n0.00051399999938439578\n0.0013890000009268988\n",
+          "first_s": 0.0005139999993843958,
+          "steady_s": 0.0013890000009268988
+        }
+      ],
+      "median_wall_s": 0.005990250000195374,
+      "median_steady_s": 0.0013890000009268988
+    },
+    "memory/c_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/memory_c_sequential_1",
+        "500000",
+        "5"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.004991500000414817,
+          "stdout": "125000250004\n0.00046699999802513048\n0.0011550000017450657\n",
+          "first_s": 0.0004669999980251305,
+          "steady_s": 0.0011550000017450657
+        },
+        {
+          "wall_s": 0.005178333999992901,
+          "stdout": "125000250004\n0.00044999999954598024\n0.0011039999990316574\n",
+          "first_s": 0.00044999999954598024,
+          "steady_s": 0.0011039999990316574
+        },
+        {
+          "wall_s": 0.0048979170001075545,
+          "stdout": "125000250004\n0.00046799999836366624\n0.0010629999997036066\n",
+          "first_s": 0.00046799999836366624,
+          "steady_s": 0.0010629999997036066
+        },
+        {
+          "wall_s": 0.005339916999673733,
+          "stdout": "125000250004\n0.00046799999836366624\n0.0010980000006384216\n",
+          "first_s": 0.00046799999836366624,
+          "steady_s": 0.0010980000006384216
+        },
+        {
+          "wall_s": 0.006625084000006609,
+          "stdout": "125000250004\n0.0005759999985457398\n0.0012660000029427465\n",
+          "first_s": 0.0005759999985457398,
+          "steady_s": 0.0012660000029427465
+        }
+      ],
+      "median_wall_s": 0.005178333999992901,
+      "median_steady_s": 0.0011039999990316574
+    },
+    "tiny/glyph_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_1",
+        "32",
+        "3000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.003390207999927952,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00021799999740323983\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00021799999740323983
+        },
+        {
+          "wall_s": 0.0036993749999965075,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00022700000045006163\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00022700000045006163
+        },
+        {
+          "wall_s": 0.003649083999789582,
+          "stdout": "3527\n0\n0.00022999999782769009\n",
+          "first_s": 0.0,
+          "steady_s": 0.0002299999978276901
+        },
+        {
+          "wall_s": 0.003615750000335538,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00026500000240048394\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00026500000240048394
+        },
+        {
+          "wall_s": 0.003917042000011861,
+          "stdout": "3527\n0\n0.00022499999977299012\n",
+          "first_s": 0.0,
+          "steady_s": 0.00022499999977299012
+        }
+      ],
+      "median_wall_s": 0.003649083999789582,
+      "median_steady_s": 0.00022700000045006163
+    },
+    "tiny/c_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_1",
+        "32",
+        "3000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.0032995000001392327,
+          "stdout": "3527\n0\n0.00021300000298651867\n",
+          "first_s": 0.0,
+          "steady_s": 0.00021300000298651867
+        },
+        {
+          "wall_s": 0.0035307499997543346,
+          "stdout": "3527\n0\n0.00022399999943445437\n",
+          "first_s": 0.0,
+          "steady_s": 0.00022399999943445437
+        },
+        {
+          "wall_s": 0.0032996670001921302,
+          "stdout": "3527\n9.9999670055694878e-07\n0.00021300000298651867\n",
+          "first_s": 9.999967005569488e-07,
+          "steady_s": 0.00021300000298651867
+        },
+        {
+          "wall_s": 0.0034875000001193257,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00022600000011152588\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00022600000011152588
+        },
+        {
+          "wall_s": 0.004494458999943163,
+          "stdout": "3527\n0\n0.00025099999766098335\n",
+          "first_s": 0.0,
+          "steady_s": 0.00025099999766098335
+        }
+      ],
+      "median_wall_s": 0.0034875000001193257,
+      "median_steady_s": 0.00022399999943445437
+    },
+    "tiny/glyph_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_2",
+        "32",
+        "3000"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.003388416999769106,
+          "stdout": "3527\n0\n0.00022100000205682591\n",
+          "first_s": 0.0,
+          "steady_s": 0.0002210000020568259
+        },
+        {
+          "wall_s": 0.003486208000140323,
+          "stdout": "3527\n0\n0.00022800000078859739\n",
+          "first_s": 0.0,
+          "steady_s": 0.0002280000007885974
+        },
+        {
+          "wall_s": 0.003950332999920647,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00023300000248127617\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00023300000248127617
+        },
+        {
+          "wall_s": 0.0035816669997075223,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00025000000096042641\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.0002500000009604264
+        },
+        {
+          "wall_s": 0.0035561659997256356,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00022700000045006163\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00022700000045006163
+        }
+      ],
+      "median_wall_s": 0.0035561659997256356,
+      "median_steady_s": 0.0002280000007885974
+    },
+    "tiny/c_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_2",
+        "32",
+        "3000"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.003482665999854362,
+          "stdout": "3527\n0\n0.00021099999867146835\n",
+          "first_s": 0.0,
+          "steady_s": 0.00021099999867146835
+        },
+        {
+          "wall_s": 0.004838249999920663,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00022399999943445437\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00022399999943445437
+        },
+        {
+          "wall_s": 0.003521207999710896,
+          "stdout": "3527\n0\n0.00024800000028335489\n",
+          "first_s": 0.0,
+          "steady_s": 0.0002480000002833549
+        },
+        {
+          "wall_s": 0.004097083000033308,
+          "stdout": "3527\n9.9999670055694878e-07\n0.00028900000324938446\n",
+          "first_s": 9.999967005569488e-07,
+          "steady_s": 0.00028900000324938446
+        },
+        {
+          "wall_s": 0.003441957999712031,
+          "stdout": "3527\n0\n0.00021399999968707561\n",
+          "first_s": 0.0,
+          "steady_s": 0.00021399999968707561
+        }
+      ],
+      "median_wall_s": 0.003521207999710896,
+      "median_steady_s": 0.00022399999943445437
+    },
+    "tiny/glyph_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_parallel_4",
+        "32",
+        "3000"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.0032470829996782413,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00021600000036414713\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00021600000036414713
+        },
+        {
+          "wall_s": 0.0033700000003591413,
+          "stdout": "3527\n0\n0.00024599999960628338\n",
+          "first_s": 0.0,
+          "steady_s": 0.0002459999996062834
+        },
+        {
+          "wall_s": 0.003567583000403829,
+          "stdout": "3527\n0\n0.00023099999816622585\n",
+          "first_s": 0.0,
+          "steady_s": 0.00023099999816622585
+        },
+        {
+          "wall_s": 0.004075541000020166,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00028699999893433414\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00028699999893433414
+        },
+        {
+          "wall_s": 0.0035834169998452126,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00023399999918183312\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00023399999918183312
+        }
+      ],
+      "median_wall_s": 0.003567583000403829,
+      "median_steady_s": 0.00023399999918183312
+    },
+    "tiny/c_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_parallel_4",
+        "32",
+        "3000"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.0032901250001486915,
+          "stdout": "3527\n0\n0.00020900000163237564\n",
+          "first_s": 0.0,
+          "steady_s": 0.00020900000163237564
+        },
+        {
+          "wall_s": 0.00431429099990055,
+          "stdout": "3527\n0\n0.00023300000248127617\n",
+          "first_s": 0.0,
+          "steady_s": 0.00023300000248127617
+        },
+        {
+          "wall_s": 0.004767542000081448,
+          "stdout": "3527\n0\n0.00028099999690311961\n",
+          "first_s": 0.0,
+          "steady_s": 0.0002809999969031196
+        },
+        {
+          "wall_s": 0.0036888749996251136,
+          "stdout": "3527\n1.0000003385357559e-06\n0.00025800000003073364\n",
+          "first_s": 1.0000003385357559e-06,
+          "steady_s": 0.00025800000003073364
+        },
+        {
+          "wall_s": 0.0035206659999857948,
+          "stdout": "3527\n0\n0.00025600000299164094\n",
+          "first_s": 0.0,
+          "steady_s": 0.00025600000299164094
+        }
+      ],
+      "median_wall_s": 0.0036888749996251136,
+      "median_steady_s": 0.00025600000299164094
+    },
+    "tiny/glyph_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_glyph_sequential_1",
+        "32",
+        "3000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.003263041000082012,
+          "stdout": "3527\n0\n0.00014999999984866008\n",
+          "first_s": 0.0,
+          "steady_s": 0.00014999999984866008
+        },
+        {
+          "wall_s": 0.003861791999952402,
+          "stdout": "3527\n0\n0.00020299999960116111\n",
+          "first_s": 0.0,
+          "steady_s": 0.0002029999996011611
+        },
+        {
+          "wall_s": 0.0031500420000156737,
+          "stdout": "3527\n0\n0.00015100000018719584\n",
+          "first_s": 0.0,
+          "steady_s": 0.00015100000018719584
+        },
+        {
+          "wall_s": 0.0035551659998418472,
+          "stdout": "3527\n0\n0.00015699999858043157\n",
+          "first_s": 0.0,
+          "steady_s": 0.00015699999858043157
+        },
+        {
+          "wall_s": 0.003265666999595851,
+          "stdout": "3527\n0\n0.00015400000120280311\n",
+          "first_s": 0.0,
+          "steady_s": 0.0001540000012028031
+        }
+      ],
+      "median_wall_s": 0.003265666999595851,
+      "median_steady_s": 0.0001540000012028031
+    },
+    "tiny/c_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tiny_c_sequential_1",
+        "32",
+        "3000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.003271375000167609,
+          "stdout": "3527\n0\n0.00014100000043981709\n",
+          "first_s": 0.0,
+          "steady_s": 0.00014100000043981709
+        },
+        {
+          "wall_s": 0.003587415999845689,
+          "stdout": "3527\n0\n0.00015200000052573159\n",
+          "first_s": 0.0,
+          "steady_s": 0.0001520000005257316
+        },
+        {
+          "wall_s": 0.003555290999884164,
+          "stdout": "3527\n0\n0.00014200000077835284\n",
+          "first_s": 0.0,
+          "steady_s": 0.00014200000077835284
+        },
+        {
+          "wall_s": 0.003493332999823906,
+          "stdout": "3527\n0\n0.00014700000247103162\n",
+          "first_s": 0.0,
+          "steady_s": 0.00014700000247103162
+        },
+        {
+          "wall_s": 0.003555290999884164,
+          "stdout": "3527\n0\n0.00014699999883305281\n",
+          "first_s": 0.0,
+          "steady_s": 0.00014699999883305281
+        }
+      ],
+      "median_wall_s": 0.003555290999884164,
+      "median_steady_s": 0.00014699999883305281
+    },
+    "allocation/glyph_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_1",
+        "5000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.0044394999999894935,
+          "stdout": "48890\n0.00028300000121816993\n0.0010159999983443413\n",
+          "first_s": 0.00028300000121816993,
+          "steady_s": 0.0010159999983443413
+        },
+        {
+          "wall_s": 0.004710124999746768,
+          "stdout": "48890\n0.00028199999724165536\n0.00091000000247731805\n",
+          "first_s": 0.00028199999724165536,
+          "steady_s": 0.000910000002477318
+        },
+        {
+          "wall_s": 0.004749374999846623,
+          "stdout": "48890\n0.00031400000079884194\n0.00096299999859184027\n",
+          "first_s": 0.00031400000079884194,
+          "steady_s": 0.0009629999985918403
+        },
+        {
+          "wall_s": 0.004777750000357628,
+          "stdout": "48890\n0.0003260000012232922\n0.00094600000011269003\n",
+          "first_s": 0.0003260000012232922,
+          "steady_s": 0.00094600000011269
+        },
+        {
+          "wall_s": 0.005354792000161979,
+          "stdout": "48890\n0.00034600000071804971\n0.0010499999989406206\n",
+          "first_s": 0.0003460000007180497,
+          "steady_s": 0.0010499999989406206
+        }
+      ],
+      "median_wall_s": 0.004749374999846623,
+      "median_steady_s": 0.0009629999985918403
+    },
+    "allocation/c_parallel/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_1",
+        "5000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.00440145799984748,
+          "stdout": "48890\n0.00030100000003585592\n0.00089800000205286779\n",
+          "first_s": 0.0003010000000358559,
+          "steady_s": 0.0008980000020528678
+        },
+        {
+          "wall_s": 0.0053630420002264145,
+          "stdout": "48890\n0.00028499999825726263\n0.00096599999960744753\n",
+          "first_s": 0.00028499999825726263,
+          "steady_s": 0.0009659999996074475
+        },
+        {
+          "wall_s": 0.004199708999749419,
+          "stdout": "48890\n0.00028200000087963417\n0.000910999999177875\n",
+          "first_s": 0.00028200000087963417,
+          "steady_s": 0.000910999999177875
+        },
+        {
+          "wall_s": 0.004838041000311932,
+          "stdout": "48890\n0.00029499999800464138\n0.00092399999994086102\n",
+          "first_s": 0.0002949999980046414,
+          "steady_s": 0.000923999999940861
+        },
+        {
+          "wall_s": 0.004678416999922774,
+          "stdout": "48890\n0.0002970000023196917\n0.00091400000019348226\n",
+          "first_s": 0.0002970000023196917,
+          "steady_s": 0.0009140000001934823
+        }
+      ],
+      "median_wall_s": 0.004678416999922774,
+      "median_steady_s": 0.0009140000001934823
+    },
+    "allocation/glyph_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_2",
+        "5000",
+        "3"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.006196457999976701,
+          "stdout": "48890\n0.00080200000229524449\n0.0023639999999431893\n",
+          "first_s": 0.0008020000022952445,
+          "steady_s": 0.0023639999999431893
+        },
+        {
+          "wall_s": 0.006763957999737613,
+          "stdout": "48890\n0.00075900000229012221\n0.0024419999972451478\n",
+          "first_s": 0.0007590000022901222,
+          "steady_s": 0.002441999997245148
+        },
+        {
+          "wall_s": 0.006770416000108526,
+          "stdout": "48890\n0.00079200000254786573\n0.0024289999964821618\n",
+          "first_s": 0.0007920000025478657,
+          "steady_s": 0.002428999996482162
+        },
+        {
+          "wall_s": 0.006939124999917112,
+          "stdout": "48890\n0.00082199999815202318\n0.0024440000015601981\n",
+          "first_s": 0.0008219999981520232,
+          "steady_s": 0.002444000001560198
+        },
+        {
+          "wall_s": 0.006422791999739275,
+          "stdout": "48890\n0.00077099999907659367\n0.0023970000002009328\n",
+          "first_s": 0.0007709999990765937,
+          "steady_s": 0.002397000000200933
+        }
+      ],
+      "median_wall_s": 0.006763957999737613,
+      "median_steady_s": 0.002428999996482162
+    },
+    "allocation/c_parallel/2": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_2",
+        "5000",
+        "3"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.0065434590001132165,
+          "stdout": "48890\n0.0007860000005166512\n0.0023949999995238613\n",
+          "first_s": 0.0007860000005166512,
+          "steady_s": 0.0023949999995238613
+        },
+        {
+          "wall_s": 0.006834166999851732,
+          "stdout": "48890\n0.00072299999737879261\n0.0025210000021615997\n",
+          "first_s": 0.0007229999973787926,
+          "steady_s": 0.0025210000021615997
+        },
+        {
+          "wall_s": 0.0074529999997139385,
+          "stdout": "48890\n0.00078099999882397242\n0.0024950000006356277\n",
+          "first_s": 0.0007809999988239724,
+          "steady_s": 0.0024950000006356277
+        },
+        {
+          "wall_s": 0.0068925420000596205,
+          "stdout": "48890\n0.00081299999874318019\n0.0024679999987711199\n",
+          "first_s": 0.0008129999987431802,
+          "steady_s": 0.00246799999877112
+        },
+        {
+          "wall_s": 0.006806084000345436,
+          "stdout": "48890\n0.00084699999933945946\n0.0024620000003778841\n",
+          "first_s": 0.0008469999993394595,
+          "steady_s": 0.002462000000377884
+        }
+      ],
+      "median_wall_s": 0.006834166999851732,
+      "median_steady_s": 0.00246799999877112
+    },
+    "allocation/glyph_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_parallel_4",
+        "5000",
+        "3"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.006868250000025,
+          "stdout": "48890\n0.0009200000022246968\n0.0027659999977913685\n",
+          "first_s": 0.0009200000022246968,
+          "steady_s": 0.0027659999977913685
+        },
+        {
+          "wall_s": 0.007887750000008964,
+          "stdout": "48890\n0.0014989999981480651\n0.0028920000004291069\n",
+          "first_s": 0.001498999998148065,
+          "steady_s": 0.002892000000429107
+        },
+        {
+          "wall_s": 0.007268083000326442,
+          "stdout": "48890\n0.00088700000196695328\n0.0032240000000456348\n",
+          "first_s": 0.0008870000019669533,
+          "steady_s": 0.003224000000045635
+        },
+        {
+          "wall_s": 0.0076776669998253055,
+          "stdout": "48890\n0.0011610000001383014\n0.002652999999554595\n",
+          "first_s": 0.0011610000001383014,
+          "steady_s": 0.002652999999554595
+        },
+        {
+          "wall_s": 0.007881333000113955,
+          "stdout": "48890\n0.0014630000005126931\n0.002749999999650754\n",
+          "first_s": 0.001463000000512693,
+          "steady_s": 0.002749999999650754
+        }
+      ],
+      "median_wall_s": 0.0076776669998253055,
+      "median_steady_s": 0.0027659999977913685
+    },
+    "allocation/c_parallel/4": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_parallel_4",
+        "5000",
+        "3"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.006665042000349786,
+          "stdout": "48890\n0.00087700000221957453\n0.0027319999971950892\n",
+          "first_s": 0.0008770000022195745,
+          "steady_s": 0.0027319999971950892
+        },
+        {
+          "wall_s": 0.007511750000048778,
+          "stdout": "48890\n0.00090999999883933924\n0.0025449999993725214\n",
+          "first_s": 0.0009099999988393392,
+          "steady_s": 0.0025449999993725214
+        },
+        {
+          "wall_s": 0.007778499999858468,
+          "stdout": "48890\n0.0014980000014475081\n0.0029969999995955732\n",
+          "first_s": 0.0014980000014475081,
+          "steady_s": 0.002996999999595573
+        },
+        {
+          "wall_s": 0.007291709000128321,
+          "stdout": "48890\n0.00089900000239140354\n0.0030530000003636815\n",
+          "first_s": 0.0008990000023914035,
+          "steady_s": 0.0030530000003636815
+        },
+        {
+          "wall_s": 0.007501250000132131,
+          "stdout": "48890\n0.000853000001370674\n0.0027980000013485551\n",
+          "first_s": 0.000853000001370674,
+          "steady_s": 0.002798000001348555
+        }
+      ],
+      "median_wall_s": 0.007501250000132131,
+      "median_steady_s": 0.002798000001348555
+    },
+    "allocation/glyph_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_glyph_sequential_1",
+        "5000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.004051542000070185,
+          "stdout": "48890\n0.00026700000307755545\n0.0008639999978186097\n",
+          "first_s": 0.00026700000307755545,
+          "steady_s": 0.0008639999978186097
+        },
+        {
+          "wall_s": 0.00569941599997037,
+          "stdout": "48890\n0.00028400000155670568\n0.00088400000095134601\n",
+          "first_s": 0.0002840000015567057,
+          "steady_s": 0.000884000000951346
+        },
+        {
+          "wall_s": 0.0042715839999800664,
+          "stdout": "48890\n0.00027100000079371966\n0.00086300000111805275\n",
+          "first_s": 0.00027100000079371966,
+          "steady_s": 0.0008630000011180528
+        },
+        {
+          "wall_s": 0.004746916999920359,
+          "stdout": "48890\n0.00028399999791872688\n0.00093100000231061131\n",
+          "first_s": 0.0002839999979187269,
+          "steady_s": 0.0009310000023106113
+        },
+        {
+          "wall_s": 0.005008249999718828,
+          "stdout": "48890\n0.00031200000012177043\n0.00089200000002165325\n",
+          "first_s": 0.0003120000001217704,
+          "steady_s": 0.0008920000000216532
+        }
+      ],
+      "median_wall_s": 0.004746916999920359,
+      "median_steady_s": 0.000884000000951346
+    },
+    "allocation/c_sequential/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_c_sequential_1",
+        "5000",
+        "3"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.012182792000203335,
+          "stdout": "48890\n0.00077999999848543666\n0.0025290000012319069\n",
+          "first_s": 0.0007799999984854367,
+          "steady_s": 0.002529000001231907
+        },
+        {
+          "wall_s": 0.004536749999715539,
+          "stdout": "48890\n0.0002789999998640269\n0.00088300000061281025\n",
+          "first_s": 0.0002789999998640269,
+          "steady_s": 0.0008830000006128103
+        },
+        {
+          "wall_s": 0.004207708000194543,
+          "stdout": "48890\n0.00027199999749427661\n0.00087899999925866723\n",
+          "first_s": 0.0002719999974942766,
+          "steady_s": 0.0008789999992586672
+        },
+        {
+          "wall_s": 0.0045366250001279695,
+          "stdout": "48890\n0.00027100000079371966\n0.00087699999858159572\n",
+          "first_s": 0.00027100000079371966,
+          "steady_s": 0.0008769999985815957
+        },
+        {
+          "wall_s": 0.004519749999872147,
+          "stdout": "48890\n0.00028100000054109842\n0.00089400000069872476\n",
+          "first_s": 0.0002810000005410984,
+          "steady_s": 0.0008940000006987248
+        }
+      ],
+      "median_wall_s": 0.0045366250001279695,
+      "median_steady_s": 0.0008830000006128103
+    },
+    "tasks/glyph/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tasks_glyph_1",
+        "1000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.02270133399997576,
+          "stdout": "42000\n0.019681000001583016\n",
+          "first_s": null,
+          "steady_s": 0.019681000001583016
+        },
+        {
+          "wall_s": 0.023032375000184402,
+          "stdout": "42000\n0.01975500000116881\n",
+          "first_s": null,
+          "steady_s": 0.01975500000116881
+        },
+        {
+          "wall_s": 0.023660500000005413,
+          "stdout": "42000\n0.019333000000187894\n",
+          "first_s": null,
+          "steady_s": 0.019333000000187894
+        },
+        {
+          "wall_s": 0.02234687500003929,
+          "stdout": "42000\n0.018946000000141794\n",
+          "first_s": null,
+          "steady_s": 0.018946000000141794
+        },
+        {
+          "wall_s": 0.022056582999994134,
+          "stdout": "42000\n0.018764000000373926\n",
+          "first_s": null,
+          "steady_s": 0.018764000000373926
+        }
+      ],
+      "median_wall_s": 0.02270133399997576,
+      "median_steady_s": 0.019333000000187894
+    },
+    "tasks/c/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/tasks_c_1",
+        "1000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.020534875000066677,
+          "stdout": "42000\n0.01759200000014971\n",
+          "first_s": null,
+          "steady_s": 0.01759200000014971
+        },
+        {
+          "wall_s": 0.023385208000036073,
+          "stdout": "42000\n0.019527999997080769\n",
+          "first_s": null,
+          "steady_s": 0.01952799999708077
+        },
+        {
+          "wall_s": 0.02360120800040022,
+          "stdout": "42000\n0.020315000001573935\n",
+          "first_s": null,
+          "steady_s": 0.020315000001573935
+        },
+        {
+          "wall_s": 0.023343499999555206,
+          "stdout": "42000\n0.019670000001497101\n",
+          "first_s": null,
+          "steady_s": 0.0196700000014971
+        },
+        {
+          "wall_s": 0.023762959000123374,
+          "stdout": "42000\n0.020010000000183936\n",
+          "first_s": null,
+          "steady_s": 0.020010000000183936
+        }
+      ],
+      "median_wall_s": 0.023385208000036073,
+      "median_steady_s": 0.0196700000014971
+    },
+    "channel/glyph/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/channel_glyph_1",
+        "20000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.004970458000116196,
+          "stdout": "199990000\n0.0019060000013269018\n",
+          "first_s": null,
+          "steady_s": 0.0019060000013269018
+        },
+        {
+          "wall_s": 0.005939125000168133,
+          "stdout": "199990000\n0.0018940000009024516\n",
+          "first_s": null,
+          "steady_s": 0.0018940000009024516
+        },
+        {
+          "wall_s": 0.005379875000016909,
+          "stdout": "199990000\n0.0019769999998970889\n",
+          "first_s": null,
+          "steady_s": 0.001976999999897089
+        },
+        {
+          "wall_s": 0.005304000000251108,
+          "stdout": "199990000\n0.0019670000001497101\n",
+          "first_s": null,
+          "steady_s": 0.00196700000014971
+        },
+        {
+          "wall_s": 0.006113375000040833,
+          "stdout": "199990000\n0.0020089999998162966\n",
+          "first_s": null,
+          "steady_s": 0.0020089999998162966
+        }
+      ],
+      "median_wall_s": 0.005379875000016909,
+      "median_steady_s": 0.00196700000014971
+    },
+    "channel/c/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/channel_c_1",
+        "20000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.004447666000032768,
+          "stdout": "199990000\n0.001247000000148546\n",
+          "first_s": null,
+          "steady_s": 0.001247000000148546
+        },
+        {
+          "wall_s": 0.005250500000329339,
+          "stdout": "199990000\n0.0014479999990726355\n",
+          "first_s": null,
+          "steady_s": 0.0014479999990726355
+        },
+        {
+          "wall_s": 0.004901834000065719,
+          "stdout": "199990000\n0.001233000002685003\n",
+          "first_s": null,
+          "steady_s": 0.001233000002685003
+        },
+        {
+          "wall_s": 0.004864458000156446,
+          "stdout": "199990000\n0.0014609999998356216\n",
+          "first_s": null,
+          "steady_s": 0.0014609999998356216
+        },
+        {
+          "wall_s": 0.004652125000120577,
+          "stdout": "199990000\n0.0013139999973645899\n",
+          "first_s": null,
+          "steady_s": 0.00131399999736459
+        }
+      ],
+      "median_wall_s": 0.004864458000156446,
+      "median_steady_s": 0.00131399999736459
+    },
+    "latency/glyph/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/latency_glyph_1",
+        "1000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.0070430420000775484,
+          "stdout": "1000\n0.0027450000015960541\n",
+          "first_s": null,
+          "steady_s": 0.002745000001596054
+        },
+        {
+          "wall_s": 0.00684899999987465,
+          "stdout": "1000\n0.0029809999978169799\n",
+          "first_s": null,
+          "steady_s": 0.00298099999781698
+        },
+        {
+          "wall_s": 0.006217084000127215,
+          "stdout": "1000\n0.0028540000021166634\n",
+          "first_s": null,
+          "steady_s": 0.0028540000021166634
+        },
+        {
+          "wall_s": 0.006551667000167072,
+          "stdout": "1000\n0.0029369999974733219\n",
+          "first_s": null,
+          "steady_s": 0.002936999997473322
+        },
+        {
+          "wall_s": 0.0063345839998874,
+          "stdout": "1000\n0.0029140000006009359\n",
+          "first_s": null,
+          "steady_s": 0.002914000000600936
+        }
+      ],
+      "median_wall_s": 0.006551667000167072,
+      "median_steady_s": 0.002914000000600936
+    },
+    "latency/c/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/latency_c_1",
+        "1000"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.005868291000297177,
+          "stdout": "1000\n0.0028430000020307489\n",
+          "first_s": null,
+          "steady_s": 0.002843000002030749
+        },
+        {
+          "wall_s": 0.006274791000123514,
+          "stdout": "1000\n0.0027359999985492323\n",
+          "first_s": null,
+          "steady_s": 0.0027359999985492323
+        },
+        {
+          "wall_s": 0.006264082999678067,
+          "stdout": "1000\n0.0030299999998533167\n",
+          "first_s": null,
+          "steady_s": 0.0030299999998533167
+        },
+        {
+          "wall_s": 0.006384541999977955,
+          "stdout": "1000\n0.0030159999987517949\n",
+          "first_s": null,
+          "steady_s": 0.003015999998751795
+        },
+        {
+          "wall_s": 0.006469500000093831,
+          "stdout": "1000\n0.0032300000020768493\n",
+          "first_s": null,
+          "steady_s": 0.0032300000020768493
+        }
+      ],
+      "median_wall_s": 0.006274791000123514,
+      "median_steady_s": 0.003015999998751795
+    },
+    "allocation_only/glyph/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_only_glyph_1",
+        "500000",
+        "20"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.00439595800025927,
+          "stdout": "500000\n0.001352999999653548\n",
+          "first_s": null,
+          "steady_s": 0.001352999999653548
+        },
+        {
+          "wall_s": 0.004816583000319952,
+          "stdout": "500000\n0.0013770000005024485\n",
+          "first_s": null,
+          "steady_s": 0.0013770000005024485
+        },
+        {
+          "wall_s": 0.005065000000286091,
+          "stdout": "500000\n0.0014560000017809216\n",
+          "first_s": null,
+          "steady_s": 0.0014560000017809216
+        },
+        {
+          "wall_s": 0.005359166999824083,
+          "stdout": "500000\n0.001361999999062391\n",
+          "first_s": null,
+          "steady_s": 0.001361999999062391
+        },
+        {
+          "wall_s": 0.0051507919997675344,
+          "stdout": "500000\n0.0013760000001639128\n",
+          "first_s": null,
+          "steady_s": 0.0013760000001639128
+        }
+      ],
+      "median_wall_s": 0.005065000000286091,
+      "median_steady_s": 0.0013760000001639128
+    },
+    "allocation_only/c/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/allocation_only_c_1",
+        "500000",
+        "20"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.005692124999768566,
+          "stdout": "500000\n0.002648999998200452\n",
+          "first_s": null,
+          "steady_s": 0.002648999998200452
+        },
+        {
+          "wall_s": 0.006425333000152023,
+          "stdout": "500000\n0.0031350000026577618\n",
+          "first_s": null,
+          "steady_s": 0.003135000002657762
+        },
+        {
+          "wall_s": 0.005908249999720283,
+          "stdout": "500000\n0.0026989999969373457\n",
+          "first_s": null,
+          "steady_s": 0.0026989999969373457
+        },
+        {
+          "wall_s": 0.007402000000183762,
+          "stdout": "500000\n0.0029859999995096587\n",
+          "first_s": null,
+          "steady_s": 0.0029859999995096587
+        },
+        {
+          "wall_s": 0.006517208000332175,
+          "stdout": "500000\n0.002736999998887768\n",
+          "first_s": null,
+          "steady_s": 0.002736999998887768
+        }
+      ],
+      "median_wall_s": 0.006425333000152023,
+      "median_steady_s": 0.002736999998887768
+    },
+    "compute/python_processes/1": {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "/Users/igino/glyph/benchmarks/programs/concurrency/transform.py",
+        "20000",
+        "3",
+        "1"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.49584279200007586,
+          "stdout": "21468805945623\n0.14446454100016126\n0.28754441700039024\n",
+          "first_s": 0.14446454100016126,
+          "steady_s": 0.28754441700039024
+        },
+        {
+          "wall_s": 0.5010003329998653,
+          "stdout": "21468805945623\n0.14521674999969036\n0.2907113329997628\n",
+          "first_s": 0.14521674999969036,
+          "steady_s": 0.2907113329997628
+        },
+        {
+          "wall_s": 0.5046063340000728,
+          "stdout": "21468805945623\n0.14780495900004098\n0.2908257499998399\n",
+          "first_s": 0.14780495900004098,
+          "steady_s": 0.2908257499998399
+        },
+        {
+          "wall_s": 0.514688834000026,
+          "stdout": "21468805945623\n0.15017949999992197\n0.2974946669996825\n",
+          "first_s": 0.15017949999992197,
+          "steady_s": 0.2974946669996825
+        },
+        {
+          "wall_s": 0.5097145419999833,
+          "stdout": "21468805945623\n0.14859954100029427\n0.29305616700003156\n",
+          "first_s": 0.14859954100029427,
+          "steady_s": 0.29305616700003156
+        }
+      ],
+      "median_wall_s": 0.5046063340000728,
+      "median_steady_s": 0.2908257499998399
+    },
+    "compute/python_processes/2": {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "/Users/igino/glyph/benchmarks/programs/concurrency/transform.py",
+        "20000",
+        "3",
+        "2"
+      ],
+      "workers": 2,
+      "observations": [
+        {
+          "wall_s": 0.32229658300002484,
+          "stdout": "21468805945623\n0.10164329100007308\n0.15500399999973524\n",
+          "first_s": 0.10164329100007308,
+          "steady_s": 0.15500399999973524
+        },
+        {
+          "wall_s": 0.3307698749999872,
+          "stdout": "21468805945623\n0.10697158299990406\n0.15545495800006393\n",
+          "first_s": 0.10697158299990406,
+          "steady_s": 0.15545495800006393
+        },
+        {
+          "wall_s": 0.328981874999954,
+          "stdout": "21468805945623\n0.10623608300011256\n0.15390441699992152\n",
+          "first_s": 0.10623608300011256,
+          "steady_s": 0.15390441699992152
+        },
+        {
+          "wall_s": 0.3315127500000017,
+          "stdout": "21468805945623\n0.10660258400002931\n0.1560873339999489\n",
+          "first_s": 0.10660258400002931,
+          "steady_s": 0.1560873339999489
+        },
+        {
+          "wall_s": 0.33370983399981924,
+          "stdout": "21468805945623\n0.10812012499991397\n0.1554876659997717\n",
+          "first_s": 0.10812012499991397,
+          "steady_s": 0.1554876659997717
+        }
+      ],
+      "median_wall_s": 0.3307698749999872,
+      "median_steady_s": 0.15545495800006393
+    },
+    "compute/python_processes/4": {
+      "command": [
+        "/Users/igino/glyph/.venv/bin/python",
+        "/Users/igino/glyph/benchmarks/programs/concurrency/transform.py",
+        "20000",
+        "3",
+        "4"
+      ],
+      "workers": 4,
+      "observations": [
+        {
+          "wall_s": 0.2426644170000145,
+          "stdout": "21468805945623\n0.08658966599978157\n0.08139387499977602\n",
+          "first_s": 0.08658966599978157,
+          "steady_s": 0.08139387499977602
+        },
+        {
+          "wall_s": 0.25138670799969987,
+          "stdout": "21468805945623\n0.09361920899982579\n0.0842114170000059\n",
+          "first_s": 0.09361920899982579,
+          "steady_s": 0.0842114170000059
+        },
+        {
+          "wall_s": 0.23801425000010568,
+          "stdout": "21468805945623\n0.0866045830002804\n0.08335791700028494\n",
+          "first_s": 0.0866045830002804,
+          "steady_s": 0.08335791700028494
+        },
+        {
+          "wall_s": 0.2544702079999297,
+          "stdout": "21468805945623\n0.0943422919999648\n0.08536820800009082\n",
+          "first_s": 0.0943422919999648,
+          "steady_s": 0.08536820800009082
+        },
+        {
+          "wall_s": 0.2493621250000615,
+          "stdout": "21468805945623\n0.09169474999998783\n0.08569691699995019\n",
+          "first_s": 0.09169474999998783,
+          "steady_s": 0.08569691699995019
+        }
+      ],
+      "median_wall_s": 0.2493621250000615,
+      "median_steady_s": 0.0842114170000059
+    },
+    "startup/glyph/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/startup_glyph_1"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.0029007079997427354,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.0035854170000675367,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.003187625000009575,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.0034402090000185126,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.0032132080000337737,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        }
+      ],
+      "median_wall_s": 0.0032132080000337737,
+      "median_steady_s": null
+    },
+    "startup/c/1": {
+      "command": [
+        "/Users/igino/glyph/build/concurrency-bench/startup_c_1"
+      ],
+      "workers": 1,
+      "observations": [
+        {
+          "wall_s": 0.0023543340003016056,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.002560459000051196,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.0024943749999692955,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.0029012919999331643,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        },
+        {
+          "wall_s": 0.003174625000156084,
+          "stdout": "",
+          "first_s": null,
+          "steady_s": null
+        }
+      ],
+      "median_wall_s": 0.002560459000051196,
+      "median_steady_s": null
+    }
+  },
+  "expected": {
+    "compute/glyph_parallel/1": 21468805945623,
+    "compute/c_parallel/1": 21468805945623,
+    "compute/glyph_parallel/2": 21468805945623,
+    "compute/c_parallel/2": 21468805945623,
+    "compute/glyph_parallel/4": 21468805945623,
+    "compute/c_parallel/4": 21468805945623,
+    "compute/glyph_sequential/1": 21468805945623,
+    "compute/c_sequential/1": 21468805945623,
+    "memory/glyph_parallel/1": 125000250004,
+    "memory/c_parallel/1": 125000250004,
+    "memory/glyph_parallel/2": 125000250004,
+    "memory/c_parallel/2": 125000250004,
+    "memory/glyph_parallel/4": 125000250004,
+    "memory/c_parallel/4": 125000250004,
+    "memory/glyph_sequential/1": 125000250004,
+    "memory/c_sequential/1": 125000250004,
+    "tiny/glyph_parallel/1": 3527,
+    "tiny/c_parallel/1": 3527,
+    "tiny/glyph_parallel/2": 3527,
+    "tiny/c_parallel/2": 3527,
+    "tiny/glyph_parallel/4": 3527,
+    "tiny/c_parallel/4": 3527,
+    "tiny/glyph_sequential/1": 3527,
+    "tiny/c_sequential/1": 3527,
+    "allocation/glyph_parallel/1": 48890,
+    "allocation/c_parallel/1": 48890,
+    "allocation/glyph_parallel/2": 48890,
+    "allocation/c_parallel/2": 48890,
+    "allocation/glyph_parallel/4": 48890,
+    "allocation/c_parallel/4": 48890,
+    "allocation/glyph_sequential/1": 48890,
+    "allocation/c_sequential/1": 48890,
+    "tasks/glyph/1": 42000,
+    "tasks/c/1": 42000,
+    "channel/glyph/1": 199990000,
+    "channel/c/1": 199990000,
+    "latency/glyph/1": 1000,
+    "latency/c/1": 1000,
+    "allocation_only/glyph/1": 500000,
+    "allocation_only/c/1": 500000,
+    "compute/python_processes/1": 21468805945623,
+    "compute/python_processes/2": 21468805945623,
+    "compute/python_processes/4": 21468805945623,
+    "startup/glyph/1": null,
+    "startup/c/1": null
+  },
+  "method": "Transform: first dispatch separately, then repeated steady-state calls including fresh output allocation. Auxiliary tasks/channels: internal total, including thread creation. Wall time includes process start/setup/cleanup. No memory sampling. C uses the same checked arithmetic, GC, and scheduler as Glyph; isolates frontend/lowering overhead, not an independent C scheduler. Python uses persistent ProcessPoolExecutor with chunksize=256; first includes process startup, steady includes serialization.",
+  "tokens": {
+    "encoding": "cl100k_base",
+    "tiktoken": "0.12.0",
+    "application": {
+      "compute/glyph_parallel/1": 214,
+      "compute/c_parallel/1": 398,
+      "compute/glyph_parallel/2": 214,
+      "compute/c_parallel/2": 398,
+      "compute/glyph_parallel/4": 214,
+      "compute/c_parallel/4": 398,
+      "compute/glyph_sequential/1": 208,
+      "compute/c_sequential/1": 369,
+      "memory/glyph_parallel/1": 171,
+      "memory/c_parallel/1": 356,
+      "memory/glyph_parallel/2": 171,
+      "memory/c_parallel/2": 356,
+      "memory/glyph_parallel/4": 171,
+      "memory/c_parallel/4": 356,
+      "memory/glyph_sequential/1": 165,
+      "memory/c_sequential/1": 327,
+      "tiny/glyph_parallel/1": 171,
+      "tiny/c_parallel/1": 356,
+      "tiny/glyph_parallel/2": 171,
+      "tiny/c_parallel/2": 356,
+      "tiny/glyph_parallel/4": 171,
+      "tiny/c_parallel/4": 356,
+      "tiny/glyph_sequential/1": 165,
+      "tiny/c_sequential/1": 327,
+      "allocation/glyph_parallel/1": 176,
+      "allocation/c_parallel/1": 375,
+      "allocation/glyph_parallel/2": 176,
+      "allocation/c_parallel/2": 375,
+      "allocation/glyph_parallel/4": 176,
+      "allocation/c_parallel/4": 375,
+      "allocation/glyph_sequential/1": 170,
+      "allocation/c_sequential/1": 346,
+      "tasks/glyph/1": 95,
+      "tasks/c/1": 188,
+      "channel/glyph/1": 210,
+      "channel/c/1": 285,
+      "latency/glyph/1": 192,
+      "latency/c/1": 285,
+      "allocation_only/glyph/1": 77,
+      "allocation_only/c/1": 151,
+      "compute/python_processes/1": 210,
+      "compute/python_processes/2": 210,
+      "compute/python_processes/4": 210,
+      "startup/glyph/1": 7,
+      "startup/c/1": 10
+    },
+    "c_shared_support": {
+      "runtime.h": 3900,
+      "std_runtime.h": 4079,
+      "concurrency_runtime.h": 2607
+    },
+    "note": "Application counts include driver; C imports bundled runtime support counted separately. These are source-token counts, not total agent-cost measurements."
+  },
+  "runtime_sha256": {
+    "runtime.h": "ce32519a1bc1737ac9fa5463fff6729b48401bd335f26b3cff8ba03bf7cde5de",
+    "std_runtime.h": "9ee0685bb426645c6e6e0ae64efa5cf806b495eeac6a94f2bcd43fc73535cc04",
+    "concurrency_runtime.h": "93d9f21329318678924ebae78d9aec32ea4c81ae3c28c02c292c24bc38ae06de"
+  }
+}
