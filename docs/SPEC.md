@@ -132,7 +132,7 @@ also contain function values; keys remain limited to int, bool, and str.
 
 ## Ownership and unsafe code
 
-Arrays and dynamic strings use automatic, nonmoving tracing garbage collection (BDWGC). Assignments, calls and returns copy an array descriptor and share its allocation. No automatic deep copying. `clone` explicitly copies the elements, including inline record fields but not allocations referenced by those fields. `push` allocates a new array and copies the old contents. Array storage never moves. Unreachable allocations, including cycles, are eligible for collection during execution. Collection timing is unspecified; conservative scanning may retain some unreachable storage. A live slice or interior pointer keeps its whole backing allocation alive. There are no exposed free/delete operations, escaping borrowed stack addresses, or pointer casts. Hidden mut-method receiver pointers cannot be returned or stored by user code. This prevents dangling array references in safe code without manual memory management.
+Arrays and dynamic strings use automatic, nonmoving tracing garbage collection (BDWGC). Assignments, calls and returns copy an array descriptor and share its allocation. No automatic deep copying. `clone` explicitly copies the elements, including inline record fields but not allocations referenced by those fields. `push` allocates a new array and copies the old contents. Array storage never moves. Unreachable allocations, including cycles, are eligible for collection during execution. Collection timing is unspecified; conservative scanning may retain some unreachable storage. A live slice or interior pointer keeps its whole backing allocation alive. There are no free/delete operations on ordinary shared arrays, escaping borrowed stack addresses, or pointer casts. Separate primitive owned buffers have checked move/free operations as described below. Hidden mut-method receiver pointers cannot be returned or stored by user code. This prevents dangling array references in safe code without manual memory management.
 
 The tradeoffs are collection pauses, conservative retention and allocator overhead. `push` is O(n), and repeated push is quadratic. Collection removes mandatory retention until exit but does not guarantee bounded memory for arbitrary programs or hard real-time latency. See [memory management](MEMORY.md). Stack overflow and operating-system termination are not caught runtime diagnostics.
 
@@ -285,3 +285,25 @@ Concurrent traps flush their diagnostic and use `_Exit(70)` to bypass atexit
 handlers that could race with active main-thread resource operations. Buffered
 stdout is not guaranteed to flush in this fatal path. Sequential traps retain
 the existing exit/cleanup behavior.
+
+## Checked allocation domains
+
+`@noalloc` checks a function/method's successful execution and transitive direct
+calls for heap allocation. Bounded stack storage is permitted; managed, arena
+and owned allocations, recursive call graphs and unknown callbacks are rejected
+unless the supported allocation-eliminating proof removes the allocation.
+Startup, collector internals and terminal diagnostics are outside the contract.
+
+`arena` introduces a scoped region; `arena_fill(n, value)` declares a local
+primitive array within it. `owned_fill(n, value)` creates an inferred local
+`buffer[T]` owner, `move(owner)` transfers it to a fresh local in the same block,
+and `free(owner)` consumes it. `borrow name = owner` introduces a unique mutable
+array borrow for its block. Normal exit and return clean up live owners/arenas.
+`managed(array)` explicitly copies primitive elements into collected storage.
+
+External storage currently accepts only int/f64/bool elements. Borrowed/region
+arrays cannot escape through assignment, containers, calls, closures, pointers
+or concurrency; arbitrary borrowed parameters and cross-function owner transfer
+are unsupported. The checker rejects those cases, including in unsafe blocks.
+The new builtin names are reserved; arena/borrow at statement start introduce
+new block syntax. See [full rules and intentional syntax changes](MEMORY_CONTROLS.md).

@@ -42,6 +42,7 @@ type Fn
   hidden:bool
   busy:bool
   generic:[Field]
+  noalloc:bool
 
 type Rec
   name:str
@@ -74,6 +75,11 @@ type Compiler
   type_templates:[Rec]
   requirements:[Field]
   keys:[Var]
+  storage:[int]
+  direct:[int]
+  cleanups:[str]
+  arenas:[str]
+  summaries:[int]
 
 die c:Compiler, code:str, message:str, t:Tok>void
   end := t.end
@@ -85,7 +91,7 @@ fail c:Compiler, code:str, message:str, token:int>void
 
 make_compiler path:str, source:str>Compiler
   size := len(source) + 16
-  c := Compiler(path, source, fill(size, make_tok("", 1, 1, path)), fill(size * 2 + 65536, Node("", "", "", 0, [], [], [], [], -1, false, [], [])), fill(size / 4 + 1024, Fn("", 0, [], "", [], "", false, false, false, false, [])), fill(size / 4 + 1024, Rec("", 0, [], 0, [], "type", [])), fill(20, 0), fill(size * 8, ""), [], [], fill(size + 4096, Field("", "", 0, false)), fill(256, Var("", "")))
+  c := Compiler(path, source, fill(size, make_tok("", 1, 1, path)), fill(size * 2 + 65536, Node("", "", "", 0, [], [], [], [], -1, false, [], [])), fill(size / 4 + 1024, Fn("", 0, [], "", [], "", false, false, false, false, [], false)), fill(size / 4 + 1024, Rec("", 0, [], 0, [], "type", [])), fill(24, 0), fill(size * 8, ""), [], [], fill(size + 4096, Field("", "", 0, false)), fill(256, Var("", "")), fill(size * 2 + 65536, -1), fill(size * 2 + 65536, -1), fill(size, ""), fill(size, ""), fill(size / 4 + 1024, 0))
   names := ["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult", "HttpResult"]
   values := ["i64", "f64", "str", "bool", "[i64]", "[str]", "[i64]"]
   i := 0
@@ -172,6 +178,8 @@ lex_source c:Compiler>void
             p += 1
           else
             begin := p
+            if b == 64 and begin != start + width
+              die(c, "G001", "annotation must precede a declaration", make_tok("@", line, column(s, start, begin), c.path))
             if b == 34
               p += 1
               closed := false
@@ -214,7 +222,7 @@ lex_source c:Compiler>void
                   if p < limit and byte_at(s, p) < 128 and has(["==", "!=", "<=", ">=", ":=", "+=", "-=", "*=", "/=", "%="], slice(s, begin, p + 1))
                     p += 1
                   else
-                    if not has([".", "+", "*", "/", "%", "<", ">", "=", "!", ",", ":", "(", ")", "[", "]", "-"], chr(b))
+                    if not has(["@", ".", "+", "*", "/", "%", "<", ">", "=", "!", ",", ":", "(", ")", "[", "]", "-"], chr(b))
                       die(c, "G001", "unexpected character", make_tok("", line, column(s, start, begin), c.path))
             add_token(c, slice(s, begin, p), line, column(s, start, begin))
       add_token(c, "NEWLINE", line, column(s, start, limit))
@@ -576,6 +584,17 @@ parse_stmt c:Compiler>int
     node := new_node(c, "for", name, t, [value])
     c.nodes[node].body = parse_block(c)
     ret node
+  if accept(c, "arena")
+    node := new_node(c, "arena", "", t, [])
+    c.nodes[node].body = parse_block(c)
+    ret node
+  if accept(c, "borrow")
+    binding := name_token(c)
+    need(c, "=")
+    value := parse_expr(c, 0)
+    node := new_node(c, "borrow", c.tokens[binding].text, t, [value])
+    c.nodes[node].body = parse_block(c)
+    ret node
   if accept(c, "scope")
     node := new_node(c, "scope", "", t, [])
     c.nodes[node].body = parse_block(c)
@@ -636,7 +655,7 @@ parse_function c:Compiler, t:int, owner:str, mutating:bool, static_method:bool, 
     body = [new_node(c, "ret", "", c.nodes[value].token, [value])]
   else
     body = parse_block(c)
-  c.funcs[c.state[3]] = Fn(c.tokens[t].text, t, params, result, body, owner, mutating, static_method, private, false, generic)
+  c.funcs[c.state[3]] = Fn(c.tokens[t].text, t, params, result, body, owner, mutating, static_method, private, false, generic, false)
   c.state[3] += 1
 
 parse_source c:Compiler>void
@@ -679,9 +698,13 @@ parse_source c:Compiler>void
             need(c, ">")
             result := parse_type(c)
             need(c, "NEWLINE")
-            c.funcs[c.state[3]] = Fn(c.tokens[member].text, member, params, result, [], owner, mutating, false, false, false, [])
+            c.funcs[c.state[3]] = Fn(c.tokens[member].text, member, params, result, [], owner, mutating, false, false, false, [], false)
             c.state[3] += 1
           else
+            contract := accept(c, "@")
+            if contract
+              need(c, "noalloc")
+              accept(c, "NEWLINE")
             private := accept(c, "private")
             mutating := accept(c, "mut")
             static_method := false
@@ -689,18 +712,24 @@ parse_source c:Compiler>void
               static_method = accept(c, "static")
             member := name_token(c)
             if accept(c, ":")
-              if mutating or static_method
+              if mutating or static_method or contract
                 fail(c, "G002", "mut/static apply only to methods", member)
               fields = push(fields, Field(c.tokens[member].text, parse_type(c), member, private))
               need(c, "NEWLINE")
             else
               parse_function(c, member, owner, mutating, static_method, private)
+              c.funcs[c.state[3] - 1].noalloc = contract
       need(c, "DEDENT")
       c.records[c.state[4]] = Rec(owner, t, fields, 0, generic, kind, variants)
       c.state[4] += 1
     else
+      contract := accept(c, "@")
+      if contract
+        need(c, "noalloc")
+        accept(c, "NEWLINE")
       t := name_token(c)
       parse_function(c, t, "", false, false, false)
+      c.funcs[c.state[3] - 1].noalloc = contract
 
 # Fixed signatures mirror the public standard-library ABI.
 fixed_signature name:str>[str]
@@ -882,7 +911,7 @@ fixed_signature name:str>[str]
 
 builtin_result name:str>bool = has(["IntResult", "FloatResult", "StringResult", "BoolResult", "BytesResult", "StringsResult", "HttpResult"], name)
 
-builtin name:str>bool = builtin_result(name) or len(fixed_signature(name)) > 0 or has(["par_map", "spawn", "wait", "task_status", "task", "channel", "send", "receive", "close", "list", "map", "set", "print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"], name)
+builtin name:str>bool = builtin_result(name) or len(fixed_signature(name)) > 0 or has(["arena_fill", "owned_fill", "move", "free", "managed", "par_map", "spawn", "wait", "task_status", "task", "channel", "send", "receive", "close", "list", "map", "set", "print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"], name)
 
 scalar typ:str>bool = has(["i64", "f64", "bool", "str"], typ)
 
@@ -941,6 +970,8 @@ field_index c:Compiler, owner:str, name:str>int
   ret -1
 
 validate_type c:Compiler, typ:str, token:int>str
+  if prefix(typ, "buffer[")
+    fail(c, "G121", "owned buffers are inferred primitive local bindings only", token)
   t := canon(typ)
   if prefix(t, "channel[")
     item := slice(t, 8, len(t) - 1)
@@ -1057,6 +1088,8 @@ valid_integer text:str>bool
   ret true
 
 check_call c:Compiler, node:int, env:[Var], unsafe_mode:bool, expected:str>str
+  if has(["arena_fill", "owned_fill", "move", "free", "managed"], c.nodes[node].value)
+    ret memory_call(c, node, env, unsafe_mode)
   n := c.nodes[node]
   name := n.value
   if name == "channel"
@@ -1418,6 +1451,13 @@ check_block c:Compiler, body:[int], outer:[Var], result:str, unsafe_mode:bool>bo
     n := c.nodes[index]
     if returned
       fail(c, "G109", "unreachable statement", n.token)
+    if n.kind == "borrow"
+      typ := check_expr(c, n.args[0], env, unsafe_mode, "")
+      if not prefix(typ, "buffer[") or env_type(env, n.value) != ""
+        fail(c, "G121", "borrow needs a live owner and fresh binding", n.token)
+      returned = check_block(c, n.body, push(env, Var(n.value, cat(["[", slice(typ, 7, len(typ) - 1), "]"]))), result, unsafe_mode)
+    if n.kind == "arena"
+      returned = check_block(c, n.body, env, result, unsafe_mode)
     if n.kind == "var"
       typ := n.typ
       if typ != ""
@@ -1569,7 +1609,7 @@ ctype typ:str>str
     ret "g_closure"
   if coll_kind(typ) != ""
     ret "g_collection*"
-  if prefix(typ, "[")
+  if prefix(typ, "[") or prefix(typ, "buffer[")
     ret "g_array"
   if prefix(typ, "*")
     ret concat(ctype(slice(typ, 1, len(typ))), "*")
@@ -1653,10 +1693,22 @@ lvalue c:Compiler, node:int>str
     ret cat(["(", lvalue(c, n.args[0]), ").m_", n.value])
   a := emit_expr(c, n.args[0])
   i := emit_expr(c, n.args[1])
-  checked := temp(c, "i64", cat(["g_index(", a, ", ", i, ", ", location(c, n.token), ")"]))
+  checked := i
+  if c.direct[node] != -2
+    checked = temp(c, "i64", cat(["g_index(", a, ", ", i, ", ", location(c, n.token), ")"]))
   ret cat(["((", ctype(n.typ), "*)", a, ".data)[", checked, "]"])
 
 emit_call c:Compiler, node:int>str
+  if c.direct[node] == -3
+    ret memory_fusion(c, node)
+  if has(["arena_fill", "owned_fill", "move", "free"], c.nodes[node].value)
+    ret memory_emit_call(c, node)
+  if c.nodes[node].value == "range" and c.storage[node] >= 0
+    length := emit_expr(c, c.nodes[node].args[0])
+    result := memory_allocate(c, node, length, "int64_t")
+    i := fresh(c)
+    emit_line(c, cat(["for (int64_t ", i, "=0; ", i, "<", length, "; ++", i, ") ((int64_t*)", result, ".data)[", i, "] = ", i, ";"]))
+    ret result
   n := c.nodes[node]
   args:[str] = []
   for arg_node:n.args
@@ -1735,7 +1787,7 @@ emit_call c:Compiler, node:int>str
           if name == "clock"
             value = "g_clock()"
           else
-            if name == "clone"
+            if name == "clone" or name == "managed"
               value = cat(["g_clone(", a, ", sizeof(", ctype(slice(typ, 1, len(typ) - 1)), "), ", loc, ")"])
             else
               if name == "fill" or name == "push"
@@ -1743,7 +1795,7 @@ emit_call c:Compiler, node:int>str
                 length := a
                 if name == "push"
                   length = temp(c, "i64", cat(["g_add(", a, ".len, 1, ", loc, ")"]))
-                result := temp(c, typ, cat(["g_new(", length, ", sizeof(", ct, "), ", loc, ")"]))
+                result := memory_allocate(c, node, length, ct)
                 if name == "push"
                   emit_line(c, cat(["memcpy(", result, ".data, ", a, ".data, (size_t)", a, ".len * sizeof(", ct, ")); "]))
                   emit_line(c, cat(["((", ct, "*)", result, ".data)[", a, ".len] = ", args[1], ";"]))
@@ -1866,6 +1918,9 @@ emit_expr c:Compiler, node:int>str
     value := ""
     if has(["+", "-", "*", "/", "%"], op)
       value = arithmetic(c, op, typ, a, b, n.token)
+      if c.state[22] == 0 and typ == "i64" and has(["+", "-", "*"], op) and c.nodes[n.args[0]].kind == "i64" and c.nodes[n.args[1]].kind == "i64"
+        if parse_i64(c.nodes[n.args[0]].value) <= 1000000000 and parse_i64(c.nodes[n.args[1]].value) <= 1000000000
+          value = cat(["(", a, " ", op, " ", b, ")"])
     else
       if c.nodes[n.args[0]].typ == "str"
         value = cat(["g_eq(", a, ", ", b, ")"])
@@ -1879,7 +1934,7 @@ emit_expr c:Compiler, node:int>str
     for arg_node:n.args
       values = push(values, emit_expr(c, arg_node))
     ct := ctype(slice(typ, 1, len(typ) - 1))
-    result := temp(c, typ, cat(["g_new(", str_i64(len(values)), ", sizeof(", ct, "), ", loc, ")"]))
+    result := memory_allocate(c, node, str_i64(len(values)), ct)
     i := 0
     while i < len(values)
       emit_line(c, cat(["((", ct, "*)", result, ".data)[", str_i64(i), "] = ", values[i], ";"]))
@@ -1924,11 +1979,14 @@ emit_expr c:Compiler, node:int>str
   ret emit_call(c, node)
 
 emit_block c:Compiler, body:[int]>void
+  mark := c.state[20]
   for index:body
     n := c.nodes[index]
     if n.kind == "var"
       value := emit_expr(c, n.args[0])
       emit_line(c, cat([ctype(n.typ), " v_", n.value, " = ", value, ";"]))
+      if prefix(n.typ, "buffer[")
+        memory_cleanup(c, cat(["g_owned_free(&v_", n.value, ");"]))
     else
       if n.kind == "set"
         left := lvalue(c, n.args[0])
@@ -1945,10 +2003,10 @@ emit_block c:Compiler, body:[int]>void
           value := ""
           if len(n.args) > 0
             value = emit_expr(c, n.args[0])
-          depth := c.state[19]
+          depth := c.state[20]
           while depth > 0
-            emit_line(c, "g_scope_leave(g_scope_current);")
             depth -= 1
+            emit_line(c, c.cleanups[depth])
           emit_line(c, cat(["return ", value, ";"]))
         else
           if n.kind == "expr"
@@ -1991,12 +2049,26 @@ emit_block c:Compiler, body:[int]>void
                     if n.kind == "scope"
                       scope_name := fresh(c)
                       emit_line(c, cat(["g_scope ", scope_name, " = {0}; g_scope_enter(&", scope_name, ");"]))
-                      c.state[19] += 1
+                      memory_cleanup(c, "g_scope_leave(g_scope_current);")
+                    if n.kind == "arena"
+                      arena_name := fresh(c)
+                      emit_line(c, cat(["g_arena ", arena_name, " = {0};"]))
+                      c.arenas[c.state[21]] = arena_name
+                      c.state[21] += 1
+                      memory_cleanup(c, cat(["g_arena_leave(&", arena_name, ");"]))
+                    if n.kind == "borrow"
+                      emit_line(c, cat(["g_array v_", n.value, " = v_", c.nodes[n.args[0]].value, ";"]))
                     emit_block(c, n.body)
-                    if n.kind == "scope"
-                      emit_line(c, "g_scope_leave(g_scope_current);")
-                      c.state[19] -= 1
+                    if n.kind == "scope" or n.kind == "arena"
+                      c.state[20] -= 1
+                      emit_line(c, c.cleanups[c.state[20]])
+                    if n.kind == "arena"
+                      c.state[21] -= 1
                     emit_line(c, "}")
+
+  while c.state[20] > mark
+    c.state[20] -= 1
+    emit_line(c, c.cleanups[c.state[20]])
 
 signature f:Fn>str
   params:[str] = []
@@ -2145,6 +2217,13 @@ main>int
   if command == "emit-c"
     output = concat(path, ".c")
   optimization := "-O2"
+  release:[str] = []
+  lto := "none"
+  cpu := "portable"
+  profile_generate := ""
+  profile_use := ""
+  opt_report := ""
+  no_optimize := false
   program_args:[str] = []
   i := 2
   while i < argc()
@@ -2155,7 +2234,7 @@ main>int
         program_args = push(program_args, arg(i))
         i += 1
     else
-      if has(["-o", "--runtime-dir", "--cc"], option)
+      if has(["-o", "--runtime-dir", "--cc", "--lto", "--cpu", "--profile-generate", "--profile-use", "--opt-report"], option)
         i += 1
         if i >= argc()
           usage()
@@ -2166,17 +2245,55 @@ main>int
           runtime = arg(i)
         if option == "--cc"
           cc = arg(i)
+        if option == "--lto"
+          lto = arg(i)
+        if option == "--cpu"
+          cpu = arg(i)
+        if option == "--profile-generate"
+          profile_generate = arg(i)
+        if option == "--profile-use"
+          profile_use = arg(i)
+        if option == "--opt-report"
+          opt_report = arg(i)
       else
         if has(["-O0", "-O1", "-O2", "-O3"], option)
           optimization = option
         else
-          if option != "--json"
+          if option == "--no-optimize"
+            no_optimize = true
+            release = push(release, "-DGLYPH_ZERO_INIT")
+          if option == "--gc-timing"
+            release = push(release, "-DGLYPH_GC_TIMING")
+          if option == "--alloc-stats"
+            release = push(release, "-DGLYPH_ALLOC_STATS")
+          if option == "--zero-init"
+            release = push(release, "-DGLYPH_ZERO_INIT")
+          if not has(["--json", "--no-optimize", "--alloc-stats", "--zero-init", "--gc-timing"], option)
             usage()
             ret 1
       i += 1
   if len(program_args) > 0 and command != "run"
     eprint("G004: program arguments require run")
     ret 1
+  if not has(["none", "thin", "full"], lto) or not has(["portable", "native"], cpu) or profile_generate != "" and profile_use != ""
+    eprint("G204: invalid release options")
+    ret 1
+  if lto != "none"
+    release = push(release, concat("-flto=", lto))
+  if cpu == "native"
+    if platform() == "macos"
+      release = push(release, "-mcpu=native")
+    else
+      release = push(release, "-march=native")
+  if profile_generate != ""
+    release = push(release, concat("-fprofile-instr-generate=", profile_generate))
+  if profile_use != ""
+    if not file_exists(profile_use)
+      eprint("G204: merged profile does not exist")
+      ret 1
+    release = push(release, concat("-fprofile-instr-use=", profile_use))
+    release = push(release, "-Werror=profile-instr-out-of-date")
+    release = push(release, "-Werror=profile-instr-unprofiled")
   modules := fill(128, Module("", "", [], [], fill(6, 0)))
   graph := fill(130, 0)
   load_module(path, make_tok("", 1, 1, path), modules, graph)
@@ -2184,6 +2301,15 @@ main>int
   c = expand_program(c)
   check_source(c)
   concurrency_check(c)
+  if no_optimize
+    c.state[22] = 1
+  memory_check(c)
+  if opt_report != ""
+    for m:modules
+      if m.path != "" and same_file(m.path, opt_report)
+        eprint("G004: report must not overwrite source")
+        ret 1
+    write_file(opt_report, memory_report(c))
   if command == "check"
     ret 0
   cpath := concat(output, ".c")
@@ -2231,6 +2357,8 @@ main>int
     args = push(args, "-lcurl")
   if c.state[18] == 1
     args = push(args, "-lsqlite3")
+  for flag:release
+    args = push(args, flag)
   status := process(args)
   if status != 0
     ret status
@@ -2298,7 +2426,7 @@ load_module path:str, token:Tok, modules:[Module], graph:[int]>int
   graph[1] += len(source)
   if graph[1] > 1048576
     module_error(token, "G005", "program exceeds the 1 MiB source limit")
-  c := Compiler(path, source, fill(len(source) + 16, make_tok("", 1, 1, path)), [], [], [], fill(16, 0), [], [], [], [], [])
+  c := Compiler(path, source, fill(len(source) + 16, make_tok("", 1, 1, path)), [], [], [], fill(24, 0), [], [], [], [], [], [], [], [], [], [])
   lex_source(c)
   imports:[ImportDecl] = []
   while peek(c) == "import"
@@ -2388,7 +2516,7 @@ rename_module c:Compiler, m:Module, index:int, bindings:[Var]>void
     n := c.nodes[i]
     if n.kind == "call" or n.kind == "specialize"
       c.nodes[i].value = bind_name(index, bindings, n.value)
-    if has(["name", "var", "for"], n.kind)
+    if has(["name", "var", "for", "borrow"], n.kind)
       c.nodes[i].value = bind_name(index, bindings, n.value)
     if n.kind == "var"
       c.nodes[i].typ = bind_type(index, bindings, n.typ)
@@ -2451,7 +2579,7 @@ compile_modules modules:[Module], graph:[int]>Compiler
   i = 0
   while i < graph[0]
     m := modules[i]
-    view := Compiler(m.path, m.source, c.tokens, c.nodes, c.funcs, c.records, c.state, c.output, c.templates, c.type_templates, c.requirements, c.keys)
+    view := Compiler(m.path, m.source, c.tokens, c.nodes, c.funcs, c.records, c.state, c.output, c.templates, c.type_templates, c.requirements, c.keys, c.storage, c.direct, c.cleanups, c.arenas, c.summaries)
     c.state[1] = c.state[0]
     lex_source(view)
     m.bounds[0] = c.state[2]
@@ -2485,7 +2613,7 @@ compile_modules modules:[Module], graph:[int]>Compiler
 
 restore_receiver c:Compiler, node:int, renamed:str>void
   n := c.nodes[node]
-  if has(["name", "var", "for"], n.kind) and n.value == renamed
+  if has(["name", "var", "for", "borrow"], n.kind) and n.value == renamed
     c.nodes[node].value = "self"
   if n.kind == "reduce"
     for t:n.bindings
@@ -3128,6 +3256,8 @@ emit_invoke c:Compiler, node:int>str
   while i < len(n.args)
     args = push(args, emit_expr(c, n.args[i]))
     i += 1
+  if c.direct[node] >= 0
+    ret temp(c, n.typ, cat(["g_lambda_", str_i64(c.direct[node]), "(", join(args, len(args), ", "), ")"]))
   types := fn_types(c.nodes[n.args[0]].typ)
   params := ["void *"]
   i = 0
@@ -3141,8 +3271,13 @@ emit_lambda c:Compiler, node:int>str
   id := str_i64(node)
   env := "NULL"
   if len(n.captures) > 0
-    allocation := temp(c, "[str]", cat(["g_new(1, sizeof(g_env_", id, "), ", location(c, n.token), ")"]))
-    env = concat(allocation, ".data")
+    if c.storage[node] == -2
+      allocation := fresh(c)
+      emit_line(c, cat(["g_env_", id, " ", allocation, ";"]))
+      env = cat(["(&", allocation, ")"])
+    else
+      allocation := temp(c, "[str]", cat(["g_new(1, sizeof(g_env_", id, "), ", location(c, n.token), ")"]))
+      env = concat(allocation, ".data")
     for field:n.captures
       emit_line(c, cat(["((g_env_", id, "*)", env, ")->v_", field.name, " = ", variable(c, field.name), ";"]))
   ret temp(c, n.typ, cat(["(g_closure){(void (*)(void))g_lambda_", id, ", ", env, "}"]))
@@ -3433,3 +3568,425 @@ emit_spawns c:Compiler, declarations:bool>void
           call = cat([function_name(c.funcs[cb.target]), "()"])
         emit_line(c, cat([header, " { *(", ctype(slice(n.typ, 5, len(n.typ) - 1)), "*)result = ", call, "; }"]))
     i += 1
+
+# Explicit-domain validation. Storage is primitive-only; every owner is local.
+memory_call c:Compiler, node:int, env:[Var], unsafe_mode:bool>str
+  n := c.nodes[node]
+  count := 1
+  if n.value == "arena_fill" or n.value == "owned_fill"
+    count = 2
+  if len(n.args) != count
+    fail(c, "G107", "wrong memory operation arity", n.token)
+  a := check_expr(c, n.args[0], env, unsafe_mode, "")
+  if count == 2
+    b := check_expr(c, n.args[1], env, unsafe_mode, "")
+    if a != "i64" or not has(["i64", "f64", "bool"], b)
+      fail(c, "G121", "explicit storage supports int, f64 and bool only; managed references are unsupported", n.token)
+    head := "["
+    if n.value == "owned_fill"
+      head = "buffer["
+    ret cat([head, b, "]"])
+  if n.value == "managed"
+    if not has(["[i64]", "[f64]", "[bool]"], a)
+      fail(c, "G121", "managed requires a primitive array", n.token)
+    ret a
+  if not prefix(a, "buffer[")
+    fail(c, "G121", "move/free require an owned buffer", n.token)
+  if n.value == "free"
+    ret "void"
+  ret a
+
+memory_read name:str>bool = has(["len", "sum", "count", "i64", "f64", "byte_at", "clone", "managed"], name)
+
+memory_expr c:Compiler, node:int, regions:[str], owners:[Var], borrowed:[str], arena:bool, special:bool, parent:int, position:int>void
+  n := c.nodes[node]
+  if n.kind == "lambda"
+    for field:n.captures
+      if has(regions, field.name) or env_type(owners, field.name) != ""
+        fail(c, "G121", "explicit storage cannot enter closures", n.token)
+  if n.kind == "name"
+    state := env_type(owners, n.value)
+    if state != "" and (not special or state != "live" or has(borrowed, n.value))
+      fail(c, "G121", "owned buffer requires live unborrowed move/free/borrow operand", n.token)
+    if has(regions, n.value)
+      allowed := false
+      if parent >= 0
+        p := c.nodes[parent]
+        allowed = p.kind == "index" and position == 0 or has(["fold", "for"], p.kind) and position == 0 or p.kind == "call" and memory_read(p.value) and function_index(c, "", p.value) < 0
+      if not allowed
+        fail(c, "G121", "arena/borrowed array cannot escape or alias; use managed(array)", n.token)
+  if n.kind == "call"
+    if n.value == "arena_fill" and (not arena or not special)
+      fail(c, "G121", "arena_fill requires a local declaration in arena", n.token)
+    if has(["owned_fill", "free", "move"], n.value) and not special
+      fail(c, "G121", "owned_fill/move require local initializers; free is a statement", n.token)
+  i := 0
+  for child:n.args
+    memory_expr(c, child, regions, owners, borrowed, arena, special and n.kind == "call" and has(["free", "move"], n.value), node, i)
+    i += 1
+
+memory_owner owners:[Var], name:str, state:str>void
+  i := 0
+  while i < len(owners)
+    if owners[i].name == name
+      owners[i].typ = state
+    i += 1
+
+memory_block c:Compiler, body:[int], outer_regions:[str], outer_owners:[Var], borrowed:[str], arena:bool>void
+  regions := outer_regions
+  owners := clone(outer_owners)
+  locals:[str] = []
+  for index:body
+    n := c.nodes[index]
+    if n.kind == "var"
+      e := c.nodes[n.args[0]]
+      own := prefix(n.typ, "buffer[")
+      memory_expr(c, n.args[0], regions, owners, borrowed, arena, own or e.kind == "call" and e.value == "arena_fill", -1, 0)
+      if own
+        if e.kind != "call" or not has(["owned_fill", "move"], e.value)
+          fail(c, "G121", "owned buffers cannot be copied", n.token)
+        if e.value == "move"
+          src := c.nodes[e.args[0]]
+          if src.kind != "name" or not has(locals, src.value)
+            fail(c, "G121", "move requires a direct local owner in the same block", n.token)
+          memory_owner(owners, src.value, "moved")
+        owners = push(owners, Var(n.value, "live"))
+        locals = push(locals, n.value)
+      else
+        if e.kind == "call" and e.value == "arena_fill"
+          regions = push(regions, n.value)
+    else
+      if n.kind == "borrow"
+        e := c.nodes[n.args[0]]
+        if e.kind != "name" or env_type(owners, e.value) != "live" or has(borrowed, e.value)
+          fail(c, "G121", "borrow requires a live unborrowed owner", n.token)
+        memory_block(c, n.body, push(regions, n.value), owners, push(borrowed, e.value), arena)
+      else
+        if n.kind == "expr" and c.nodes[n.args[0]].kind == "call" and c.nodes[n.args[0]].value == "free"
+          e := c.nodes[n.args[0]]
+          memory_expr(c, n.args[0], regions, owners, borrowed, arena, true, -1, 0)
+          src := c.nodes[e.args[0]]
+          if src.kind != "name" or not has(locals, src.value)
+            fail(c, "G121", "free requires a direct local owner in the same block", n.token)
+          memory_owner(owners, src.value, "freed")
+        else
+          if n.kind == "arena"
+            memory_block(c, n.body, regions, owners, borrowed, true)
+          else
+            for child:n.args
+              memory_expr(c, child, regions, owners, borrowed, arena, false, index, 0)
+            if n.kind == "set" and c.nodes[n.args[0]].kind == "name" and has(regions, c.nodes[n.args[0]].value)
+              fail(c, "G121", "region bindings cannot be reassigned", n.token)
+            memory_block(c, n.body, regions, owners, borrowed, arena)
+            memory_block(c, n.other, regions, owners, borrowed, arena)
+
+memory_uses c:Compiler, node:int, name:str, closure:bool, parent:int, position:int>bool
+  n := c.nodes[node]
+  if n.kind == "lambda"
+    for field:n.captures
+      if field.name == name
+        ret false
+  if n.kind == "name" and n.value == name
+    if parent < 0
+      ret false
+    p := c.nodes[parent]
+    if not (p.kind == "index" and position == 0 or p.kind == "call" and memory_read(p.value) and function_index(c, "", p.value) < 0 or has(["for", "fold"], p.kind) and position == 0 or p.kind == "invoke" and position == 0 and closure)
+      ret false
+  i := 0
+  for child:n.args
+    if not memory_uses(c, child, name, closure, node, i)
+      ret false
+    i += 1
+  for child:n.body
+    if not memory_uses(c, child, name, closure, node, 0)
+      ret false
+  for child:n.other
+    if not memory_uses(c, child, name, closure, node, 0)
+      ret false
+  ret true
+
+memory_mark_direct c:Compiler, node:int, name:str, lambda_node:int>void
+  n := c.nodes[node]
+  if n.kind == "index" and c.nodes[n.args[0]].kind == "name" and c.nodes[n.args[0]].value == name and c.storage[lambda_node] >= 0
+    i := c.nodes[n.args[1]]
+    if i.kind == "i64" and parse_i64(i.value) < c.storage[lambda_node]
+      c.direct[node] = -2
+  if n.kind == "invoke" and c.nodes[n.args[0]].kind == "name" and c.nodes[n.args[0]].value == name
+    c.direct[node] = lambda_node
+  for child:n.args
+    memory_mark_direct(c, child, name, lambda_node)
+  for child:n.body
+    memory_mark_direct(c, child, name, lambda_node)
+  for child:n.other
+    memory_mark_direct(c, child, name, lambda_node)
+
+memory_plan c:Compiler, node:int, body:[int], budget:[int], enabled:bool>void
+  n := c.nodes[node]
+  if n.kind == "var"
+    e := c.nodes[n.args[0]]
+    size := -1
+    closure := e.kind == "lambda"
+    if closure
+      for field:e.captures
+        if not has(["i64", "f64", "bool"], field.typ)
+          closure = false
+    if has(["[i64]", "[f64]", "[bool]"], n.typ)
+      if e.kind == "array"
+        size = len(e.args)
+      if e.kind == "call" and has(["fill", "range"], e.value) and c.nodes[e.args[0]].kind == "i64"
+        size = parse_i64(c.nodes[e.args[0]].value)
+    if closure or size >= 0
+      valid := memory_binding_count(c, body, n.value) == 1
+      for root:body
+        if not memory_uses(c, root, n.value, closure, -1, 0)
+          valid = false
+      amount := 4097
+      if size >= 0 and size <= 128
+        amount = size * 8
+        if n.typ == "[bool]"
+          amount = size
+      if closure
+        amount = len(e.captures) * 8
+      if amount == 0
+        amount = 8
+      if valid and enabled and (closure or size <= 128) and amount <= budget[0]
+        c.storage[n.args[0]] = size
+        budget[0] -= amount
+        if closure
+          c.storage[n.args[0]] = -2
+        for root:body
+          memory_mark_direct(c, root, n.value, n.args[0])
+  for child:n.body
+    memory_plan(c, child, body, budget, enabled)
+  for child:n.other
+    memory_plan(c, child, body, budget, enabled)
+
+# Allocation summary: recursion and unknown indirect/runtime calls are top.
+# It is intentionally independent of the concurrency builtin allowlist.
+memory_heap c:Compiler, node:int>bool
+  n := c.nodes[node]
+  if n.kind == "array" or n.kind == "lambda" and len(n.captures) > 0
+    if c.storage[node] == -1
+      ret true
+  if n.kind == "for" and coll_kind(c.nodes[n.args[0]].typ) != ""
+    ret true
+  if n.kind == "call"
+    fi := function_index(c, "", n.value)
+    if fi >= 0
+      if memory_summary(c, fi)
+        ret true
+    else
+      if record_index(c, n.value) < 0
+        if not has(["len", "sum", "count", "i64", "f64", "byte_at", "clock", "argi", "argc", "free", "move"], n.value) and c.storage[node] == -1
+          ret true
+  if n.kind == "method_call"
+    if n.target < 0 or coll_kind(c.nodes[n.args[0]].typ) != ""
+      ret true
+    if memory_summary(c, n.target)
+      ret true
+  if n.kind == "invoke" and c.direct[node] < 0
+    ret true
+  for child:n.args
+    if memory_heap(c, child)
+      ret true
+  for child:n.body
+    if memory_heap(c, child)
+      ret true
+  for child:n.other
+    if memory_heap(c, child)
+      ret true
+  ret false
+
+memory_summary c:Compiler, index:int>bool
+  state := c.summaries[index]
+  if state != 0
+    ret state != 2
+  c.summaries[index] = 1
+  heap := false
+  for node:c.funcs[index].body
+    if memory_heap(c, node)
+      heap = true
+  c.summaries[index] = 2
+  if heap
+    c.summaries[index] = 3
+  ret heap
+
+memory_check c:Compiler>void
+  required := false
+  for j:range(c.state[3])
+    if c.funcs[j].noalloc
+      required = true
+  i := 0
+  while i < c.state[3]
+    f := c.funcs[i]
+    memory_block(c, f.body, [], [], [], false)
+    budget := [4096]
+    for node:f.body
+      memory_plan(c, node, f.body, budget, c.state[22] == 0 or required)
+      memory_extra(c, node, f.body, c.state[22] == 0 or required)
+    i += 1
+  i = 0
+  while i < c.state[3]
+    heap := memory_summary(c, i)
+    if c.funcs[i].noalloc and heap
+      fail(c, "G120", "@noalloc contract cannot be proved: allocation, recursive or unknown effects", c.funcs[i].token)
+    i += 1
+
+memory_cleanup c:Compiler, text:str>void
+  c.cleanups[c.state[20]] = text
+  c.state[20] += 1
+
+memory_allocate c:Compiler, node:int, length:str, ct:str>str
+  typ := c.nodes[node].typ
+  if c.nodes[node].kind == "call" and c.direct[node] >= 0
+    ret temp(c, typ, cat(["g_reuse_atomic(v_", c.nodes[c.direct[node]].value, ", ", length, ", sizeof(", ct, "), ", location(c, c.nodes[node].token), ")"]))
+  if c.storage[node] >= 0
+    size := c.storage[node]
+    if size == 0
+      size = 1
+    storage := fresh(c)
+    emit_line(c, cat([ct, " ", storage, "[", str_i64(size), "];"]))
+    ret temp(c, typ, cat(["(g_array){", storage, ", ", length, "}"]))
+  alloc := "g_new"
+  if c.state[22] == 0 and has(["[i64]", "[f64]", "[bool]"], typ)
+    alloc = "g_new_atomic_uninit"
+  ret temp(c, typ, cat([alloc, "(", length, ", sizeof(", ct, "), ", location(c, c.nodes[node].token), ")"]))
+
+memory_emit_call c:Compiler, node:int>str
+  if c.direct[node] == -3
+    ret memory_fusion(c, node)
+  n := c.nodes[node]
+  if n.value == "free" or n.value == "move"
+    ret temp(c, n.typ, cat(["g_owned_", n.value, "(&v_", c.nodes[n.args[0]].value, ")"]))
+  length := emit_expr(c, n.args[0])
+  value := emit_expr(c, n.args[1])
+  ct := ctype(c.nodes[n.args[1]].typ)
+  alloc := "g_owned_new("
+  if n.value == "arena_fill"
+    alloc = cat(["g_arena_new(&", c.arenas[c.state[21] - 1], ", "])
+  result := temp(c, n.typ, cat([alloc, length, ", sizeof(", ct, "), ", location(c, n.token), ")"]))
+  i := fresh(c)
+  emit_line(c, cat(["for (int64_t ", i, "=0; ", i, "<", length, "; ++", i, ") ((", ct, "*)", result, ".data)[", i, "] = ", value, ";"]))
+  ret result
+
+memory_report c:Compiler>str
+  entries:[str] = []
+  i := 0
+  while i < c.state[3]
+    f := c.funcs[i]
+    heap := "false"
+    if c.summaries[i] != 2
+      heap = "true"
+    entries = push(entries, cat(["{\"function\":", jquote(cat([f.owner, ".", f.name])), ",\"heap\":", heap, ",\"reason\":\"recursive and unknown calls are conservative\"}"]))
+    i += 1
+  transforms:[str] = []
+  i = 0
+  while i < c.state[2]
+    n := c.nodes[i]
+    if n.kind == "var" and (prefix(n.typ, "[") or prefix(n.typ, "fn("))
+      accepted := "false"
+      reason := "unsupported layout, size, escape/unknown use or disabled"
+      if c.storage[n.args[0]] != -1
+        accepted = "true"
+        reason = "bounded storage with no escaping uses"
+      t := c.tokens[n.token]
+      transforms = push(transforms, cat(["{\"action\":\"stack\",\"accepted\":", accepted, ",\"file\":", jquote(t.path), ",\"line\":", str_i64(t.line), ",\"reason\":", jquote(reason), "}"]))
+    i += 1
+  ret cat(["{\"functions\":[", join(entries, len(entries), ","), "],\"transformations\":[", join(transforms, len(transforms), ","), "]}\n"])
+
+memory_reuse_uses c:Compiler, node:int, name:str, parent:int, position:int>bool
+  n := c.nodes[node]
+  if n.kind == "lambda"
+    for field:n.captures
+      if field.name == name
+        ret false
+  if n.kind == "set" and c.nodes[n.args[0]].kind == "name" and c.nodes[n.args[0]].value == name
+    e := c.nodes[n.args[1]]
+    if n.value != "=" or e.kind != "call" or e.value != "fill"
+      ret false
+  if n.kind == "name" and n.value == name
+    if parent < 0
+      ret false
+    p := c.nodes[parent]
+    if not (p.kind == "set" and position == 0 or p.kind == "index" and position == 0 or has(["for", "fold"], p.kind) and position == 0 or p.kind == "call" and has(["len", "sum", "count", "i64", "f64", "byte_at"], p.value) and function_index(c, "", p.value) < 0)
+      ret false
+  i := 0
+  for child:n.args
+    if not memory_reuse_uses(c, child, name, node, i)
+      ret false
+    i += 1
+  for child:n.body
+    if not memory_reuse_uses(c, child, name, node, 0)
+      ret false
+  for child:n.other
+    if not memory_reuse_uses(c, child, name, node, 0)
+      ret false
+  ret true
+
+memory_mark_reuse c:Compiler, node:int, binding:int>void
+  n := c.nodes[node]
+  if n.kind == "set" and c.nodes[n.args[0]].kind == "name" and c.nodes[n.args[0]].value == c.nodes[binding].value
+    c.direct[n.args[1]] = binding
+  for child:n.body
+    memory_mark_reuse(c, child, binding)
+  for child:n.other
+    memory_mark_reuse(c, child, binding)
+
+memory_extra c:Compiler, node:int, body:[int], enabled:bool>void
+  n := c.nodes[node]
+  if n.kind == "var" and has(["[i64]", "[f64]", "[bool]"], n.typ) and enabled
+    e := c.nodes[n.args[0]]
+    valid := memory_binding_count(c, body, n.value) == 1 and (e.kind == "array" or e.kind == "call" and has(["fill", "range", "clone", "managed"], e.value))
+    for root:body
+      if not memory_reuse_uses(c, root, n.value, -1, 0)
+        valid = false
+    if valid
+      for root:body
+        memory_mark_reuse(c, root, node)
+  if n.kind == "call" and has(["sum", "count"], n.value) and function_index(c, "", n.value) < 0 and enabled
+    e := c.nodes[n.args[0]]
+    if e.kind == "call" and has(["fill", "range"], e.value) and has(["[i64]", "[f64]", "[bool]"], e.typ)
+      c.direct[node] = -3
+      c.storage[n.args[0]] = -3
+  for child:n.args
+    memory_extra(c, child, body, enabled)
+  for child:n.body
+    memory_extra(c, child, body, enabled)
+  for child:n.other
+    memory_extra(c, child, body, enabled)
+
+memory_fusion c:Compiler, node:int>str
+  n := c.nodes[node]
+  e := c.nodes[n.args[0]]
+  length := emit_expr(c, e.args[0])
+  value := ""
+  if e.value == "fill"
+    value = emit_expr(c, e.args[1])
+  ct := ctype(slice(e.typ, 1, len(e.typ) - 1))
+  emit_line(c, cat(["(void)g_storage_bytes(", length, ", sizeof(", ct, "), ", location(c, e.token), ");"]))
+  result := temp(c, n.typ, "0")
+  i := fresh(c)
+  if e.value == "range"
+    value = i
+  emit_line(c, cat(["for (int64_t ", i, "=0; ", i, "<", length, "; ++", i, ") {"]))
+  if n.value == "count"
+    emit_line(c, cat(["if (", value, ") ++", result, ";"]))
+  else
+    emit_line(c, cat([result, " = ", arithmetic(c, "+", n.typ, result, value, n.token), ";"]))
+  emit_line(c, "}")
+  ret result
+
+# Names may repeat in disjoint scopes. Without binding IDs, reject these proofs.
+memory_binding_count c:Compiler, body:[int], name:str>int
+  count := 0
+  for index:body
+    n := c.nodes[index]
+    if has(["var", "for", "borrow"], n.kind) and n.value == name
+      count += 1
+    if n.kind == "case"
+      for token:n.bindings
+        if c.tokens[token].text == name
+          count += 1
+    count += memory_binding_count(c, n.body, name)
+    count += memory_binding_count(c, n.other, name)
+  ret count

@@ -58,6 +58,7 @@ class Function:
     static: bool = False
     private: bool = False
     type_params: list = field(default_factory=list)
+    noalloc: bool = False
 
 
 @dataclass
@@ -94,7 +95,7 @@ class Import:
     token: Token
 
 
-LEX = re.compile(r'"(?:[^"\\\r\n]|\\.)*"|[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[A-Za-z_][A-Za-z_0-9]*|==|!=|<=|>=|:=|\+=|-=|\*=|/=|%=|[.+*/%<>=!,:()\[\]>\-]')
+LEX = re.compile(r'"(?:[^"\\\r\n]|\\.)*"|[0-9]+(?:\.[0-9]+)?(?:[eE][+-]?[0-9]+)?|[A-Za-z_][A-Za-z_0-9]*|==|!=|<=|>=|:=|\+=|-=|\*=|/=|%=|[@.+*/%<>=!,:()\[\]>\-]')
 IDENT = re.compile(r"[A-Za-z_][A-Za-z_0-9]*\Z")
 RESERVED = {"if", "else", "while", "for", "ret", "unsafe", "scope", "true", "false", "and", "or", "not", "fold", "import", "from"}
 PREC = {"or": 1, "and": 2, "==": 3, "!=": 3, "<": 4, "<=": 4, ">": 4, ">=": 4,
@@ -125,6 +126,8 @@ def lex(source):
             if line[pos] == " ":
                 pos += 1
                 continue
+            if line[pos] == "@" and pos != width:
+                raise Diagnostic("G001", "annotation must precede a declaration", Token("@", number, pos + 1, pos + 2))
             match = LEX.match(line, pos)
             if not match:
                 raise Diagnostic("G001", "unexpected character or unterminated string", Token(line[pos], number, pos + 1, pos + 2))
@@ -216,8 +219,14 @@ class Parser:
                     and self.tokens[self.i + 2].text in {"NEWLINE", "["}):
                 result.append(self.record())
                 continue
+            contract = bool(self.accept("@"))
+            if contract:
+                self.need("noalloc")
+                self.accept("NEWLINE")
             name = self.name()
-            result.append(self.function(name))
+            fn = self.function(name)
+            fn.noalloc = contract
+            result.append(fn)
         return result
 
     def import_statement(self):
@@ -294,17 +303,23 @@ class Parser:
                 self.need("NEWLINE")
                 record.methods.append(Function(member.text, member, params, result, [], owner=name.text, mut=mut))
                 continue
+            contract = bool(self.accept("@"))
+            if contract:
+                self.need("noalloc")
+                self.accept("NEWLINE")
             private = bool(self.accept("private"))
             mut = bool(self.accept("mut"))
             static = bool(self.accept("static")) if not mut else False
             member = self.name()
             if self.accept(":"):
-                if mut or static:
+                if mut or static or contract:
                     raise Diagnostic("G002", "mut/static apply only to methods", member)
                 record.fields.append(Field(member.text, self.type(), member, private))
                 self.need("NEWLINE")
             else:
-                record.methods.append(self.function(member, name.text, mut, static, private))
+                method = self.function(member, name.text, mut, static, private)
+                method.noalloc = contract
+                record.methods.append(method)
         self.need("DEDENT")
         return record
 
@@ -319,6 +334,13 @@ class Parser:
 
     def statement(self):
         t = self.t
+        if self.accept("arena"):
+            return Stmt("arena", t, body=self.block())
+        if self.accept("borrow"):
+            name = self.name().text
+            self.need("=")
+            value = self.expr()
+            return Stmt("borrow", t, name, [value], self.block())
         if self.accept("match"):
             value = self.expr()
             self.need("NEWLINE")

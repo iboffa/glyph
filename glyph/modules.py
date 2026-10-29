@@ -128,7 +128,7 @@ def load_program(path):
                     stmt.value = (local(stmt.value[0], receiver), typ(stmt.value[1]))
                 if stmt.kind == 'case':
                     stmt.value = (stmt.value[0], [local(n, receiver) for n in stmt.value[1]])
-                if stmt.kind == 'for':
+                if stmt.kind in {'for', 'borrow'}:
                     stmt.value = local(stmt.value, receiver)
                 for arg in stmt.args:
                     expression(arg, receiver)

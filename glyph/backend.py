@@ -23,7 +23,7 @@ def ctype(typ):
         return "g_closure"
     if collection_type(typ):
         return "g_collection*"
-    if typ.startswith("["):
+    if typ.startswith("[") or typ.startswith("buffer["):
         return "g_array"
     if typ.startswith("*"):
         return ctype(typ[1:]) + "*"
@@ -37,7 +37,12 @@ def function_name(f):
 
 
 class Emitter:
-    def __init__(self):
+    def __init__(self, optimize=True, optimizations=None):
+        self.optimize = optimize
+        self.optimizations = set(optimizations) if optimizations is not None else {'stack', 'reuse', 'fusion', 'bounds', 'overflow', 'init'}
+        self.analysis = None
+        self.cleanups = []
+        self.arenas = []
         self.lines, self.serial, self.level = [], 0, 0
         self.functions = set()
         self.current = None
@@ -87,6 +92,8 @@ class Emitter:
 
     def arithmetic(self, op, typ, a, b, node):
         if typ == "i64":
+            if self.analysis and id(node) in self.analysis.unchecked:
+                return f"({a} {op} {b})"
             fn = {"+": "add", "-": "sub", "*": "mul", "/": "div", "%": "mod"}[op]
             return f"g_{fn}({a}, {b}, {self.loc(node)})"
         return f"({a} {op} {b})"
@@ -101,8 +108,13 @@ class Emitter:
             index = self.closure_ids[id(e)]
             env = "NULL"
             if e.target:
-                allocation = self.temp("[str]", f"g_new(1, sizeof(g_env_{index}), {loc})")
-                env = allocation + ".data"
+                if id(e) in self.analysis.stack:
+                    allocation = self.fresh()
+                    self.write(f"g_env_{index} {allocation};")
+                    env = f"(&{allocation})"
+                else:
+                    allocation = self.temp("[str]", f"g_new(1, sizeof(g_env_{index}), {loc})")
+                    env = allocation + ".data"
                 for name, captured_type in e.target:
                     self.write(f"((g_env_{index}*){env})->v_{name} = {self.variable(name)};")
             return self.temp(typ, f"(g_closure){{(void (*)(void))g_lambda_{index}, {env}}}")
@@ -112,6 +124,9 @@ class Emitter:
             params, result = fn_parts(e.args[0].typ)
             signature = ", ".join(["void *"] + [ctype(t) for t in params])
             values = ", ".join([callee + ".env"] + args)
+            if id(e) in self.analysis.direct:
+                index = self.closure_ids[id(self.analysis.direct[id(e)])]
+                return self.temp(typ, f"g_lambda_{index}({values})")
             return self.temp(typ, f"(({ctype(result)} (*)({signature})){callee}.code)({values})")
         if k == "str":
             raw = e.value.encode("utf-8")
@@ -151,7 +166,7 @@ class Emitter:
         if k == "array":
             values = [self.expr(a) for a in e.args]
             ct = ctype(typ[1:-1])
-            result = self.temp(typ, f"g_new({len(values)}, sizeof({ct}), {loc})")
+            result = self.allocate(e, str(len(values)), ct)
             for i, value in enumerate(values):
                 self.write(f"(({ct}*){result}.data)[{i}] = {value};")
             return result
@@ -232,8 +247,18 @@ class Emitter:
         if e.kind == "field":
             return f"({self.lvalue(e.args[0])}).m_{e.value}"
         a, i = [self.expr(x) for x in e.args]
-        checked = self.temp("i64", f"g_index({a}, {i}, {self.loc(e)})")
+        checked = i if id(e) in self.analysis.unchecked else self.temp("i64", f"g_index({a}, {i}, {self.loc(e)})")
         return f"(({ctype(e.typ)}*){a}.data)[{checked}]"
+
+    def allocate(self, e, n, ct):
+        if id(e) in self.analysis.reuse:
+            return self.temp(e.typ, f'g_reuse_atomic({self.variable(self.analysis.reuse[id(e)])}, {n}, sizeof({ct}), {self.loc(e)})')
+        if id(e) in self.analysis.stack:
+            storage = self.fresh()
+            self.write(f"{ct} {storage}[{max(1, self.analysis.stack[id(e)])}];")
+            return self.temp(e.typ, f"(g_array){{{storage}, {n}}}")
+        alloc = 'g_new_atomic_uninit' if self.optimize and 'init' in self.optimizations and e.typ[1:-1] in {'i64', 'f64', 'bool'} else 'g_new'
+        return self.temp(e.typ, f"{alloc}({n}, sizeof({ct}), {self.loc(e)})")
 
     def collection_method(self, e):
         args = [self.expr(x) for x in e.args]
@@ -265,6 +290,33 @@ class Emitter:
         return self.temp(e.typ, value)
 
     def call(self, e):
+        if id(e) in self.analysis.fused:
+            source = e.args[0]
+            values = [self.expr(a) for a in source.args]
+            n = values[0]
+            ct = ctype(source.typ[1:-1])
+            self.write(f"(void)g_storage_bytes({n}, sizeof({ct}), {self.loc(source)});")
+            result = self.temp(e.typ, "0.0" if e.typ == 'f64' else '0')
+            i = self.fresh()
+            item = i if source.value == 'range' else values[1]
+            self.write(f"for (int64_t {i}=0; {i}<{n}; ++{i}) {{")
+            if e.value == 'count':
+                self.write(f"if ({item}) ++{result};")
+            else:
+                self.write(f"{result} = {self.arithmetic('+', e.typ, result, item, e)};")
+            self.write("}")
+            return result
+        if e.value in {'move', 'free'}:
+            a = self.variable(e.args[0].value)
+            return self.temp(e.typ, f"g_owned_{e.value}(&{a})")
+        if e.value in {'arena_fill', 'owned_fill'}:
+            n, value = [self.expr(a) for a in e.args]
+            ct = ctype(e.args[1].typ)
+            alloc = f'g_arena_new(&{self.arenas[-1]}, ' if e.value == 'arena_fill' else 'g_owned_new('
+            result = self.temp(e.typ, f'{alloc}{n}, sizeof({ct}), {self.loc(e)})')
+            i = self.fresh()
+            self.write(f'for (int64_t {i}=0; {i}<{n}; ++{i}) (({ct}*){result}.data)[{i}] = {value};')
+            return result
         args = [self.expr(x) for x in e.args]
         name, typ, loc = e.value, e.typ, self.loc(e)
         a = args[0] if args else ""
@@ -313,16 +365,21 @@ class Emitter:
             value = f"g_std_{name}({', '.join([*args, loc])})"
         elif name == "len":
             value = f"{a}.len"
+        elif name == "range" and id(e) in self.analysis.stack:
+            result = self.allocate(e, a, 'int64_t')
+            i = self.fresh()
+            self.write(f"for (int64_t {i}=0; {i}<{a}; ++{i}) ((int64_t*){result}.data)[{i}] = {i};")
+            return result
         elif name in {"range", "argi"}:
             value = f"g_{name}({a}, {loc})"
         elif name == "clock":
             value = "g_clock()"
-        elif name == "clone":
+        elif name in {"clone", "managed"}:
             value = f"g_clone({a}, sizeof({ctype(typ[1:-1])}), {loc})"
         elif name in {"fill", "push"}:
             ct = ctype(typ[1:-1])
             n = a if name == "fill" else self.temp("i64", f"g_add({a}.len, 1, {loc})")
-            result = self.temp(typ, f"g_new({n}, sizeof({ct}), {loc})")
+            result = self.allocate(e, n, ct)
             if name == "push":
                 self.write(f"memcpy({result}.data, {a}.data, (size_t){a}.len*sizeof({ct}));")
                 self.write(f"(({ct}*){result}.data)[{a}.len] = {args[1]};")
@@ -359,11 +416,14 @@ class Emitter:
         return self.temp(typ, value)
 
     def block(self, body):
+        mark = len(self.cleanups)
         for s in body:
             if s.kind == "var":
                 value = self.expr(s.args[0])
                 name, typ = s.value
                 self.write(f"{ctype(typ)} v_{name} = {value};")
+                if typ.startswith("buffer["):
+                    self.cleanups.append(f"g_owned_free(&v_{name});")
             elif s.kind == "set":
                 left = self.lvalue(s.args[0])
                 old = self.temp(s.args[0].typ, left) if s.value != "=" else None
@@ -372,8 +432,8 @@ class Emitter:
                 self.write(f"{left} = {value};")
             elif s.kind == "ret":
                 value = self.expr(s.args[0]) if s.args else ""
-                for _ in range(self.scope_depth):
-                    self.write("g_scope_leave(g_scope_current);")
+                for cleanup in reversed(self.cleanups):
+                    self.write(cleanup)
                 self.write(f"return {value};")
             elif s.kind == "expr":
                 self.expr(s.args[0])
@@ -427,19 +487,37 @@ class Emitter:
                     self.write("}")
                 self.write("default: abort();")
                 self.write("}")
+            elif s.kind == "arena":
+                arena = self.fresh()
+                self.write(f"{{ g_arena {arena} = {{0}};")
+                self.arenas.append(arena)
+                self.cleanups.append(f"g_arena_leave(&{arena});")
+                self.block(s.body)
+                self.write(self.cleanups.pop())
+                self.arenas.pop()
+                self.write("}")
+            elif s.kind == "borrow":
+                self.write(f"{{ g_array v_{s.value} = {self.variable(s.args[0].value)};")
+                self.block(s.body)
+                self.write("}")
             elif s.kind == "scope":
                 scope = self.fresh()
                 self.write(f"{{ g_scope {scope} = {{0}}; g_scope_enter(&{scope});")
                 self.scope_depth += 1
+                self.cleanups.append("g_scope_leave(g_scope_current);")
                 self.block(s.body)
                 self.scope_depth -= 1
-                self.write("g_scope_leave(g_scope_current); }")
+                self.write(self.cleanups.pop() + " }")
             elif s.kind == "unsafe":
                 self.write("{")
                 self.level += 1
                 self.block(s.body)
                 self.level -= 1
                 self.write("}")
+
+        for cleanup in reversed(self.cleanups[mark:]):
+            self.write(cleanup)
+        del self.cleanups[mark:]
 
     def signature(self, f):
         params = [f"{ctype(t)} v_{n}" for n, t, _ in f.params]
@@ -448,6 +526,8 @@ class Emitter:
         return f"static {ctype(f.result)} {function_name(f)}({', '.join(params) or 'void'})"
 
     def emit(self, declarations, filename="<source>"):
+        from .analysis import Analysis
+        self.analysis = Analysis(declarations, self.optimize, self.optimizations)
         functions = [f for f in declarations if isinstance(f, Function)]
         records = {r.name: r for r in declarations if isinstance(r, Record)}
         self.records = records
@@ -623,7 +703,9 @@ def compiler():
     raise Diagnostic("G201", "install ziglang==0.14.1 or put clang on PATH", Token("", 1, 1, 1))
 
 
-def compile_c(source, output, optimization="2"):
+def compile_c(source, output, optimization="2", *, cc_override=None, **release_options):
+    from .release import flags
+    extra_flags = flags(**release_options)
     output = Path(output).resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     cache = Path(os.environ.get("GLYPH_CACHE_DIR", str(Path.cwd() / "build" / ".glyph-cache"))).resolve()
@@ -652,8 +734,9 @@ def compile_c(source, output, optimization="2"):
             raise Diagnostic("G201", "HTTP/SQLite builds require a system C compiler and libcurl/SQLite development libraries", Token("", 1, 1, 1))
         cc = [system_cc]
     else:
-        cc = compiler()
+        cc = [str(cc_override)] if cc_override else compiler()
     command = cc + ["-x", "c", str(Path(source).resolve()), "-std=c11", f"-O{optimization}", "-fno-fast-math", "-ffp-contract=off", "-o", str(output)]
+    command += extra_flags
     if threaded:
         command += ["-DGC_THREADS", "-pthread"]
         if sys.platform == "darwin":

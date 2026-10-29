@@ -2,7 +2,7 @@
 
 The environment initially had Python 3.12 and Node.js, no compiler on PATH, and an empty Git workspace. The implementation uses Python 3.11+ and pinned `ziglang==0.14.1`, whose `zig cc` includes Clang/LLVM and a linker. Standalone Clang is a fallback. The compiler frontend has no Python dependencies; benchmark dependencies are optional.
 
-Pipeline: UTF-8 source → indentation tokens with spans → recursive-descent statements/Pratt expressions → typed AST → explicitly sequenced C → Clang LLVM optimizer → native executable. There is no interpreter, Python runtime or VM in the output. The generated C includes the small runtime header and is left beside the executable for inspection. User identifiers receive separate `v_`/`f_` prefixes. String bytes are emitted with fixed-width octal escapes to avoid C source injection and escape-boundary ambiguity.
+Pipeline: UTF-8 source → indentation tokens with spans → recursive-descent statements/Pratt expressions → typed AST → typed analysis regions/storage decisions → explicitly sequenced C → Clang LLVM optimizer → native executable. There is no interpreter, Python runtime or VM in the output. The generated C includes the small runtime header and is left beside the executable for inspection. User identifiers receive separate `v_`/`f_` prefixes. String bytes are emitted with fixed-width octal escapes to avoid C source injection and escape-boundary ambiguity.
 
 In the reference Python frontend, `syntax.py` owns syntax and diagnostic data. `checker.py` owns types, lexical scopes, builtin signatures, unsafe checks and conservative return analysis. `backend.py` sequences potentially effectful expressions into temporaries; LLVM removes unnecessary temporaries. This intentionally avoids depending on C's unspecified argument evaluation order. Boolean short-circuit expressions lower to control flow. Array indexing and integer arithmetic lower to runtime helpers with source locations. `runtime.h` implements allocation, checked math, output and clocks. `formatter.py` is an AST printer, independent of type checking. `cli.py` supplies the installed `glyph` entry point.
 
@@ -119,3 +119,12 @@ the single-threaded build and do not start threads. Source-location state is
 thread-local, fatal diagnostic output is serialized, and unaudited resource
 subsystems are excluded by worker effect checks. See [the contract](CONCURRENCY.md)
 and [measured results](../benchmarks/results/macos-arm64-2026-10-27-concurrency/REPORT.md).
+
+## Allocation analysis and release builds
+
+`analysis.py` lowers typed expressions into source-located regions and computes
+conservative direct-call allocation/effect summaries. `memory.py` enforces the
+restricted arena and affine local-owner rules. The native compiler carries
+matching storage decisions beside its typed indexed nodes. See
+[Memory controls](MEMORY_CONTROLS.md) for proof limits and
+[Release optimization](RELEASE_OPTIMIZATION.md) for build flags and measurements.

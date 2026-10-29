@@ -8,7 +8,7 @@ from .concurrency import NAMES, analyze, safe_type
 from .collections import KINDS, KEYS, collection_type, parts, method_signature
 
 SCALARS = {"i64", "f64", "bool", "str"}
-BUILTINS = {"print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"}
+BUILTINS = {"arena_fill", "owned_fill", "free", "move", "managed", "print", "len", "range", "fill", "clone", "push", "argi", "clock", "ptr", "load", "store", "offset", "f64", "i64"}
 BUILTINS |= GUI_SIGNATURES.keys()
 BUILTINS |= STD_SIGNATURES.keys()
 BUILTINS |= RESULT_TYPES.keys()
@@ -42,6 +42,8 @@ class Checker:
             if not safe_type(typ[8:-1], self.records):
                 raise Diagnostic("G116", "channel payload must be recursively share-safe", token)
             return typ
+        if typ.startswith("buffer["):
+            raise Diagnostic("G121", "owned buffers are inferred primitive local bindings only", token)
         if typ.startswith("task["):
             raise Diagnostic("G117", "task handles are inferred local bindings only", token)
         fn = fn_parts(typ)
@@ -179,6 +181,10 @@ class Checker:
                 self.fail("G106", "not every path returns a value", f)
         self.current = None
         analyze(self)
+        from .memory import validate
+        from .analysis import Analysis
+        validate(self)
+        Analysis(self.declarations)
         return self.declarations
 
     def check_interfaces(self):
@@ -291,6 +297,15 @@ class Checker:
                 if len(seen) != len(union.variants):
                     self.fail("G115", "match must cover every variant", s)
                 returned = all_return
+            elif s.kind == "borrow":
+                typ = self.expr(s.args[0], env, unsafe)
+                if not typ.startswith("buffer[") or s.value in env:
+                    self.fail("G121", "borrow needs an owned buffer and a fresh binding", s)
+                inner = env.copy()
+                inner[s.value] = "[" + typ[7:-1] + "]"
+                returned = self.block(s.body, inner, result, unsafe)
+            elif s.kind == "arena":
+                returned = self.block(s.body, env.copy(), result, unsafe)
             elif s.kind == "scope":
                 returned = self.block(s.body, env.copy(), result, unsafe)
             elif s.kind == "unsafe":
@@ -483,6 +498,21 @@ class Checker:
 
     def call(self, e, env, unsafe, expected):
         name = e.value
+        if name in {"arena_fill", "owned_fill", "free", "move", "managed"}:
+            if len(e.args) != (2 if name.endswith("_fill") else 1):
+                self.fail("G107", "wrong memory operation arity", e)
+            types = [self.expr(a, env, unsafe) for a in e.args]
+            if name.endswith("_fill"):
+                if types[0] != "i64" or types[1] not in {"i64", "f64", "bool"}:
+                    self.fail("G121", "explicit storage supports int, f64 and bool only; managed references are unsupported", e)
+                return ("buffer[" if name == "owned_fill" else "[") + types[1] + "]"
+            if name == "managed":
+                if types[0] not in {"[i64]", "[f64]", "[bool]"}:
+                    self.fail("G121", "managed expects a primitive array", e)
+                return types[0]
+            if not types[0].startswith("buffer["):
+                self.fail("G121", "move/free require an owned buffer", e)
+            return types[0] if name == "move" else "void"
         if name == "channel":
             if len(e.args) != 1:
                 self.fail("G107", "channel expects capacity", e)

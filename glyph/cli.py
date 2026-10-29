@@ -20,10 +20,21 @@ def main(argv=None):
         p = commands.add_parser(name)
         p.add_argument("source", type=Path)
         p.add_argument("--json", action="store_true", help="emit JSON Lines diagnostics")
+        if name != "fmt":
+            p.add_argument("--opt-report", type=Path)
+            p.add_argument("--no-optimize", action="store_true")
         if name in {"build", "run"}:
             p.add_argument("-o", "--output", type=Path)
             p.add_argument("-O", choices=["0", "1", "2", "3"], default="2")
             p.add_argument("--emit-c", type=Path)
+            p.add_argument("--cc", type=Path)
+            p.add_argument("--lto", choices=['none', 'thin', 'full'], default='none')
+            p.add_argument("--cpu", choices=['portable', 'native'], default='portable')
+            p.add_argument("--profile-generate", type=Path)
+            p.add_argument("--profile-use", type=Path)
+            p.add_argument("--alloc-stats", action='store_true')
+            p.add_argument("--gc-timing", action='store_true')
+            p.add_argument("--zero-init", action='store_true')
         if name == "fmt":
             p.add_argument("--check", action="store_true")
     argv = list(sys.argv[1:] if argv is None else argv)
@@ -47,6 +58,13 @@ def main(argv=None):
             return 0
         program = load_program(args.source)
         functions = check(program)
+        if args.opt_report:
+            from .analysis import Analysis
+            report = args.opt_report.resolve()
+            if any(report == p or report.exists() and report.samefile(p) for p in program.paths):
+                raise Diagnostic("G004", "report must not overwrite a source", Token("", 1, 1, 1))
+            report.parent.mkdir(parents=True, exist_ok=True)
+            report.write_text(json.dumps(Analysis(functions, not args.no_optimize).report_data(), indent=2) + "\n")
         if args.command == "check":
             return 0
         output = args.output or Path("build") / (args.source.stem + (".exe" if os.name == "nt" else ""))
@@ -58,8 +76,8 @@ def main(argv=None):
         if aliases(cpath, output) or any(aliases(target, p) for target in (output, cpath) for p in program.paths):
             raise Diagnostic("G004", "source, generated C and executable paths must differ", Token("", 1, 1, 1))
         cpath.parent.mkdir(parents=True, exist_ok=True)
-        cpath.write_text(Emitter().emit(functions, args.source), encoding="utf-8")
-        compile_c(cpath, output, args.O)
+        cpath.write_text(Emitter(optimize=not args.no_optimize).emit(functions, args.source), encoding="utf-8")
+        compile_c(cpath, output, args.O, cc_override=args.cc, lto=args.lto, cpu=args.cpu, profile_generate=args.profile_generate, profile_use=args.profile_use, stats=args.alloc_stats, gc_timing=args.gc_timing, zero_init=args.zero_init or args.no_optimize)
         if args.command == "run":
             return subprocess.run([str(output), *runtime_args]).returncode
         return 0

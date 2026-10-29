@@ -90,6 +90,8 @@ def format_source(source):
                 text = "case " + s.value[0] + "(" + ", ".join(s.value[1]) + ")"
             elif s.kind in {"if", "while"}:
                 text = s.kind + " " + expression(s.args[0])
+            elif s.kind == "borrow":
+                text = "borrow " + s.value + " = " + expression(s.args[0])
             elif s.kind == "for":
                 text = f"for {s.value}:{expression(s.args[0])}"
             else:
@@ -107,7 +109,7 @@ def format_source(source):
     def function(f, depth):
         drain(f.token.line, depth)
         params = ", ".join(f"{n}:{t}" for n, t, _ in f.params)
-        modifiers = ("private " if f.private else "") + ("mut " if f.mut else "static " if f.static else "")
+        modifiers = ("@noalloc " if f.noalloc else "") + ("private " if f.private else "") + ("mut " if f.mut else "static " if f.static else "")
         header = "  " * depth + modifiers + f.name + type_params(f) + (" " + params if params else "") + (">" + f.result if f.result else "")
         # Preserve comments in a multiline function rather than moving them into its header.
         compact = len(f.body) == 1 and f.body[0].kind == "ret" and f.body[0].args and not any(f.token.line < n <= f.body[0].token.line for n, _ in comments)

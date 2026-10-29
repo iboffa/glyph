@@ -116,3 +116,11 @@ include this header and the bundled collector thread sources. The
 [concurrency verification report](../benchmarks/results/macos-arm64-2026-10-27-concurrency/REPORT.md)
 records native acceptance/diagnostics, C emission, three-stage fixed-point and
 packaged-runtime execution evidence without Python on PATH.
+
+## Allocation controls and release builds
+
+The native frontend also checks `@noalloc`, scoped primitive arenas, affine local
+owners and borrows, and applies bounded allocation optimizations. The native
+driver accepts the [release flags](RELEASE_OPTIMIZATION.md), including PGO/LTO,
+portable/native targeting, `--no-optimize`, `--opt-report`, `--alloc-stats`,
+`--gc-timing` and `--zero-init`. The [memory report](../benchmarks/results/macos-arm64-2026-10-28-memory/REPORT.md) retains fixed-point and differential evidence, including limits on native optimization reports.

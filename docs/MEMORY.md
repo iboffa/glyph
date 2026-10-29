@@ -2,8 +2,8 @@
 
 Glyph uses **automatic, nonmoving tracing garbage collection** for arrays and
 dynamically created strings. The bundled collector is Boehm–Demers–Weiser GC
-(BDWGC) 8.2.12. There are no new language keywords, ownership annotations, manual
-free calls or reference-count operations for the programmer to write.
+(BDWGC) 8.2.12. Ordinary programs need no ownership annotations or manual free calls. Optional
+checked memory controls are described at the end of this document.
 
 Records remain inline C struct values. Assignments and calls copy record values;
 array fields still share their backing storage. Arrays of numbers, booleans and
@@ -87,3 +87,11 @@ workers can pause when another thread collects. Thread safety is not ownership:
 shallow clones and record/closure snapshots still share referenced storage, so
 those graphs are rejected at concurrency boundaries. The CPU pool shuts down
 and joins at normal main completion; scoped threads join at each scope exit.
+
+## Explicit storage and compiler optimizations
+
+The original automatic-memory interface remains the default. See
+[allocation contracts and explicit storage](MEMORY_CONTROLS.md) for the new
+`@noalloc`, scoped primitive arenas, owned buffers and conservative allocation
+optimizations. [Release optimization](RELEASE_OPTIMIZATION.md) documents PGO,
+LTO, portable/native targeting and optional allocation/collector instrumentation.

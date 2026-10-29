@@ -1,0 +1,19 @@
+@noalloc total x:int>int
+  values := fill(4, x)
+  ret sum(values)
+
+copy_values n:int>[int]
+  arena
+    values := arena_fill(n, 3)
+    values[0] = 7
+    ret managed(values)
+
+main>void
+  print(total(5))
+  print(sum(copy_values(4)))
+  owner := owned_fill(4, 2)
+  borrow values = owner
+    values[0] = 9
+    print(sum(values))
+  next := move(owner)
+  free(next)
